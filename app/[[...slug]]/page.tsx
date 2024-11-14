@@ -2,6 +2,8 @@ import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
+import { Styles } from "../(extras)/styles";
+import { getSettings } from "@/lib/wp/settings";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -25,6 +27,7 @@ export default async function Post(props: NextProps) {
 
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
+  const settings = await getSettings();
   // return (
   //   <>
   //     {/* <div className="flex pb-[20px]" style={{ marginBottom: "100px" }}>
@@ -37,6 +40,7 @@ export default async function Post(props: NextProps) {
     <main data-pageurl={post.slug.slug} data-postid={post.id}>
       {post.content && <BlockParser blocks={post.content} />}
       <NPAdminBar postID={post.id} />
+      <Styles settings={settings} />
     </main>
   );
 }

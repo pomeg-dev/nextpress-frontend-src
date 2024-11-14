@@ -3,10 +3,12 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export async function getSettings() {
   const url = `${API_URL}/wp-json/nextpress/settings`;
 
+  console.log('SETTINGS URL:', url);
+
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["settings"] },
-    cache: "no-cache",
+    cache: "force-cache",
   });
 
   if (!response.ok) {

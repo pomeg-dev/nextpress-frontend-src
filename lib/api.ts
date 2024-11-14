@@ -5,7 +5,7 @@ const cacheControl: RequestCache = "force-cache";
 
 export async function getPostByPath(path: string) {
   try {
-    let url = `${API_URL}wp-json/nextpress/router/${path}`;
+    let url = `${API_URL}/wp-json/nextpress/router/${path}`;
     const response = await fetch(url, {
       method: "GET",
       cache: cacheControl,
@@ -20,7 +20,7 @@ export async function getPostByPath(path: string) {
 
 export async function getAllPages() {
   try {
-    const response = await fetch(`${API_URL}wp-json/wp/v2/pages/`, {
+    const response = await fetch(`${API_URL}/wp-json/wp/v2/pages/`, {
       method: "GET",
       cache: cacheControl,
       next: { tags: ["posts"] },
@@ -37,7 +37,7 @@ export async function getPage(req: any) {
     if (!isNaN(req)) {
       //if it is a number (post id)
       const response = await fetch(
-        `${API_URL}wp-json/wp/v2/pages/${req.toString()}`,
+        `${API_URL}/wp-json/wp/v2/pages/${req.toString()}`,
         {
           method: "GET",
           cache: cacheControl,
@@ -49,7 +49,7 @@ export async function getPage(req: any) {
     } else {
       //if its a slug
       const response = await fetch(
-        `${API_URL}wp-json/wp/v2/pages?slug=${req}`,
+        `${API_URL}/wp-json/wp/v2/pages?slug=${req}`,
         {
           method: "GET",
           cache: cacheControl,
@@ -101,7 +101,7 @@ export async function getPostBySlug(slug: string | undefined) {
 export async function getAttachment(id: number | string) {
   try {
     const response = await fetch(
-      `${API_URL}wp-json/wp/v2/media/${id.toString()}`,
+      `${API_URL}/wp-json/wp/v2/media/${id.toString()}`,
       {
         method: "GET",
         cache: cacheControl,
@@ -116,7 +116,7 @@ export async function getAttachment(id: number | string) {
 
 export async function getPosts() {
   try {
-    const response = await fetch(`${API_URL}wp-json/wp/v2/posts`, {
+    const response = await fetch(`${API_URL}/wp-json/wp/v2/posts`, {
       method: "GET",
       next: { tags: ["posts"] },
       cache: cacheControl,
@@ -130,7 +130,7 @@ export async function getPosts() {
 
 export async function getAllPostsArray(slug?: string, includeDrafts?: boolean) {
   try {
-    let url = `${API_URL}wp-json/next-gutenberg/posts?slug=${slug}`;
+    let url = `${API_URL}/wp-json/next-gutenberg/posts?slug=${slug}`;
     if (includeDrafts) url += "&include_drafts=true";
     const response = await fetch(url, {
       method: "GET",
@@ -165,7 +165,7 @@ export async function getMenu(slug: string) {
 export async function getAllMenus(slug?: string) {
   try {
     const response = await fetch(
-      `${API_URL}wp-json/next-gutenberg/menus?slugstring=${slug}`,
+      `${API_URL}/wp-json/next-gutenberg/menus?slugstring=${slug}`,
       {
         method: "GET",
         next: { tags: ["menus"] },
@@ -181,7 +181,7 @@ export async function getAllMenus(slug?: string) {
 
 export async function getSettings(slug?: string) {
   try {
-    const apiUrl = `${API_URL}wp-json/next-gutenberg/settings?slug=${slug}`;
+    const apiUrl = `${API_URL}/wp-json/next-gutenberg/settings?slug=${slug}`;
 
     const response = await fetch(apiUrl, {
       method: "GET",
@@ -203,7 +203,7 @@ export async function getSettings(slug?: string) {
 export async function getSettingsByPostId(id: number) {
   try {
     const response = await fetch(
-      `${API_URL}wp-json/next-gutenberg/settings/${id}`,
+      `${API_URL}/wp-json/next-gutenberg/settings/${id}`,
       {
         method: "GET",
         next: { tags: ["settings", "posts"] },
