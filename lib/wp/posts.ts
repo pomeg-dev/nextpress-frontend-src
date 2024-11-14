@@ -1,4 +1,4 @@
-import { WPQuery } from "lib/types";
+import { WPQuery } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -94,4 +94,46 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
 
   const res: DefaultTemplateContent = await response.json();
   return res;
+}
+
+export async function getRestPosts(
+  postType: string = 'posts',
+  params?: any,
+  withHeaders: boolean = false
+) {
+  const searchParams = params ? '?' + new URLSearchParams(params).toString() : '';
+  try {
+    const response = await fetch(`${API_URL}/wp-json/wp/v2/${postType}${searchParams}`, {
+      method: "GET",
+      next: { tags: ["posts"] },
+      cache: "force-cache",
+    });
+    
+    if (withHeaders) {
+      const res = {
+        headers: response.headers,
+        data: await response.json(),
+      };
+      return res;
+    } else {
+      const  res = await response.json();
+      return res;
+    }
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+export async function getTaxTerms(taxonomy: string) {
+  try {
+    const response = await fetch(`${API_URL}/wp-json/wp/v2/${taxonomy}`, {
+      method: "GET",
+      next: { tags: ["posts"] },
+      cache: "force-cache",
+    });
+    const res = await response.json();
+    return res;
+  } catch (error) {
+    console.error(error);
+  }
 }
