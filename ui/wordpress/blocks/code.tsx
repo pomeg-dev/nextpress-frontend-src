@@ -1,5 +1,5 @@
 import React from "react";
-import { Block } from "../../../lib/types";
+import { Block } from "@/lib/types";
 import Parser from "html-react-parser";
 
 interface CodeProps extends Block {

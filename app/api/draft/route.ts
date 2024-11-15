@@ -4,7 +4,7 @@ export const dynamicParams = true;
 export const revalidate = false;
 export const fetchCache = "auto";
 
-import { getPostByID, getPostByPath } from "lib/api";
+import { getPostByID, getPostByPath } from "@/lib/api";
 import { draftMode } from "next/headers";
 import { redirect } from "next/navigation";
 

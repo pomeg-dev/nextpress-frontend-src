@@ -1,5 +1,5 @@
 import React from "react";
-import { Block } from "../../../lib/types";
+import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
 import Parser from "html-react-parser";
 

@@ -1,7 +1,7 @@
 // THIS IS USED FOR core/block block. used in reusable blocks and patterns
 
 import React from "react";
-import { Block } from "../../../lib/types";
+import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
 
 type CoreBlockProps = Block & {

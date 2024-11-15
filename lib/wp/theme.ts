@@ -1,4 +1,4 @@
-import { WPQuery } from "lib/types";
+import { WPQuery } from "@/lib/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 

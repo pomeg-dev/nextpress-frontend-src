@@ -1,4 +1,4 @@
-import { getSettings } from "lib/api";
+import { getSettings } from "@/lib/api";
 import { MetadataRoute } from "next";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {

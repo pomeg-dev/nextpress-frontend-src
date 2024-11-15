@@ -2,7 +2,7 @@
 
 import React from "react";
 import * as Fallback from "./fallback";
-import { Block } from "../lib/types";
+import { Block } from "@/lib/types";
 import fs from "fs";
 import path from "path";
 
@@ -39,7 +39,7 @@ const importComponent = async (
   isThemeComponent: boolean = false
 ): Promise<ImportedComponent> => {
   try {
-    let module;
+    let npModule;
 
     if (isThemeComponent) {
       // Check if the theme path exists and is a directory
@@ -51,12 +51,12 @@ const importComponent = async (
       if (!isDirectory(themePath)) {
         throw new Error(`Theme directory not found: ${themePath}`);
       }
-      module = await import(`../../themes/${componentPath}`);
+      npModule = await import(`../../themes/${componentPath}`);
     } else {
-      module = await import(`./${componentPath}`);
+      npModule = await import(`./${componentPath}`);
     }
 
-    return getComponent(module);
+    return getComponent(npModule);
   } catch (error) {
     console.error(`Failed to import component: ${componentPath}`, error);
     console.error("Import path attempted:", componentPath);

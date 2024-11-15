@@ -1,4 +1,4 @@
-import { getSettings } from "lib/api";
+import { getSettings } from "@/lib/api";
 import { ImageResponse } from "next/og";
 
 // Route segment config
