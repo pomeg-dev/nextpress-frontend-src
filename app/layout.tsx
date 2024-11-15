@@ -5,7 +5,7 @@ import { cookies } from "next/headers";
 import "../ui/globals.scss";
 import { getDefaultTemplate } from "@/lib/wp/posts";
 import { getBlockTheme } from "@/lib/wp/theme";
-import { fontVariables } from "themes/font-loader";
+import { fontVariables } from "@themes/fonts/font-loader";
 
 export default async function Layout({
   children,
