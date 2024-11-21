@@ -4,8 +4,10 @@ import { getPosts, getPostByPath } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
+import { decode } from "html-entities";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
+
 
 type NextProps = {
   params: {
@@ -24,10 +26,11 @@ export default async function Post(props: NextProps) {
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
-
+  
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
+  
   // return (
   //   <>
   //     {/* <div className="flex pb-[20px]" style={{ marginBottom: "100px" }}>
@@ -52,25 +55,34 @@ export async function generateStaticParams() {
   }));
 }
 
-// export async function generateMetadata(props: PostProps) {
-//   const { slug } = props.params;
-//   const path = Array.isArray(slug) ? slug.join("/") : "";
-//   const post = await getPostByPath(path);
-//   const settings = await getSettings(path);
-//   const frontendDomainURL =
-//     settings.webhook_site_url || "http://localhost:3000";
+export async function generateMetadata(props: NextProps) {
+  const { slug } = props.params;
 
-//   if (!post) return null;
+  //dont run for favicon, api, status requests
+  if (slug && slug[0] === "favicon.ico") return null;
+  if (slug && slug[0] === "api") return null;
+  if (slug && slug[0] === "status") return null;
 
-//   if (post.yoastHeadJSON) {
-//     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
-//     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
-//     if (!path || path == "")
-//       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
-//     else
-//       post.yoastHeadJSON.alternates = {
-//         canonical: `${frontendDomainURL}/${path}`,
-//       };
-//     return post.yoastHeadJSON;
-//   } else return null;
-// }
+  const path = slug ? slug.join("/") : "";
+  const post = await getPostByPath(path);
+  const settings = await getSettings();
+
+  let frontendDomainURL = "http://localhost:3000";
+  if (settings.blocks_api_url) {
+    frontendDomainURL = settings.blocks_api_url.replace('/api/blocks', '');
+  }
+
+  if (!post) return null;
+
+  if (post.yoastHeadJSON) {
+    post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
+    post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
+    if (!path || path == "")
+      post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
+    else
+      post.yoastHeadJSON.alternates = {
+        canonical: `${frontendDomainURL}/${path}`,
+      };
+    return post.yoastHeadJSON;
+  } else return null;
+}
