@@ -40,11 +40,13 @@ export default async function Post(props: NextProps) {
   //   </>
   // );
   return (
-    <main data-pageurl={post.slug.slug} data-postid={post.id}>
-      {post.content && <BlockParser blocks={post.content} />}
+    <>
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
-    </main>
+      <main data-pageurl={post.slug.slug} data-postid={post.id}>
+        {post.content && <BlockParser blocks={post.content} />}
+      </main>
+    </>
   );
 }
 
