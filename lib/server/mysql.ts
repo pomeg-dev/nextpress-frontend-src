@@ -2,10 +2,10 @@ import mysql, { Pool, PoolConnection } from "mysql2/promise";
 import async from "async";
 
 const dbConfig = {
-  host: "bausch-sales-customer-calls.cbxd002eofiz.us-east-1.rds.amazonaws.com",
-  database: "bausch",
-  user: "admin",
-  password: "5rzO!owyosCyC8TQsqiwi%Z7V^r#",
+  host: process.env.NEXT_PUBLIC_SQL_HOST,
+  database: process.env.NEXT_PUBLIC_SQL_DB,
+  user: process.env.NEXT_PUBLIC_SQL_USER,
+  password: process.env.NEXT_PUBLIC_SQL_PASS,
 };
 
 const pool: Pool = mysql.createPool({
