@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Verify the JWT from Salesforce!
+    // Verify the JWT from Salesforce
     const verified = await jwtVerify(
       token,
       new TextEncoder().encode(process.env.JWT_SECRET_KEY!)
