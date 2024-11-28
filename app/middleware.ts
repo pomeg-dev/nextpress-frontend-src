@@ -1,31 +1,46 @@
-// middleware.ts
-import { NextResponse } from "next/server";
-import { NextRequest } from "next/server";
-import { jwtVerify } from "jose";
+import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 
-export async function middleware(request: NextRequest) {
-  // Skip auth check for public routes
-  if (request.nextUrl.pathname.startsWith("/api/auth")) {
-    return NextResponse.next();
-  }
+const SECRET_KEY = "your-very-secure-and-randomly-generated-secret-key";
 
-  const token = request.cookies.get("elite_session");
+export function middleware(req: NextRequest) {
+  const { searchParams } = new URL(req.url);
+  const token = searchParams.get("token");
 
+  // Log if no token is found in the request
   if (!token) {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
+    console.log("No token found in the request URL.");
+    return NextResponse.redirect("https://oraportal.com/login");
   }
 
   try {
-    await jwtVerify(
-      token.value,
-      new TextEncoder().encode(process.env.JWT_SECRET_KEY!)
+    // Log token before verification
+    console.log("Received token:", token);
+
+    // Verify the token
+    const decoded = jwt.verify(token, SECRET_KEY);
+
+    // Log the decoded token to inspect its contents
+    console.log("Decoded token:", decoded);
+
+    // // Check group membership
+    // if (decoded.group !== "Elite Access Group") {
+    //   console.log(
+    //     "User is not in the 'Elite Access Group'. Redirecting to no-access page."
+    //   );
+    //   return NextResponse.redirect("https://oraportal.com/no-access");
+    // }
+
+    // Log success when the user is allowed access
+    console.log(
+      "User is in the 'Elite Access Group'. Allowing access to elite.oraportal.com."
     );
+
+    // Allow access to elite.oraportal.com
     return NextResponse.next();
-  } catch (error) {
-    return NextResponse.redirect(new URL("/unauthorized", request.url));
+  } catch (err) {
+    // Log the error message when verification fails
+    console.error("Invalid token:", err.message);
+    return NextResponse.redirect("https://oraportal.com/login");
   }
 }
-
-export const config = {
-  matcher: ["/((?!_next/static|favicon.ico|unauthorized).*)"],
-};
