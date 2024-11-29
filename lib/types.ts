@@ -1,4 +1,5 @@
 export type Post = {
+  acf_data: any;
   id: number;
   slug: Slug;
   type: PostType;
@@ -8,6 +9,7 @@ export type Post = {
   excerpt: string;
   image: PostImage;
   categories: PostCategory[];
+  category_names: string[];
   template: Template;
   tags: PostTag[];
   related_posts: number[];
@@ -95,6 +97,7 @@ export type WPQuery = {
     | "relevance"
     | "slug"
     | "include_slugs"
+    | "post__in"
     | "title";
   slug?: string[];
   status?: string[];
