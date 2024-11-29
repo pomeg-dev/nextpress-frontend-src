@@ -44,7 +44,11 @@ export async function middleware(req: NextRequest) {
     );
     return NextResponse.next();
   } catch (err) {
-    console.error("Invalid token:", err.message);
+    if (err instanceof Error) {
+      console.error("Invalid token:", err.message);
+    } else {
+      console.error("Invalid token:", err);
+    }
     return NextResponse.redirect("https://oraportal.com/login");
   }
 }
