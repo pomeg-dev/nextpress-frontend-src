@@ -6,8 +6,9 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const token = searchParams.get("token");
 
+  //give message if token is not present
   if (!token) {
-    return NextResponse.redirect("/unauthorized");
+    return NextResponse.json({ error: "Token is required" }, { status: 400 });
   }
 
   try {
