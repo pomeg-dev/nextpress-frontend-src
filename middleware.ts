@@ -19,10 +19,10 @@ export async function middleware(req: NextRequest) {
   const token = searchParams.get("token");
   console.log("url", req.url);
 
-  if (!token) {
-    console.log("No token found in the request URL.");
-    return NextResponse.redirect("https://oraportal.com/login");
-  }
+  // if (!token) {
+  //   console.log("No token found in the request URL.");
+  //   return NextResponse.redirect("https://oraportal.com/login");
+  // }
 
   console.log("Received token:", token);
 
