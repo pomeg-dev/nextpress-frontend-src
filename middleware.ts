@@ -1,77 +1,54 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { jwtVerify } from "jose";
 
 const SECRET_KEY = new TextEncoder().encode(
-  process.env.JWT_SECRET_KEY ||
-    "your-very-secure-and-randomly-generated-secret-key"
+  "your-very-secure-and-randomly-generated-secret-key"
 );
 
-// Define allowed paths that don't require authentication
-const PUBLIC_PATHS = ["/login", "/api/auth"];
+export async function middleware(req: NextRequest) {
+  const { pathname, searchParams } = new URL(req.url);
 
-export async function middleware(request: NextRequest) {
-  // Temporarily disable token checking by just passing through all requests
-  return NextResponse.next();
-
-  // Original implementation below, commented out for now
-  /*
-  const { pathname } = request.nextUrl;
-
-  if (PUBLIC_PATHS.some(path => pathname.startsWith(path))) {
+  // Ignore requests for static assets (like images, CSS, JS)
+  if (
+    pathname.startsWith("/_next/static") ||
+    pathname.startsWith("/favicon.ico")
+  ) {
     return NextResponse.next();
   }
 
-  const token = request.nextUrl.searchParams.get('token');
+  const token = searchParams.get("token");
+  console.log("url", req.url);
 
   if (!token) {
-    return new NextResponse(
-      JSON.stringify({ error: 'Authentication token is required' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+    console.log("No token found in the request URL.");
+    return NextResponse.next();
   }
 
+  console.log("Received token:", token);
+
   try {
+    // Use jose to verify the token
     const { payload } = await jwtVerify(token, SECRET_KEY);
     console.log("Decoded token:", payload);
 
-    const userGroups = payload.groups as string[] || [];
-    const requiredGroup = 'required-group-name';
-
-    if (!userGroups.includes(requiredGroup)) {
-      return new NextResponse(
-        JSON.stringify({ error: 'Insufficient permissions' }),
-        {
-          status: 403,
-          headers: { 'Content-Type': 'application/json' },
-        }
+    // Check group membership
+    if (payload.buyerGroup !== "Elite Access Group") {
+      console.log(
+        "User is not in the 'Elite Access Group'. Redirecting to no-access page."
       );
+      return NextResponse.redirect("https://oraportal.com/no-access");
     }
 
-    const requestHeaders = new Headers(request.headers);
-    requestHeaders.set('x-user-payload', JSON.stringify(payload));
-
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-  } catch (error) {
-    console.error('Token verification failed:', error);
-    return new NextResponse(
-      JSON.stringify({ error: 'Invalid authentication token' }),
-      {
-        status: 401,
-        headers: { 'Content-Type': 'application/json' },
-      }
+    console.log(
+      "User is in the 'Elite Access Group'. Allowing access to elite.oraportal.com."
     );
+    return NextResponse.next();
+  } catch (err) {
+    if (err instanceof Error) {
+      console.error("Invalid token:", err.message);
+    } else {
+      console.error("Invalid token:", err);
+    }
+    return NextResponse.redirect("https://oraportal.com/login");
   }
-  */
 }
-
-export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
-};
