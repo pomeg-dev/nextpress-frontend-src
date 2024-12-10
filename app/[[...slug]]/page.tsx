@@ -22,10 +22,13 @@ type NextProps = {
 export default async function Post(props: NextProps) {
   const { slug } = props.params;
 
+  console.log('slug', slug);
+
   //dont run for favicon, api, status requests
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
+  if (slug && slug[0] === "draft") return null;
   
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
@@ -64,6 +67,7 @@ export async function generateMetadata(props: NextProps) {
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
+  if (slug && slug[0] === "draft") return null;
 
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
