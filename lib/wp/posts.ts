@@ -53,11 +53,16 @@ export async function getPosts(params: GetPostsParams = {}) {
 
 export async function getPostByPath(
   path?: string,
-  includeContent: boolean = true
+  includeContent: boolean = true,
+  isDraft: boolean = false,
 ) {
-  const url = `${API_URL}/wp-json/nextpress/router/${
-    path ? path : ""
-  }?include_content=${includeContent}`;
+  const baseUrl = `${API_URL}/wp-json/nextpress/router`;
+  const fullPath = path && !isDraft ? `/${path}` : "";
+  const queryParams = new URLSearchParams({
+    ...(includeContent && { include_content: includeContent.toString() }),
+    ...(isDraft && { p: path })
+  });
+  const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
 
   const response = await fetch(url, {
     method: "GET",

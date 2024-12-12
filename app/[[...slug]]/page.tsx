@@ -27,7 +27,12 @@ export default async function Post(props: NextProps) {
   if (slug && slug[0] === "status") return null;
 
   const path = slug ? slug.join("/") : "";
-  const post = await getPostByPath(path);
+  let post;
+  if (slug && slug[0] === "draft") {
+    post = await getPostByPath(slug[1], true, true);
+  } else {
+    post = await getPostByPath(path);
+  }
   const settings = await getSettings();
 
   // return (
@@ -63,6 +68,7 @@ export async function generateMetadata(props: NextProps) {
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
+  if (slug && slug[0] === "draft") return null;
 
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
