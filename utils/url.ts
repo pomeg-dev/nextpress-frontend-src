@@ -18,6 +18,7 @@ export function getBaseURL(url: string) {
 
 // function which is run on every link to replace wordpress urls with next ones (header/mobile nav and footer navs).
 export function linkFilter(linkUrl: string, API_URL: any) {
+  if (!linkUrl) return "#";
   let newLinkUrl = linkUrl;
   //first replace the API_URL with the base url
   newLinkUrl = linkUrl.replace(API_URL, "");
