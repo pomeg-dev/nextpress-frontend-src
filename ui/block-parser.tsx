@@ -15,8 +15,8 @@ type ImportedComponent = React.ComponentType<
 export function BlockParser({ blocks }: { blocks: Block[] }) {
   return (
     <>
-      {blocks.map((block) => (
-        <BlockRenderer key={block.id} block={block} />
+      {blocks.map((block, index) => (
+        <BlockRenderer key={block.id ?? index} block={block} />
       ))}
     </>
   );

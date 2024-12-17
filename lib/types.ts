@@ -65,6 +65,7 @@ export type Block = {
   attrs?: Record<string, any>;
   innerBlocks: Block[];
   parent: number;
+  data: any;
 };
 
 export type BlockType = {
