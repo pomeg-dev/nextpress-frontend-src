@@ -22,7 +22,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
       {innerBlocks &&
         backgroundColor ? (
           <div
-            className="mb-4 p-8"
+            className="mb-6 p-8"
             style={{
               backgroundColor: 
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
