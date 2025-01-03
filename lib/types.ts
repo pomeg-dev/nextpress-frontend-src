@@ -3,6 +3,7 @@ export type Post = {
   id: number;
   slug: Slug;
   type: PostType;
+  path: string;
   status: string;
   date: Date;
   title: string;
