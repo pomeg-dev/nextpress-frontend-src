@@ -1,5 +1,6 @@
 export type Post = {
   acf_data: any;
+  breadcrumbs: string;
   id: number;
   slug: Slug;
   type: PostType;
