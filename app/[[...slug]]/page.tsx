@@ -1,3 +1,4 @@
+import cookie from 'cookie';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath } from "@/lib/wp/posts";
