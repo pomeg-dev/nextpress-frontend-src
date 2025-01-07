@@ -116,3 +116,32 @@ export async function resetPassword(params: ResetParams) {
   const res = await response.json();
   return res;
 }
+
+interface RegisterParams {
+  username: FormDataEntryValue | null;
+  email: FormDataEntryValue | null;
+  password: FormDataEntryValue | null;
+}
+
+export async function registerUser(params: RegisterParams) {
+  const url = `${WP_API_URL}/wp-json/nextpress/register`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    next: { tags: ["users"] },
+    cache: "no-store",
+    body: JSON.stringify(params),
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    console.log(url);
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const res = await response.json();
+  return res;
+}
