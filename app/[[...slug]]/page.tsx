@@ -1,4 +1,3 @@
-import cookie from 'cookie';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath } from "@/lib/wp/posts";
@@ -6,6 +5,7 @@ import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
+import { GatedPost } from "../(extras)/gated-post";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -46,6 +46,7 @@ export default async function Post(props: NextProps) {
   // );
   return (
     <>
+      {settings.enable_login_redirect && <GatedPost settings={settings} />}
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
       <main data-pageurl={post.slug.slug} data-postid={post.id}>
