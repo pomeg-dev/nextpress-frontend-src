@@ -1,7 +1,7 @@
 "use client";
 
-import { getLoginStatus } from "@/lib/wp/user-flow";
-import { getCookie } from "@/utils/cookies";
+import { getLoginStatus, logout } from "@/lib/wp/user-flow";
+import { deleteWPCookies, getCookie } from "@/utils/cookies";
 import { useEffect, useState } from "react";
 
 export function NPAdminBar({ postID }: { postID: number }) {
@@ -9,6 +9,12 @@ export function NPAdminBar({ postID }: { postID: number }) {
   const [userId, setUserId] = useState(0);
   const [blogUrl, setBlogUrl] = useState('');
   const [blogId, setBlogId] = useState('');
+
+  const handleLogout = () => {
+    deleteWPCookies();
+    logout();
+    window.location.reload();
+  };
 
   useEffect(() => {
     const token = getCookie('jwt_token');
@@ -35,26 +41,31 @@ export function NPAdminBar({ postID }: { postID: number }) {
   if (!loggedIn) return null;
 
   return (
-    <div className="np-admin-bar fixed bottom-0 left-0 z-50 w-full bg-[#0073aa] py-2 text-center text-white">
-      <div style={{ marginBottom: "5px" }}>
+    <div className="np-admin-bar fixed bottom-0 left-0 z-50 flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
+      <div>
         <span>
-          Site {blogId} | User ID: {userId}
+          Site: {blogId} | User ID: {userId}
         </span>
+        <a
+          href={`${blogUrl}/wp-admin`}
+          className="ml-4 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Dashboard
+        </a>
         <a
           href={
             `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit`
           }
-          style={{
-            color: "white",
-            textDecoration: "underline",
-            marginLeft: "10px",
-          }}
+          className="ml-4 underline"
           target="_blank"
           rel="noopener noreferrer"
         >
           Edit this page on Site {blogId}
         </a>
       </div>
+      <span className="cursor-pointer underline" onClick={handleLogout}>Logout</span>
     </div>
   );
 }
