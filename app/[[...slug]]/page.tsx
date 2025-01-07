@@ -36,14 +36,6 @@ export default async function Post(props: NextProps) {
   }
   const settings = await getSettings();
 
-  // return (
-  //   <>
-  //     {/* <div className="flex pb-[20px]" style={{ marginBottom: "100px" }}>
-  //       {JSON.stringify(post.template.before_content)}
-  //     </div> */}
-  //     <div className="pb-[20px]">{JSON.stringify(post.content)}</div>
-  //   </>
-  // );
   return (
     <>
       {settings.enable_login_redirect && <GatedPost settings={settings} />}

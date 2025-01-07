@@ -2,28 +2,41 @@
 
 import { getLoginStatus } from '@/lib/wp/user-flow';
 import { getCookie } from '@/utils/cookies';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function GatedPost({ settings }: { settings: any }) {
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
+  const router = useRouter();
 
   useEffect(() => {
+    let loginPage = settings?.login_page?.path ?? '/login';
+    loginPage = loginPage.endsWith('/') ? loginPage.slice(0, -1) : loginPage;
+    const currentUrl = window.location.href;
+    if (currentUrl.includes(loginPage)) {
+      return;
+    }
+
+    const url = new URL(loginPage, window.location.origin);
+    const existingReferrer = url.searchParams.get('referrer');
+    if (!existingReferrer) {
+      url.searchParams.set('referrer', currentUrl);
+    }
+
     const token = getCookie('jwt_token');
     if (token) {
       getLoginStatus(token)
         .then((response) => {
-          console.log('test', response);
-          setIsLoggedIn(response.success);
+          if (!response.success) {
+            router.push(url.toString());
+          }
         })
-        .catch((err) => console.log(err));;
+        .catch((err) => console.log(err));
     } else {
-      setIsLoggedIn(false);
-      setLoading(false);
+      router.push(url.toString());
     }
-  }, []);
+  }, [router, settings]);
 
   return (
-    <>TEST</>
+    <></>
   );
 }

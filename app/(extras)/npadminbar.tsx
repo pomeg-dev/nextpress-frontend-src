@@ -1,50 +1,60 @@
-import { cookies } from "next/headers";
+"use client";
+
+import { getLoginStatus } from "@/lib/wp/user-flow";
+import { getCookie } from "@/utils/cookies";
+import { useEffect, useState } from "react";
 
 export function NPAdminBar({ postID }: { postID: number }) {
-  const cookieStore = cookies();
-  const allCookies = cookieStore.getAll();
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [userId, setUserId] = useState(0);
+  const [blogUrl, setBlogUrl] = useState('');
+  const [blogId, setBlogId] = useState('');
 
-  const nextpressCookies = allCookies.filter((cookie) =>
-    cookie.name.startsWith("nextpress_wp_")
-  );
+  useEffect(() => {
+    const token = getCookie('jwt_token');
+    if (token) {
+      getLoginStatus(token)
+        .then((response) => {
+          setLoggedIn(response.success);
+          if (response.userId) {
+            setUserId(response.userId);
+          }
+          if (response.blogUrl) {
+            setBlogUrl(response.blogUrl);
+          }
+          if (response.blogId) {
+            setBlogId(response.blogId);
+          }
+        })
+        .catch((err) => console.log(err));
+    } else {
+      setLoggedIn(false);
+    }
+  }, []);
 
-  const decodedCookies = nextpressCookies
-    .map((cookie) => {
-      try {
-        return JSON.parse(atob(cookie.value));
-      } catch (e) {
-        console.error(`Failed to parse ${cookie.name} cookie:`, e);
-        return null;
-      }
-    })
-    .filter(Boolean);
-
-  if (decodedCookies.length === 0) return null;
+  if (!loggedIn) return null;
 
   return (
     <div className="np-admin-bar fixed bottom-0 left-0 z-50 w-full bg-[#0073aa] py-2 text-center text-white">
-      {decodedCookies.map((data, index) => (
-        <div key={index} style={{ marginBottom: "5px" }}>
-          <span>
-            Site {data.blog_id} | User ID: {data.user_id}
-          </span>
-          <a
-            href={
-              data.edit_link ||
-              `${data.wp_url}/wp-admin/post.php?post=${postID}&action=edit`
-            }
-            style={{
-              color: "white",
-              textDecoration: "underline",
-              marginLeft: "10px",
-            }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Edit this page on Site {data.blog_id}
-          </a>
-        </div>
-      ))}
+      <div style={{ marginBottom: "5px" }}>
+        <span>
+          Site {blogId} | User ID: {userId}
+        </span>
+        <a
+          href={
+            `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit`
+          }
+          style={{
+            color: "white",
+            textDecoration: "underline",
+            marginLeft: "10px",
+          }}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Edit this page on Site {blogId}
+        </a>
+      </div>
     </div>
   );
 }
