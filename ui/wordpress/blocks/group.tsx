@@ -1,19 +1,39 @@
 import React from "react";
 import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
+import classNames from "classnames";
 
 type GroupProps = Block & {
   innerBlocks?: React.ReactNode;
 };
 
 const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
-  // Example of using attrs
-  const backgroundColor = block.attrs?.backgroundColor || "transparent";
-  const padding = block.attrs?.padding || "0";
+  const { innerBlocks, data } = block;
+  const backgroundColor = data.attrs?.backgroundColor;
+  const textColor = data.attrs?.style?.color?.text || "primary";
 
   return (
-    <div className="group" style={{ backgroundColor, padding }}>
-      <BlockParser blocks={block.innerBlocks} />
+    <div
+      className="core-block group"
+      style={{
+        color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
+      }}
+    >
+      {innerBlocks &&
+        backgroundColor ? (
+          <div
+            className="mb-6 p-8"
+            style={{
+              backgroundColor: 
+                backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
+            }}
+          >
+            <BlockParser blocks={innerBlocks} />
+          </div>
+        ) : (
+          <BlockParser blocks={innerBlocks} />
+        )
+      }
     </div>
   );
 };
