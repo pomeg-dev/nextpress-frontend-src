@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 
 export function NPAdminBar({ postID }: { postID: number }) {
   const [loggedIn, setLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(0);
   const [blogUrl, setBlogUrl] = useState('');
   const [blogId, setBlogId] = useState('');
@@ -21,6 +22,7 @@ export function NPAdminBar({ postID }: { postID: number }) {
     if (token) {
       getLoginStatus(token)
         .then((response) => {
+          console.log(response);
           setLoggedIn(response.success);
           if (response.userId) {
             setUserId(response.userId);
@@ -30,6 +32,9 @@ export function NPAdminBar({ postID }: { postID: number }) {
           }
           if (response.blogId) {
             setBlogId(response.blogId);
+          }
+          if (response.isAdmin) {
+            setIsAdmin(response.isAdmin);
           }
         })
         .catch((err) => console.log(err));
@@ -42,29 +47,31 @@ export function NPAdminBar({ postID }: { postID: number }) {
 
   return (
     <div className="np-admin-bar fixed bottom-0 left-0 z-50 flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
-      <div>
-        <span>
-          Site: {blogId} | User ID: {userId}
-        </span>
-        <a
-          href={`${blogUrl}/wp-admin`}
-          className="ml-4 underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Dashboard
-        </a>
-        <a
-          href={
-            `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit`
-          }
-          className="ml-4 underline"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Edit this page on Site {blogId}
-        </a>
-      </div>
+      {isAdmin &&
+        <div>
+          <span>
+            Site: {blogId} | User ID: {userId}
+          </span>
+          <a
+            href={`${blogUrl}/wp-admin`}
+            className="ml-4 underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Dashboard
+          </a>
+          <a
+            href={
+              `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit`
+            }
+            className="ml-4 underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Edit this page on Site {blogId}
+          </a>
+        </div>
+      }
       <span className="cursor-pointer underline" onClick={handleLogout}>Logout</span>
     </div>
   );

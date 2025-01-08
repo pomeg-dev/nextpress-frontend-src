@@ -11,8 +11,10 @@ export function GatedPost({ settings }: { settings: any }) {
   useEffect(() => {
     let loginPage = settings?.login_page?.path ?? '/login';
     loginPage = loginPage.endsWith('/') ? loginPage.slice(0, -1) : loginPage;
+    let registerPage = settings?.register_page?.path ?? '/register';
+    registerPage = registerPage.endsWith('/') ? registerPage.slice(0, -1) : registerPage;
     const currentUrl = window.location.href;
-    if (currentUrl.includes(loginPage)) {
+    if (currentUrl.includes(loginPage) || currentUrl.includes(registerPage)) {
       return;
     }
 

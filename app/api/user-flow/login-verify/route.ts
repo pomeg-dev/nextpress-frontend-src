@@ -28,7 +28,13 @@ export async function POST(request: NextRequest) {
   const decoded = verifyJWT(token);
   if (decoded && typeof decoded !== 'string' && 'user_id' in decoded) {
     return NextResponse.json(
-      { success: true, userId: decoded.user_id, blogUrl: decoded.iss, blogId: decoded.blog_id },
+      {
+        success: true, 
+        userId: decoded.user_id, 
+        blogUrl: decoded.iss, 
+        blogId: decoded.blog_id,
+        isAdmin: decoded.is_admin,
+      },
       { status: 200 }
     );
   } else {
