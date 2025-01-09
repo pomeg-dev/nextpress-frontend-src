@@ -2,8 +2,7 @@ import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-// Move the auth options to a separate variable
-const options: NextAuthOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       id: "salesforce-login",
@@ -79,7 +78,7 @@ const options: NextAuthOptions = {
           );
           tokenParams.append(
             "client_secret",
-            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59"
+            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
           );
           tokenParams.append(
             "redirect_uri",
@@ -126,7 +125,7 @@ const options: NextAuthOptions = {
             email: userInfo.email || credentials.username,
             accessToken: tokenData.access_token,
             refreshToken: tokenData.refresh_token,
-            profile: userInfo,
+            profile: userInfo, // Store full profile in the token
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -143,8 +142,8 @@ const options: NextAuthOptions = {
     async jwt({ token, user, account }) {
       // Initial sign in
       if (user && account) {
-        token.accessToken = (user as any).accessToken;
-        token.refreshToken = (user as any).refreshToken;
+        token.accessToken = user.accessToken;
+        token.refreshToken = user.refreshToken;
         token.tokenExpiry = Date.now() + 7200 * 1000; // Assuming 2 hour expiry
       }
 
@@ -184,7 +183,7 @@ async function refreshAccessToken(token: any) {
     );
     params.append(
       "client_secret",
-      "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
+      "YOUR_CLIENT_SECRET" // Replace with your actual client secret
     );
 
     const response = await fetch(tokenUrl, {
@@ -210,6 +209,7 @@ async function refreshAccessToken(token: any) {
   } catch (error) {
     console.error("Error refreshing access token", error);
 
+    // The error property will be used client-side to handle the refresh token error
     return {
       ...token,
       error: "RefreshAccessTokenError",
@@ -217,8 +217,5 @@ async function refreshAccessToken(token: any) {
   }
 }
 
-// Create the auth handler with the options
-const handler = NextAuth(options);
-
-// Export the handler as GET and POST
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };

@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 
     // 5. Set the password
     if (password) {
-      await conn.soap.setPassword(userResult.id as string, password);
+      await conn.soap.setPassword(userResult.id, password);
     }
     console.log("User created:", userResult);
 
