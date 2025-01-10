@@ -6,6 +6,9 @@ import "../ui/globals.scss";
 import { getDefaultTemplate } from "@/lib/wp/posts";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { fontVariables } from "@themes/fonts/font-loader";
+import { Suspense } from "react";
+import { GTM } from "./(extras)/gtm";
+import { getSettings } from "@/lib/wp/settings";
 
 export default async function Layout({
   children,
@@ -14,6 +17,7 @@ export default async function Layout({
 }) {
   const defaultTemplate = await getDefaultTemplate();
   const themes = await getBlockTheme();
+  const settings = await getSettings();
 
   // THIS NEEDS CHANGING NT VERY GOOD
   //themes comes back as array
@@ -32,6 +36,11 @@ export default async function Layout({
     <html {...themeProps} className={fontVariables}>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
+        {settings.google_tag_manager_enabled === true && (
+          <Suspense>
+            <GTM GTM_ID={settings.google_tag_manager_id} />
+          </Suspense>
+        )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         {children}
         <AfterContent defaultTemplate={defaultTemplate} />
