@@ -47,6 +47,14 @@ export default async function Post(props: NextProps) {
   return (
     <>
       <head>
+        {metadata.hreflang && metadata.hreflang.map((locale: { code: string; href: string }) => (
+          <link
+            key={locale.code}
+            rel="alternate"
+            hrefLang={locale.code}
+            href={locale.href}
+          />
+        ))}
         {metadata.schema &&
           <script
             type="application/ld+json"
@@ -190,6 +198,7 @@ export async function generateMetadata(props: NextProps) {
       twitter,
       other,
       schema: updatedSchema,
+      hreflang: post.hreflang || null,
     };
   } else return null;
 }
