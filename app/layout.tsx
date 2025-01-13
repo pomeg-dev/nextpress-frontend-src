@@ -10,6 +10,8 @@ import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
 import { getSettings } from "@/lib/wp/settings";
 import { VWO } from "./(extras)/vwo";
+import Script from "next/script";
+import { VideoAsk } from "./(extras)/video-ask";
 
 export default async function Layout({
   children,
@@ -44,6 +46,11 @@ export default async function Layout({
       </head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
+        {(settings.videoask_enabled === true && settings.videoask_url) && (
+          <Suspense>
+            <VideoAsk videoask_url={settings.videoask_url} />
+          </Suspense>
+        )}
         {settings.google_tag_manager_enabled === true && (
           <Suspense>
             <GTM GTM_ID={settings.google_tag_manager_id} />
