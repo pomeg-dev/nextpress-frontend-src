@@ -1,7 +1,6 @@
 import Animations from "./(extras)/animations";
 import BeforeContent from "./BeforeContent";
 import AfterContent from "./AfterContent";
-import { cookies } from "next/headers";
 import "../ui/globals.scss";
 import { getDefaultTemplate } from "@/lib/wp/posts";
 import { getBlockTheme } from "@/lib/wp/theme";
@@ -10,13 +9,16 @@ import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
 import { getSettings } from "@/lib/wp/settings";
 import { VWO } from "./(extras)/vwo";
-import Script from "next/script";
 import { VideoAsk } from "./(extras)/video-ask";
+import Script from "next/script";
+import Head from "next/head";
 
 export default async function Layout({
   children,
+  schema
 }: {
   children: React.ReactNode;
+  schema: any;
 }) {
   const defaultTemplate = await getDefaultTemplate();
   const themes = await getBlockTheme();
@@ -37,13 +39,20 @@ export default async function Layout({
 
   return (
     <html {...themeProps} className={fontVariables}>
-      <head>
+      <Head>
+        {schema && (
+          <Script
+            id="schema-script"
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+          />
+        )}
         {(settings.vwo_enabled === true && settings.vwo_account_id) && (
           <Suspense>
             <VWO accountId={settings.vwo_account_id} />
           </Suspense>
         )}
-      </head>
+      </Head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
         {(settings.videoask_enabled === true && settings.videoask_url) && (

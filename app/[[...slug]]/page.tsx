@@ -6,6 +6,7 @@ import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
+import Layout from "../layout";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -35,22 +36,17 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
   const settings = await getSettings();
+  const metadata = await generateMetadata(props);
 
-  // return (
-  //   <>
-  //     {/* <div className="flex pb-[20px]" style={{ marginBottom: "100px" }}>
-  //       {JSON.stringify(post.template.before_content)}
-  //     </div> */}
-  //     <div className="pb-[20px]">{JSON.stringify(post.content)}</div>
-  //   </>
-  // );
   return (
     <>
-      <NPAdminBar postID={post.id} />
-      <Styles settings={settings} />
-      <main data-pageurl={post.slug.slug} data-postid={post.id}>
-        {post.content && <BlockParser blocks={post.content} />}
-      </main>
+      <Layout schema={metadata.schema}>
+        <NPAdminBar postID={post.id} />
+        <Styles settings={settings} />
+        <main data-pageurl={post.slug.slug} data-postid={post.id}>
+          {post.content && <BlockParser blocks={post.content} />}
+        </main>
+      </Layout>
     </>
   );
 }
@@ -90,14 +86,77 @@ export async function generateMetadata(props: NextProps) {
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
-      post.yoastHeadJSON.alternates = { canonical: post.yoastHeadJSON.canonical };
-    }
-    else if (!path || path == "")
+      const canonical = post.yoastHeadJSON.canonical.replace(
+        process.env.NEXT_PUBLIC_API_URL,
+        frontendDomainURL
+      );
+      post.yoastHeadJSON.alternates = { canonical: canonical };
+    } else if (!path || path == "") {
       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
-    else
+    } else {
       post.yoastHeadJSON.alternates = {
         canonical: `${frontendDomainURL}/${path}`,
       };
-    return post.yoastHeadJSON;
+    }
+
+    const openGraph = {
+      locale: post.yoastHeadJSON.og_locale || null,
+      type: post.yoastHeadJSON.og_type || null,
+      title: post.yoastHeadJSON.og_title || null,
+      url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
+        post.yoastHeadJSON.og_url.replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+          frontendDomainURL
+        ) : 
+        null,
+      siteName: post.yoastHeadJSON.og_site_name || null,
+      images: post.yoastHeadJSON.og_image ?
+        post.yoastHeadJSON.og_image.map((image: { url: string; width: number; height: number; type: string; }) => 
+          ({
+            url: image.url,
+            width: image.width,
+            height: image.height,
+            type: image.type,
+          })
+        ) : null,
+    };
+
+    const twitter = {
+      card: post.yoastHeadJSON.twitter_card || null,
+      creator: post.yoastHeadJSON.author || null,
+      title: post.yoastHeadJSON.og_title || null,
+      description: post.yoastHeadJSON.title || null,
+      images: post.yoastHeadJSON.og_image ?
+        post.yoastHeadJSON.og_image.map((image: { url: any; }) => 
+          image.url) :
+        null,
+    };
+
+    let other = {};
+    if (post.yoastHeadJSON.twitter_misc) {
+      other = {
+        'twitter:label1': 'Written by',
+        'twitter:data1': post.yoastHeadJSON.twitter_misc['Written by'],
+        'twitter:label2': 'Estimated reading time',
+        'twitter:data2': post.yoastHeadJSON.twitter_misc['Estimated reading time'],
+      };
+    }
+
+    const updatedSchema = process.env.NEXT_PUBLIC_API_URL ?
+      JSON.parse(
+        JSON.stringify(post.yoastHeadJSON.schema).replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+          frontendDomainURL
+        )
+      ) :
+      post.yoastHeadJSON.schema;
+
+    return {
+      ...post.yoastHeadJSON,
+      openGraph,
+      twitter,
+      other,
+      schema: updatedSchema,
+    };
   } else return null;
 }
