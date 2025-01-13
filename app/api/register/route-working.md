@@ -2,15 +2,15 @@ import { NextResponse } from "next/server";
 import { getSalesforceConnection } from "@/lib/salesforce";
 
 export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { email, jdeNumber, zipCode, password } = body;
+try {
+const body = await request.json();
+const { email, jdeNumber, zipCode, password } = body;
 
     const conn = await getSalesforceConnection();
 
     // 1. Look up Account
     const accounts = await conn.query(`
-      SELECT Id, Name 
+      SELECT Id, Name
       FROM Account
       WHERE JDE_Account_ID__c = '${jdeNumber}'
     `);
@@ -36,8 +36,8 @@ export async function POST(request: Request) {
     });
 
     const profiles = await conn.query(`
-      SELECT Id, Name 
-      FROM Profile 
+      SELECT Id, Name
+      FROM Profile
       WHERE UserLicense.Name = 'Customer Community Plus Login'
     `);
     console.log(profiles.records);
@@ -87,8 +87,9 @@ export async function POST(request: Request) {
       accountId: accountId,
       contactId: contactResult.id,
     });
-  } catch (error: any) {
-    console.error("Registration error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
+
+} catch (error: any) {
+console.error("Registration error:", error);
+return NextResponse.json({ error: error.message }, { status: 500 });
+}
 }
