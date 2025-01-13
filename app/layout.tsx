@@ -9,6 +9,7 @@ import { fontVariables } from "@themes/fonts/font-loader";
 import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
 import { getSettings } from "@/lib/wp/settings";
+import { VWO } from "./(extras)/vwo";
 
 export default async function Layout({
   children,
@@ -34,6 +35,13 @@ export default async function Layout({
 
   return (
     <html {...themeProps} className={fontVariables}>
+      <head>
+        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
+          <Suspense>
+            <VWO accountId={settings.vwo_account_id} />
+          </Suspense>
+        )}
+      </head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
         {settings.google_tag_manager_enabled === true && (
