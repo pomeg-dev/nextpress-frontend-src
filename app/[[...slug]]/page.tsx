@@ -5,6 +5,7 @@ import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -82,7 +83,10 @@ export async function generateMetadata(props: NextProps) {
   if (!post) return null;
 
   if (post.yoastHeadJSON) {
-    console.log(post.yoastHeadJSON);
+    if (post.yoastHeadJSON.redirect) {
+      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+    }
+
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
