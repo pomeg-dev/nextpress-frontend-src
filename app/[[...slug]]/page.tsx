@@ -82,9 +82,13 @@ export async function generateMetadata(props: NextProps) {
   if (!post) return null;
 
   if (post.yoastHeadJSON) {
+    console.log(post.yoastHeadJSON);
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
-    if (!path || path == "")
+    if (post.yoastHeadJSON.canonical) {
+      post.yoastHeadJSON.alternates = { canonical: post.yoastHeadJSON.canonical };
+    }
+    else if (!path || path == "")
       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
     else
       post.yoastHeadJSON.alternates = {
