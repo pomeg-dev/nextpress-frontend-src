@@ -1,3 +1,7 @@
+"use client";
+
+import Script from "next/script";
+
 export function VWO({ accountId }: { accountId: string }) {
   if (process.env.NEXT_PUBLIC_VERCEL_ENV !== "production") {
     return null;
@@ -7,7 +11,7 @@ export function VWO({ accountId }: { accountId: string }) {
     <>
       {/* VWO Async SmartCode */}
       <link rel="preconnect" href="https://dev.visualwebsiteoptimizer.com" />
-      <script
+      <Script
         id="vwoCode"
         type="text/javascript"
         dangerouslySetInnerHTML={{
