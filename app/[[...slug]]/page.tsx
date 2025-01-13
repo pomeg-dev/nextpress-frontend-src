@@ -1,12 +1,17 @@
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath } from "@/lib/wp/posts";
+import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
-import Layout from "../layout";
+import { Suspense } from "react";
+import { VWO } from "../(extras)/vwo";
+import { VideoAsk } from "../(extras)/video-ask";
+import { GTM } from "../(extras)/gtm";
+import BeforeContent from "../BeforeContent";
+import AfterContent from "../AfterContent";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -36,17 +41,44 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
   const settings = await getSettings();
+  const defaultTemplate = await getDefaultTemplate();
   const metadata = await generateMetadata(props);
 
   return (
     <>
-      <Layout schema={metadata.schema}>
+      <head>
+        {metadata.schema &&
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.schema) }}
+          />
+        }
+        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
+          <Suspense>
+            <VWO accountId={settings.vwo_account_id} />
+          </Suspense>
+        )}
+      </head>
+      {/* <body className="no-transition"> */}
+      <body className="no-transition">
+        {(settings.videoask_enabled === true && settings.videoask_url) && (
+          <Suspense>
+            <VideoAsk videoask_url={settings.videoask_url} />
+          </Suspense>
+        )}
+        {settings.google_tag_manager_enabled === true && (
+          <Suspense>
+            <GTM GTM_ID={settings.google_tag_manager_id} />
+          </Suspense>
+        )}
+        <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
         <Styles settings={settings} />
         <main data-pageurl={post.slug.slug} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
-      </Layout>
+        <AfterContent defaultTemplate={defaultTemplate} />
+      </body>
     </>
   );
 }
@@ -150,6 +182,7 @@ export async function generateMetadata(props: NextProps) {
         )
       ) :
       post.yoastHeadJSON.schema;
+
 
     return {
       ...post.yoastHeadJSON,
