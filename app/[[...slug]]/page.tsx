@@ -6,8 +6,7 @@ import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
-import { getCookie } from "@/utils/cookies";
-import { getLoginStatus } from "@/lib/wp/user-flow";
+import { cookies } from "next/headers";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 

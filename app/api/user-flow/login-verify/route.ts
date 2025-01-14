@@ -27,16 +27,25 @@ export async function POST(request: NextRequest) {
 
   const decoded = verifyJWT(token);
   if (decoded && typeof decoded !== 'string' && 'user_id' in decoded) {
-    return NextResponse.json(
+    const response = NextResponse.json(
       {
-        success: true, 
-        userId: decoded.user_id, 
-        blogUrl: decoded.iss, 
+        success: true,
+        userId: decoded.user_id,
+        blogUrl: decoded.iss,
         blogId: decoded.blog_id,
         isAdmin: decoded.is_admin,
       },
       { status: 200 }
     );
+
+    response.cookies.set('jwt_token', token, {
+      httpOnly: true,
+      secure: process.env.NEXT_PUBLIC_VERCEL_ENV === 'production',
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
+    return response;
   } else {
     return NextResponse.json(
       { success: false, message: 'Invalid token' },
