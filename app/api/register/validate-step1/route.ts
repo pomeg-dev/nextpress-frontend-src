@@ -15,7 +15,6 @@ export async function POST(request: Request) {
       WHERE JDE_Account_ID__c = '${jdeNumber}'
     `);
 
-    // to uncomment, mauybe we should only create contact if account is laoded
     if (accounts.totalSize === 0) {
       return NextResponse.json(
         { error: "Company not found in approved accounts list" },

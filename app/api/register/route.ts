@@ -10,22 +10,19 @@ export async function POST(request: Request) {
 
     // 1. Look up Account
     const accounts = await conn.query(`
-      SELECT Id, Name 
-      FROM Account
-      WHERE JDE_Account_ID__c = '${jdeNumber}'
-    `);
+    SELECT Id, Name 
+    FROM Account
+    WHERE JDE_Account_ID__c = '${jdeNumber}'
+  `);
 
-    // to uncomment, mauybe we should only create contact if account is laoded
-    // if (accounts.totalSize === 0) {
-    //   return NextResponse.json(
-    //     { error: "Company not found in approved accounts list" },
-    //     { status: 404 }
-    //   );
-    // }
+    if (accounts.totalSize === 0) {
+      return NextResponse.json(
+        { error: "Company not found in approved accounts list" },
+        { status: 404 }
+      );
+    }
 
-    // const accountId = accounts.records[0].Id;
-
-    const accountId = "001Df00000mdETqIAM";
+    const accountId = accounts.records[0].Id;
 
     // 2. Create Contact
     const contactResult = await conn.sobject("Contact").create({
@@ -42,7 +39,6 @@ export async function POST(request: Request) {
     `);
     console.log(profiles.records);
     // 3. Create B2B Commerce User
-    const networkId = process.env.SALESFORCE_EXPERIENCE_NETWORK_ID;
     const userResult = await conn.sobject("User").create({
       // Basic User Info
       Username: email,
