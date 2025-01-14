@@ -1,3 +1,4 @@
+import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
@@ -40,6 +41,11 @@ export default async function Post(props: NextProps) {
   } else {
     post = await getPostByPath(path);
   }
+
+  if (post['404'] && post['404'] === true) {
+    notFound();
+  }
+
   const settings = await getSettings();
   const defaultTemplate = await getDefaultTemplate();
   const metadata = await generateMetadata(props);

@@ -1,3 +1,8 @@
+import { getPostByPath } from "@/lib/wp/posts";
+import { getSettings } from "@/lib/wp/settings";
+import { BlockParser } from "@/ui/block-parser";
+import classNames from "classnames";
+
 type PageProps = {
   params: {
     slug: string;
@@ -5,7 +10,34 @@ type PageProps = {
 };
 
 export default async function NotFound() {
-  return <div>notfound</div>;
+  const settings = await getSettings();
+
+  if (!settings.page_404) {
+    return (
+      <>
+        <div className="page-404 flex min-h-screen flex-col justify-between">
+          <div
+            className={classNames(
+              "overflow-hidden bg-white",
+              "button-effect-" + settings.btn_transition
+            )}
+          >
+            <div className="py-[100px] text-center">
+              <h1 className="text-[50px] font-bold">404</h1>
+              <p className="text-[20px]">Page not found</p>
+            </div>
+          </div>
+        </div>
+      </>
+    );
+  } else {
+    const post = await getPostByPath(settings.page_404.post_name, true, true);
+    return (
+      <main data-pageurl={settings.page_404.post_name} data-postid={settings.page_404.ID}>
+        {post.content && <BlockParser blocks={post.content} />}
+      </main>
+    );
+  }
 }
 
 // import {
@@ -31,7 +63,7 @@ export default async function NotFound() {
 //   if (!settings.page_404)
 //     return (
 //       <>
-//         <div className="page-404  min-h-screen flex flex-col justify-between">
+//         <div className="page-404 flex min-h-screen flex-col justify-between">
 //           {/* @ts-expect-error Server Component */}
 //           <Header settings={settings} />
 //           <div
