@@ -5,7 +5,7 @@ let conn: jsforce.Connection | null = null;
 export async function getSalesforceConnection() {
   if (!conn) {
     conn = new jsforce.Connection({
-      loginUrl: process.env.SALESFORCE_LOGIN_URL,
+      loginUrl: process.env.NEXT_PUBLIC_SALESFORCE_URL,
     });
 
     await conn.login(

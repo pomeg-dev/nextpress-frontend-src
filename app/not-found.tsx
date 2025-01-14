@@ -31,7 +31,7 @@ export default async function NotFound() {
 //   if (!settings.page_404)
 //     return (
 //       <>
-//         <div className="page-404  min-h-screen flex flex-col justify-between">
+//         <div className="page-404 flex min-h-screen flex-col justify-between">
 //           {/* @ts-expect-error Server Component */}
 //           <Header settings={settings} />
 //           <div

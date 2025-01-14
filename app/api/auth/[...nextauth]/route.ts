@@ -23,9 +23,7 @@ const options: NextAuthOptions = {
           ).toString("base64");
 
           // Step 1: Get Authorization Code
-          const authUrl =
-            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/authorize";
-
+          const authUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/authorize`;
           const authHeaders = new Headers();
           authHeaders.append("Auth-Request-Type", "Named-User");
           authHeaders.append("Authorization", `Basic ${encodedUNPW}`);
@@ -42,11 +40,12 @@ const options: NextAuthOptions = {
           authParams.append("response_type", "code_credentials");
           authParams.append(
             "client_id",
-            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
+            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
           );
           authParams.append(
             "redirect_uri",
-            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
+            // "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
+            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
           );
 
           const authResponse = await fetch(authUrl, {
@@ -67,23 +66,22 @@ const options: NextAuthOptions = {
           }
 
           // Step 2: Exchange Code for Tokens
-          const tokenUrl =
-            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/token";
+          const tokenUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/token`;
 
           const tokenParams = new URLSearchParams();
           tokenParams.append("grant_type", "authorization_code");
           tokenParams.append("code", code);
           tokenParams.append(
             "client_id",
-            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
+            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
           );
           tokenParams.append(
             "client_secret",
-            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59"
+            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_SECRET!
           );
           tokenParams.append(
             "redirect_uri",
-            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
+            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
           );
 
           const tokenResponse = await fetch(tokenUrl, {
@@ -103,8 +101,7 @@ const options: NextAuthOptions = {
           const tokenData = await tokenResponse.json();
 
           // Fetch user info from Salesforce
-          const userInfoUrl =
-            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/userinfo";
+          const userInfoUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/userinfo`;
           const userInfoResponse = await fetch(userInfoUrl, {
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
@@ -172,19 +169,15 @@ const options: NextAuthOptions = {
 
 async function refreshAccessToken(token: any) {
   try {
-    const tokenUrl =
-      "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/token";
+    const tokenUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/token`;
 
     const params = new URLSearchParams();
     params.append("grant_type", "refresh_token");
     params.append("refresh_token", token.refreshToken);
-    params.append(
-      "client_id",
-      "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
-    );
+    params.append("client_id", process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!);
     params.append(
       "client_secret",
-      "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
+      process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_SECRET!
     );
 
     const response = await fetch(tokenUrl, {
