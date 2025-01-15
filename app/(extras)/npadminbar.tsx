@@ -22,7 +22,6 @@ export function NPAdminBar({ postID }: { postID: number }) {
     if (token) {
       getLoginStatus(token)
         .then((response) => {
-          console.log(response);
           setLoggedIn(response.success);
           if (response.userId) {
             setUserId(response.userId);
