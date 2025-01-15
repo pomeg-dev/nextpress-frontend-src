@@ -71,7 +71,8 @@ export async function POST(request: Request) {
 
       // Additional B2B Commerce Settings
       FederationIdentifier: email, // If using SSO
-      CommunityNickname: fName + "_2025",
+      //plus random string
+      CommunityNickname: fName + "_" + Math.random().toString(36).substring(7),
     });
 
     // 5. Set the password
