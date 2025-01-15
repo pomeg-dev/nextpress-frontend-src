@@ -10,15 +10,7 @@ export function GatedPost({
 }: {
   settings: any;
 }) {
-  const [isGated, setGated] = useState(false);
-  const [isLoggedIn, setLoggedIn] = useState(false);
   const router = useRouter();
-
-  useEffect(() => {
-    if (settings.enable_login_redirect) {
-      setGated(true);
-    }
-  }, [settings]);
 
   useEffect(() => {
     let loginPage = settings?.login_page?.path ?? '/login';

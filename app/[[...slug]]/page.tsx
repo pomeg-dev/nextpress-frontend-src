@@ -37,11 +37,8 @@ export default async function Post(props: NextProps) {
   }
   const settings = await getSettings();
 
-  const jwt = cookies().get('jwt_token')?.value;
-
   return (
     <>
-      {'jwt: ' + jwt}
       {settings.enable_login_redirect && <GatedPost settings={settings} />}
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
