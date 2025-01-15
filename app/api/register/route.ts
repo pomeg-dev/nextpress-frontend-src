@@ -1,5 +1,8 @@
+// /api/register
 import { NextResponse } from "next/server";
 import { getSalesforceConnection } from "@/lib/salesforce";
+import { getMysqlDataApi } from "@themes/elite-dashboard/blocks/elite-tool/data";
+import { slugify } from "@/utils/slugify";
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +11,13 @@ export async function POST(request: Request) {
 
     const conn = await getSalesforceConnection();
 
+    // 0. get JDE record
+    const jdeRecord = await getMysqlDataApi(
+      `SELECT * FROM customers WHERE aban8 = '${jdeNumber}'`
+    );
+    // {aban8: 12216,acct_name: "'09 Dental",cust_name: "'09 Dental",tgt_type: "Tier C",status: "",am_terr: "804-San Antonio TX",emp_nm: "Allison Bakutis-Perez",area: "1-Commercial",am_reg: "08-Southwest",spec: "D",subscr_tier: "",oig_flag: "",ppp_tier: "P24",pr2_flg: "",cat29: "PPP",phoneno: "210-805-8446",email: "DDS@SPALTEN.COM",address1: "120 Austin Hwy Ste 101 ",city: "San Antonio",state: "TX",zip: "78209",decile_arestinbnb: "7",decile_antim: "1",decile_srp: "2",location_srp_d4321_percentage: "0.19",location_srp_d4322_percentage: "0.34",location_srp_d4910_percentage: "0.48",abac03: "COM",abac21: "",aban84: 12216,
+
+    const fName = jdeRecord[0].cust_name;
     // 1. Look up Account
     const accounts = await conn.query(`
     SELECT Id, Name 
@@ -26,26 +36,21 @@ export async function POST(request: Request) {
 
     // 2. Create Contact
     const contactResult = await conn.sobject("Contact").create({
-      FirstName: "firstName",
-      LastName: "lastName",
+      FirstName: fName,
+      LastName: "lname",
       Email: email,
       AccountId: accountId,
     });
 
-    const profiles = await conn.query(`
-      SELECT Id, Name 
-      FROM Profile 
-      WHERE UserLicense.Name = 'Customer Community Plus Login'
-    `);
-    console.log(profiles.records);
     // 3. Create B2B Commerce User
     const userResult = await conn.sobject("User").create({
       // Basic User Info
       Username: email,
       Email: email,
-      LastName: "lastName",
-      FirstName: "firstName",
-      Alias: "firstName".substring(0, 1) + "lastName".substring(0, 4),
+      FirstName: fName,
+      LastName: "lname",
+      Alias:
+        slugify(fName).substring(0, 3) + "_" + slugify("lname").substring(0, 4),
 
       // Required for Experience Cloud Users
       ContactId: contactResult.id,
@@ -66,14 +71,18 @@ export async function POST(request: Request) {
 
       // Additional B2B Commerce Settings
       FederationIdentifier: email, // If using SSO
-      CommunityNickname:
-        `${"firstName"}${"lastName"}`.toLowerCase() +
-        Math.random().toString(36).substring(2, 6),
+      CommunityNickname: fName + "_2025",
     });
 
     // 5. Set the password
     if (password) {
       await conn.soap.setPassword(userResult.id as string, password);
+    } else {
+      //if no password, register anyway, email will still be sent to user to reset
+      await conn.soap.setPassword(
+        userResult.id as string,
+        "&*yi2g3r9gr43r243r"
+      );
     }
     console.log("User created:", userResult);
 
