@@ -36,9 +36,9 @@ export async function logout() {
 }
 
 interface LoginParams {
-  user_login: FormDataEntryValue | null;
-  user_password: FormDataEntryValue | null;
-  remember: FormDataEntryValue | null;
+  user_login: string | FormDataEntryValue | null;
+  user_password: string | FormDataEntryValue | null;
+  remember: string | boolean | FormDataEntryValue | null;
   referrer: string | null;
 }
 

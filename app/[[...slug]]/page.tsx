@@ -7,6 +7,8 @@ import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 import { cookies } from "next/headers";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -36,6 +38,9 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
   const settings = await getSettings();
+
+  const session = await getServerSession(authOptions);
+  console.log('ss', session);
 
   return (
     <>
