@@ -66,7 +66,7 @@ export async function getPostByPath(
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["route"] },
+    next: { tags: ["post"] },
     cache: "no-cache",
   });
 
