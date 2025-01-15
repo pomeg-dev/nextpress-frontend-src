@@ -4,7 +4,7 @@ import { getSalesforceConnection } from "@/lib/salesforce";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { email, jdeNumber, zipCode, password } = body;
+    const { email, jdeNumber } = body;
 
     const conn = await getSalesforceConnection();
 
