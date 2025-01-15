@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     );
 
     response.cookies.set('jwt_token', token, {
-      httpOnly: true,
+      httpOnly: false,
       secure: process.env.NEXT_PUBLIC_VERCEL_ENV === 'production',
       path: '/',
       maxAge: 60 * 60 * 24 * 7,
