@@ -17,7 +17,6 @@ export const authOptions = {
             user_login: credentials?.userLogin ?? null,
             user_password: credentials?.userPass ?? null,
             remember: credentials?.rememberMe ?? null,
-            referrer: credentials?.referrer ?? "nextauth",
           });
 
           if (response?.success && response?.jwt_token) {
