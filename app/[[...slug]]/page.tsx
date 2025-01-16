@@ -7,7 +7,7 @@ import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 
-// Commented out as it breaks cookies/session.
+// Should be force-static - but this breaks cookies/session.
 export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
 
 type NextProps = {
