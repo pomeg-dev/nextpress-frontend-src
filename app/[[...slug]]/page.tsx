@@ -8,7 +8,7 @@ import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 
 // Commented out as it breaks cookies/session.
-export const dynamic = "force-static"; //unsure what this fixed but it was something
+export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
 
 type NextProps = {
   params: {

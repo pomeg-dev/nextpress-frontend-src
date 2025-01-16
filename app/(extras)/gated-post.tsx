@@ -2,8 +2,6 @@ import { authOptions } from '@/lib/authOptions';
 import { getServerSession } from 'next-auth';
 import { redirect } from 'next/navigation';
 
-export const dynamic = "force-dynamic";
-
 export async function GatedPost({
   settings,
   path,
