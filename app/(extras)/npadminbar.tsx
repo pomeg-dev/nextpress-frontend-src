@@ -10,6 +10,7 @@ interface ExtendedUser extends Session {
   blog_id: string;
   blog_url: string;
   is_admin: boolean;
+  token: string;
 }
 
 export function NPAdminBar({ postID }: { postID: number }) {
@@ -27,6 +28,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
   const [userName, setUserName] = useState('');
   const [blogUrl, setBlogUrl] = useState('');
   const [blogId, setBlogId] = useState('');
+  const [token, setToken] = useState('');
   const { data: session } = useSession();
 
   const handleLogout = () => {
@@ -43,6 +45,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
       setBlogId(user.blog_id);
       setBlogUrl(user.blog_url);
       setIsAdmin(user.is_admin);
+      setToken(user.token);
     }
   }, [session]);
 
@@ -56,7 +59,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
             Site: {blogId} | User ID: {userId} ({userName})
           </span>
           <a
-            href={`${blogUrl}/wp-admin`}
+            href={`${blogUrl}/wp-admin?token=${token}`}
             className="ml-4 underline"
             target="_blank"
             rel="noopener noreferrer"
@@ -65,7 +68,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
           </a>
           <a
             href={
-              `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit`
+              `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`
             }
             className="ml-4 underline"
             target="_blank"
