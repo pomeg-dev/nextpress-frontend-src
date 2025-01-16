@@ -23,7 +23,6 @@ interface LoginParams {
   user_login: string | FormDataEntryValue | null;
   user_password: string | FormDataEntryValue | null;
   remember: string | boolean | FormDataEntryValue | null;
-  referrer: string | null;
 }
 
 export async function postLogin(params: LoginParams) {
