@@ -1,38 +1,22 @@
 const WP_API_URL = process.env.NEXT_PUBLIC_API_URL;
-const FE_API_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
-
-export async function getLoginStatus(token: string) {
-  const res = await fetch(`${FE_API_URL}/user-flow/login-verify`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-    },
-    cache: "no-store",
-    next: { tags: ["users"] },
-    credentials: 'include',
-  });
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch user flow status');
-  }
-
-  return res.json();
-}
 
 export async function logout() {
-  const res = await fetch(`${FE_API_URL}/user-flow/logout`, {
-    method: 'GET',
-    cache: "no-store",
+  const url = `${WP_API_URL}/wp-json/nextpress/logout`;
+
+  const response = await fetch(url, {
+    method: "GET",
     next: { tags: ["users"] },
+    cache: "no-store",
     credentials: 'include',
   });
 
-  if (!res.ok) {
-    throw new Error('Failed to fetch user flow status');
+  if (!response.ok) {
+    console.log(url);
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  return res.json();
+  const res = await response.json();
+  return res;
 }
 
 interface LoginParams {

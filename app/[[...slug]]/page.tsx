@@ -6,11 +6,9 @@ import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
-import { cookies } from "next/headers";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-export const dynamic = "force-static"; //unsure what this fixed but it was something
+// Commented out as it breaks cookies/session.
+// export const dynamic = "force-static"; //unsure what this fixed but it was something
 
 type NextProps = {
   params: {
@@ -39,12 +37,9 @@ export default async function Post(props: NextProps) {
   }
   const settings = await getSettings();
 
-  const session = await getServerSession(authOptions);
-  console.log('ss', session);
-
   return (
     <>
-      {settings.enable_login_redirect && <GatedPost settings={settings} />}
+      {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
       <main data-pageurl={post.slug.slug} data-postid={post.id}>

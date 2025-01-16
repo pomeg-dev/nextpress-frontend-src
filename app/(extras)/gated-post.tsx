@@ -1,46 +1,26 @@
-"use client";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
-import { getLoginStatus } from '@/lib/wp/user-flow';
-import { getCookie } from '@/utils/cookies';
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-
-export function GatedPost({
-  settings
+export async function GatedPost({
+  settings,
+  path,
 }: {
   settings: any;
+  path: string;
 }) {
-  const router = useRouter();
+  const session = await getServerSession(authOptions);
+  let loginPage = settings?.login_page?.path ?? 'login';
+  loginPage = loginPage.replace(/^\/|\/$/g, '');
+  let registerPage = settings?.register_page?.path ?? 'register';
+  registerPage = registerPage.replace(/^\/|\/$/g, '');
+  const isOnAuthPage = path === loginPage || path === registerPage;
 
-  useEffect(() => {
-    let loginPage = settings?.login_page?.path ?? '/login';
-    loginPage = loginPage.endsWith('/') ? loginPage.slice(0, -1) : loginPage;
-    let registerPage = settings?.register_page?.path ?? '/register';
-    registerPage = registerPage.endsWith('/') ? registerPage.slice(0, -1) : registerPage;
-    const currentUrl = window.location.href;
-    if (currentUrl.includes(loginPage) || currentUrl.includes(registerPage)) {
-      return;
-    }
-
-    const url = new URL(loginPage, window.location.origin);
-    const existingReferrer = url.searchParams.get('referrer');
-    if (!existingReferrer) {
-      url.searchParams.set('referrer', currentUrl);
-    }
-
-    const token = getCookie('jwt_token');
-    if (token) {
-      getLoginStatus(token)
-        .then((response) => {
-          if (!response.success) {
-            router.push(url.toString());
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      router.push(url.toString());
-    }
-  }, [router, settings]);
+  if (!session && !isOnAuthPage) {
+    const referrer = `${process.env.NEXTAUTH_URL}/${path}`;
+    const redirectUrl = `/${loginPage}?referrer=${encodeURIComponent(referrer)}`;
+    redirect(redirectUrl);
+  }
 
   return (
     <></>

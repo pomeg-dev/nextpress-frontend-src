@@ -10,6 +10,7 @@ export const authOptions = {
         userLogin: { label: "Username", type: "text" },
         userPass: { label: "Password", type: "password" },
         rememberMe: { label: "Remember Me", type: "checkbox" },
+        referrer: { label: "Referrer", type: "text" },
       },
       async authorize(credentials) {
         try {
@@ -17,21 +18,16 @@ export const authOptions = {
             user_login: credentials?.userLogin ?? null,
             user_password: credentials?.userPass ?? null,
             remember: credentials?.rememberMe ?? null,
-            referrer: "nextauth",
+            referrer: credentials?.referrer ?? "nextauth",
           });
 
-          console.log('res', response);
-
-          if (response?.jwt_token) {
+          if (response?.success && response?.jwt_token) {
             return response;
           }
+
           return null;
         } catch (error) {
-          if (error instanceof Error) {
-            console.error("Login failed:", (error as any).response?.data || error.message);
-          } else {
-            console.error("Login failed:", error);
-          }
+          console.error("Login failed:", error);
           return null;
         }
       },
@@ -40,16 +36,23 @@ export const authOptions = {
   callbacks: {
     async jwt({ token, user }: { token: any; user?: any }) {
       if (user) {
-        token.id = user.user_id;
         token.token = user.jwt_token;
+        token.id = user.user_id;
+        token.name = user.user_display_name;
+        token.email = user.user_email;
+        token.blog_id = user.blog_id;
+        token.blog_url = user.blog_url;
+        token.is_admin = user.is_admin;
       }
-      console.log('jwt', token, user);
       return token;
     },
     async session({ session, token }: { session: any; token: any }) {
       if (token) {
         session.user.id = token.id;
         session.user.token = token.token;
+        session.user.blog_id = token.blog_id;
+        session.user.blog_url = token.blog_url;
+        session.user.is_admin = token.is_admin;
       }
       return session;
     },

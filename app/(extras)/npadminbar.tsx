@@ -1,46 +1,50 @@
 "use client";
 
-import { getLoginStatus, logout } from "@/lib/wp/user-flow";
-import { deleteWPCookies, getCookie } from "@/utils/cookies";
+import { logout } from "@/lib/wp/user-flow";
+import { Session } from "next-auth";
+import { useSession, signOut, SessionProvider, } from "next-auth/react";
 import { useEffect, useState } from "react";
 
+interface ExtendedUser extends Session {
+  id: number;
+  blog_id: string;
+  blog_url: string;
+  is_admin: boolean;
+}
+
 export function NPAdminBar({ postID }: { postID: number }) {
+  return (
+    <SessionProvider>
+      <NPAdminBarContent postID={postID} />
+    </SessionProvider>
+  );
+}
+
+function NPAdminBarContent({ postID }: { postID: number }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(0);
+  const [userName, setUserName] = useState('');
   const [blogUrl, setBlogUrl] = useState('');
   const [blogId, setBlogId] = useState('');
+  const { data: session } = useSession();
 
   const handleLogout = () => {
-    deleteWPCookies();
-    logout();
-    window.location.reload();
+    logout()
+    signOut();
   };
 
   useEffect(() => {
-    const token = getCookie('jwt_token');
-    if (token) {
-      getLoginStatus(token)
-        .then((response) => {
-          setLoggedIn(response.success);
-          if (response.userId) {
-            setUserId(response.userId);
-          }
-          if (response.blogUrl) {
-            setBlogUrl(response.blogUrl);
-          }
-          if (response.blogId) {
-            setBlogId(response.blogId);
-          }
-          if (response.isAdmin) {
-            setIsAdmin(response.isAdmin);
-          }
-        })
-        .catch((err) => console.log(err));
-    } else {
-      setLoggedIn(false);
+    if (session && session.user) {
+      const user = session.user as ExtendedUser;
+      setLoggedIn(true);
+      setUserId(user.id);
+      setUserName(session.user.name ?? '');
+      setBlogId(user.blog_id);
+      setBlogUrl(user.blog_url);
+      setIsAdmin(user.is_admin);
     }
-  }, []);
+  }, [session]);
 
   if (!loggedIn) return null;
 
@@ -49,7 +53,7 @@ export function NPAdminBar({ postID }: { postID: number }) {
       {isAdmin &&
         <div>
           <span>
-            Site: {blogId} | User ID: {userId}
+            Site: {blogId} | User ID: {userId} ({userName})
           </span>
           <a
             href={`${blogUrl}/wp-admin`}
@@ -71,7 +75,7 @@ export function NPAdminBar({ postID }: { postID: number }) {
           </a>
         </div>
       }
-      <span className="cursor-pointer underline" onClick={handleLogout}>Logout</span>
+      <span className="cursor-pointer underline" onClick={() => handleLogout()}>Logout</span>
     </div>
   );
 }
