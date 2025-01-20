@@ -63,17 +63,17 @@ export async function getPostByPath(
     ...(isDraft && { p: path })
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
-
+  
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["route"] },
     cache: "no-cache",
   });
-
+  
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-
+  
   const res = await response.json();
   return res;
 }
