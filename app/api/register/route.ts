@@ -63,6 +63,9 @@ export async function POST(request: Request) {
       // Experience Cloud Settings
       IsActive: true,
 
+      //set ecomm cat so that they get correct email etc.
+      Ecomm_Category__c: "EC2",
+
       // Locale Settings
       TimeZoneSidKey: "America/Los_Angeles",
       LocaleSidKey: "en_US",
