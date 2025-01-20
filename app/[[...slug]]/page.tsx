@@ -6,6 +6,7 @@ import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
+import { notFound } from "next/navigation";
 
 // Should be force-static - but this breaks cookies/session.
 export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
@@ -35,6 +36,11 @@ export default async function Post(props: NextProps) {
   } else {
     post = await getPostByPath(path);
   }
+
+  if (post['404'] && post['404'] === true) {
+    notFound();
+  }
+
   const settings = await getSettings();
 
   return (
