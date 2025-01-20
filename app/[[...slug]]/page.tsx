@@ -7,8 +7,8 @@ import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 
-// Should be force-static - but this breaks cookies/session.
-export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
+// Force static render of all pages. This breaks cookies, but gated content uses client side sessions to render post content/login page.
+export const dynamic = "force-static";
 
 type NextProps = {
   params: {
@@ -38,14 +38,13 @@ export default async function Post(props: NextProps) {
   const settings = await getSettings();
 
   return (
-    <>
-      {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
+    <GatedPost settings={settings} post={post}>
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
       <main data-pageurl={post.slug.slug} data-postid={post.id}>
         {post.content && <BlockParser blocks={post.content} />}
       </main>
-    </>
+    </GatedPost>
   );
 }
 

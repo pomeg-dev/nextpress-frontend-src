@@ -9,7 +9,6 @@ export const authOptions = {
         userLogin: { label: "Username", type: "text" },
         userPass: { label: "Password", type: "password" },
         rememberMe: { label: "Remember Me", type: "checkbox" },
-        referrer: { label: "Referrer", type: "text" },
       },
       async authorize(credentials) {
         try {
