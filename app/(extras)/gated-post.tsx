@@ -40,7 +40,7 @@ export function GatedPostContent({
   // Get settings vars.
   const isSettingsGated = settings?.enable_login_redirect;
   const loginPage = settings?.login_page;
-  const props = loginPage ?
+  const props = loginPage && loginPage.content && loginPage.content.length > 0 ?
     loginPage.content[0] :
     { data: {heading: "Login"} };
 
