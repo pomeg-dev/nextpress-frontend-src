@@ -8,7 +8,7 @@ import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 
 // Should be force-static - but this breaks cookies/session.
-export let dynamic = "force-static"; //unsure what this fixed but it was something
+export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
 
 type NextProps = {
   params: {
@@ -36,10 +36,6 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
   const settings = await getSettings();
-
-  if (settings?.enable_login_redirect) {
-    dynamic = "force-dynamic";
-  }
 
   return (
     <>
