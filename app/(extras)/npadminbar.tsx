@@ -49,35 +49,33 @@ function NPAdminBarContent({ postID }: { postID: number }) {
     }
   }, [session]);
 
-  if (!loggedIn) return null;
+  if (!loggedIn || !isAdmin) return null;
 
   return (
     <div className="np-admin-bar fixed bottom-0 left-0 z-50 flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
-      {isAdmin &&
-        <div>
-          <span>
-            Site: {blogId} | User ID: {userId} ({userName})
-          </span>
-          <a
-            href={`${blogUrl}/wp-admin?token=${token}`}
-            className="ml-4 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Dashboard
-          </a>
-          <a
-            href={
-              `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`
-            }
-            className="ml-4 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Edit this page on Site {blogId}
-          </a>
-        </div>
-      }
+      <div>
+        <span>
+          Site: {blogId} | User ID: {userId} ({userName})
+        </span>
+        <a
+          href={`${blogUrl}/wp-admin?token=${token}`}
+          className="ml-4 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Dashboard
+        </a>
+        <a
+          href={
+            `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`
+          }
+          className="ml-4 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Edit this page on Site {blogId}
+        </a>
+      </div>
       <span className="cursor-pointer underline" onClick={() => handleLogout()}>Logout</span>
     </div>
   );

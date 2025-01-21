@@ -1,12 +1,18 @@
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath } from "@/lib/wp/posts";
+import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { GatedPost } from "../(extras)/gated-post";
 import { notFound } from "next/navigation";
+import AfterContent from "../AfterContent";
+import BeforeContent from "../BeforeContent";
+import { Suspense } from "react";
+import { GTM } from "../(extras)/gtm";
+import classNames from "classnames";
+import { SidebarMenu } from "@themes/components/organisms/SidebarMenu";
 
 // Should be force-static - but this breaks cookies/session.
 export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
@@ -42,15 +48,37 @@ export default async function Post(props: NextProps) {
   }
 
   const settings = await getSettings();
+  const defaultTemplate = await getDefaultTemplate();
 
   return (
     <>
-      {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
-      <NPAdminBar postID={post.id} />
-      <Styles settings={settings} />
-      <main data-pageurl={post.slug.slug} data-postid={post.id}>
-        {post.content && <BlockParser blocks={post.content} />}
-      </main>
+    <head>
+      </head>
+      {/* <body className="no-transition"> */}
+      <body className="no-transition">
+        {settings.google_tag_manager_enabled === true && (
+          <Suspense>
+            <GTM GTM_ID={settings.google_tag_manager_id} />
+          </Suspense>
+        )}
+        {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
+        <BeforeContent defaultTemplate={defaultTemplate} />
+        <NPAdminBar postID={post.id} />
+        <Styles settings={settings} />
+        {post?.acf_data?.sidebar_menu &&
+          <SidebarMenu menuItems={post?.acf_data?.sidebar_menu} path={path} />
+        }
+        <main
+          className={classNames(
+            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
+          )}
+          data-pageurl={post.slug.slug}
+          data-postid={post.id}
+        >
+          {post.content && <BlockParser blocks={post.content} />}
+        </main>
+        <AfterContent defaultTemplate={defaultTemplate} />
+      </body>
     </>
   );
 }
