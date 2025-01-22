@@ -17,26 +17,46 @@ export async function POST(request: Request) {
 
     if (accounts.totalSize === 0) {
       return NextResponse.json(
-        { error: "Company not found in approved accounts list" },
+        {
+          error:
+            "Company not found in approved accounts list. Please check your JDE number or call 1-866-273-7846 between 9am-5pm EST",
+        },
         { status: 404 }
       );
     }
 
     const accountId = accounts.records[0].Id;
 
-    //get al the contacts for the account
-    const contacts = await conn.query(`
+    // //get al the contacts for the account
+    // const contacts = await conn.query(`
+    //   SELECT Id, Email
+    //   FROM Contact
+    //   WHERE AccountId = '${accountId}'
+    // `);
+
+    // //if email is already in use, return an error
+    // if (contacts.records.some((contact) => contact.Email === email)) {
+    //   return NextResponse.json(
+    //     {
+    //       error:
+    //         "Email is already in use. If you have not yet set your password, please set in via the email sent",
+    //     },
+    //     { status: 409 }
+    //   );
+    // }
+
+    //check if the email is already in use on salesforce as a whole
+    const existingUser = await conn.query(`
       SELECT Id, Email 
-      FROM Contact
-      WHERE AccountId = '${accountId}'
+      FROM User
+      WHERE Email = '${email}'
     `);
 
-    //if email is already in use, return an error
-    if (contacts.records.some((contact) => contact.Email === email)) {
+    if (existingUser.totalSize > 0) {
       return NextResponse.json(
         {
           error:
-            "Email is already in use. If you have not yet set your password, please set in via the email sent",
+            "Email is already in use. If you have not yet set your password, please set in via the email sent. If further assistance is needed, please call 1-866-273-7846 between 9am-5pm EST",
         },
         { status: 409 }
       );
