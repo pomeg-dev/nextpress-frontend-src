@@ -52,8 +52,7 @@ export default async function Post(props: NextProps) {
 
   return (
     <>
-    <head>
-      </head>
+      <head></head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
         {settings.google_tag_manager_enabled === true && (
@@ -70,7 +69,7 @@ export default async function Post(props: NextProps) {
         }
         <main
           className={classNames(
-            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
+            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] min-h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
           )}
           data-pageurl={post.slug.slug}
           data-postid={post.id}
