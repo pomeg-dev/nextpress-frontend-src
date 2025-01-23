@@ -56,7 +56,6 @@ async function testConnection(config: ConnectionConfig) {
       ...config,
       connectionLimit: 1,
       connectTimeout: 10000,
-      debug: ["ComQueryPacket", "RowDataPacket"],
     });
 
     connection = await pool.getConnection();
@@ -73,9 +72,11 @@ async function testConnection(config: ConnectionConfig) {
         connectionMs: connectionTime,
         queryMs: queryTime,
       },
-      connection: {
+      connectionInfo: {
         threadId: connection.threadId,
-        config: connection.config,
+        database: config.database,
+        host: config.host,
+        user: config.user,
       },
       network: hostInfo,
       timestamp: new Date().toISOString(),
@@ -89,7 +90,12 @@ async function testConnection(config: ConnectionConfig) {
       timing: {
         totalMs: Date.now() - startTime,
       },
-      network: await getHostDetails(config.host),
+      connectionInfo: {
+        database: config.database,
+        host: config.host,
+        user: config.user,
+      },
+      network: hostInfo,
       timestamp: new Date().toISOString(),
     };
   } finally {
