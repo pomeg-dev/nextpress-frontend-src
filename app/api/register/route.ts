@@ -15,7 +15,6 @@ export async function POST(request: Request) {
     const jdeRecord = await getMysqlDataApi(
       `SELECT * FROM customers WHERE aban8 = '${jdeNumber}'`
     );
-    // {aban8: 12216,acct_name: "'09 Dental",cust_name: "'09 Dental",tgt_type: "Tier C",status: "",am_terr: "804-San Antonio TX",emp_nm: "Allison Bakutis-Perez",area: "1-Commercial",am_reg: "08-Southwest",spec: "D",subscr_tier: "",oig_flag: "",ppp_tier: "P24",pr2_flg: "",cat29: "PPP",phoneno: "210-805-8446",email: "DDS@SPALTEN.COM",address1: "120 Austin Hwy Ste 101 ",city: "San Antonio",state: "TX",zip: "78209",decile_arestinbnb: "7",decile_antim: "1",decile_srp: "2",location_srp_d4321_percentage: "0.19",location_srp_d4322_percentage: "0.34",location_srp_d4910_percentage: "0.48",abac03: "COM",abac21: "",aban84: 12216,
 
     const fName = jdeRecord[0].cust_name;
     // 1. Look up Account
