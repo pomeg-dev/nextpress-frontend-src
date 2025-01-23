@@ -1,6 +1,10 @@
 // app/api/test-mysql/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import mysql, { Pool, PoolConnection } from "mysql2/promise";
+import dns from "dns";
+import { promisify } from "util";
+
+const lookup = promisify(dns.lookup);
 
 interface ConnectionConfig {
   host: string;
@@ -24,23 +28,56 @@ const configs: ConnectionConfig[] = [
   },
 ];
 
+async function getHostDetails(hostname: string) {
+  try {
+    const { address, family } = await lookup(hostname);
+    return {
+      ip: address,
+      ipVersion: `IPv${family}`,
+      hostname,
+    };
+  } catch (error: any) {
+    return {
+      error: error.message,
+      hostname,
+    };
+  }
+}
+
 async function testConnection(config: ConnectionConfig) {
   let pool: Pool | null = null;
   let connection: PoolConnection | null = null;
+  const startTime = Date.now();
 
   try {
+    const hostInfo = await getHostDetails(config.host);
+
     pool = mysql.createPool({
       ...config,
       connectionLimit: 1,
       connectTimeout: 10000,
+      debug: ["ComQueryPacket", "RowDataPacket"],
     });
 
     connection = await pool.getConnection();
+    const connectionTime = Date.now() - startTime;
+
     const [results] = await connection.query("SELECT * FROM customers LIMIT 1");
+    const queryTime = Date.now() - startTime - connectionTime;
 
     return {
       success: true,
       data: results,
+      timing: {
+        totalMs: Date.now() - startTime,
+        connectionMs: connectionTime,
+        queryMs: queryTime,
+      },
+      connection: {
+        threadId: connection.threadId,
+        config: connection.config,
+      },
+      network: hostInfo,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -48,6 +85,11 @@ async function testConnection(config: ConnectionConfig) {
       success: false,
       message: error.message,
       code: error.code,
+      sqlState: error.sqlState,
+      timing: {
+        totalMs: Date.now() - startTime,
+      },
+      network: await getHostDetails(config.host),
       timestamp: new Date().toISOString(),
     };
   } finally {
