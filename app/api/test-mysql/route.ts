@@ -28,7 +28,7 @@ const configs: ConnectionConfig[] = [
   },
 ];
 
-async function testConnection(config: ConnectionConfig) {
+async function testConnection(config: ConnectionConfig, requestInfo: any) {
   let pool: Pool | null = null;
   let connection: PoolConnection | null = null;
   const startTime = Date.now();
@@ -63,7 +63,10 @@ async function testConnection(config: ConnectionConfig) {
         host: config.host,
         user: config.user,
       },
-      network: networkInfo,
+      network: {
+        database: networkInfo,
+        request: requestInfo,
+      },
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -80,7 +83,10 @@ async function testConnection(config: ConnectionConfig) {
         host: config.host,
         user: config.user,
       },
-      network: networkInfo,
+      network: {
+        database: networkInfo,
+        request: requestInfo,
+      },
       timestamp: new Date().toISOString(),
     };
   } finally {
@@ -105,12 +111,20 @@ async function getHostDetails(hostname: string) {
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const requestInfo = {
+      ip: request.ip || request.headers.get("x-real-ip"),
+      forwardedFor: request.headers.get("x-forwarded-for"),
+      vercelRegion: request.headers.get("x-vercel-ip-region"),
+      userAgent: request.headers.get("user-agent"),
+      host: request.headers.get("host"),
+    };
+
     const results = await Promise.all(
       configs.map(async (config, index) => ({
         configName: index === 0 ? "Bausch Config" : "OEDDBP Config",
-        result: await testConnection(config),
+        result: await testConnection(config, requestInfo),
       }))
     );
 
