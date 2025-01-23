@@ -28,6 +28,12 @@ const configs: ConnectionConfig[] = [
   },
 ];
 
+async function getPublicIp() {
+  const response = await fetch("https://api.ipify.org?format=json");
+  const data = await response.json();
+  return data.ip;
+}
+
 async function testConnection(config: ConnectionConfig, requestInfo: any) {
   let pool: Pool | null = null;
   let connection: PoolConnection | null = null;
@@ -36,6 +42,7 @@ async function testConnection(config: ConnectionConfig, requestInfo: any) {
 
   try {
     networkInfo = await getHostDetails(config.host);
+    const outboundIp = await getPublicIp();
 
     pool = mysql.createPool({
       ...config,
@@ -66,6 +73,7 @@ async function testConnection(config: ConnectionConfig, requestInfo: any) {
       network: {
         database: networkInfo,
         request: requestInfo,
+        outboundIp,
       },
       timestamp: new Date().toISOString(),
     };
