@@ -28,29 +28,14 @@ const configs: ConnectionConfig[] = [
   },
 ];
 
-async function getHostDetails(hostname: string) {
-  try {
-    const { address, family } = await lookup(hostname);
-    return {
-      ip: address,
-      ipVersion: `IPv${family}`,
-      hostname,
-    };
-  } catch (error: any) {
-    return {
-      error: error.message,
-      hostname,
-    };
-  }
-}
-
 async function testConnection(config: ConnectionConfig) {
   let pool: Pool | null = null;
   let connection: PoolConnection | null = null;
   const startTime = Date.now();
+  let networkInfo;
 
   try {
-    const hostInfo = await getHostDetails(config.host);
+    networkInfo = await getHostDetails(config.host);
 
     pool = mysql.createPool({
       ...config,
@@ -78,7 +63,7 @@ async function testConnection(config: ConnectionConfig) {
         host: config.host,
         user: config.user,
       },
-      network: hostInfo,
+      network: networkInfo,
       timestamp: new Date().toISOString(),
     };
   } catch (error: any) {
@@ -95,12 +80,28 @@ async function testConnection(config: ConnectionConfig) {
         host: config.host,
         user: config.user,
       },
-      network: hostInfo,
+      network: networkInfo,
       timestamp: new Date().toISOString(),
     };
   } finally {
     if (connection) await connection.release();
     if (pool) await pool.end();
+  }
+}
+
+async function getHostDetails(hostname: string) {
+  try {
+    const { address, family } = await lookup(hostname);
+    return {
+      ip: address,
+      ipVersion: `IPv${family}`,
+      hostname,
+    };
+  } catch (error: any) {
+    return {
+      error: error.message,
+      hostname,
+    };
   }
 }
 
