@@ -1,31 +1,55 @@
-// app/api/test-db/route.ts
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
+// Define database configurations
+const dbConfigs = [
+  {
+    host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
+    database: "OEDDBP01",
+    label: "Primary Database",
+  },
+  {
+    host: "10.253.227.173",
+    database: "OEDDBR01",
+    label: "IP1",
+  },
+  {
+    host: "98.85.89.58",
+    database: "OEDDBR02",
+    label: "IP2",
+  },
+];
+
 async function getPublicIp() {
-  const response = await fetch("https://api.ipify.org?format=json");
-  const data = await response.json();
-  return data.ip;
+  try {
+    const response = await fetch("https://api.ipify.org?format=json");
+    const data = await response.json();
+    return data.ip;
+  } catch (error) {
+    console.error("Failed to fetch public IP:", error);
+    return "Failed to fetch IP";
+  }
 }
 
-export async function GET() {
+async function testDatabaseConnection(
+  config: typeof dbConfigs[0],
+  credentials: { user: string; password: string }
+) {
   const startTime = Date.now();
-
-  const outboundIp = await getPublicIp();
-
   try {
     const connection = await mysql.createConnection({
-      host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
-      user: "oeddbprod01",
-      password: "MLKXHSeSJ4xTeYtEU1Hl", // Add this to .env.local and Vercel
-      database: "OEDDBP01",
+      host: config.host,
+      user: credentials.user,
+      password: credentials.password,
+      database: config.database,
+      connectTimeout: 10000, // 10 second timeout
     });
 
-    // Simple test query
+    // Test query
     const [result] = await connection.execute("SELECT 1 as test");
     await connection.end();
 
-    return NextResponse.json({
+    return {
       success: true,
       message: "Connection successful",
       timing: {
@@ -33,29 +57,57 @@ export async function GET() {
       },
       result,
       connectionInfo: {
-        host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
-        database: "OEDDBP01",
-        user: "oeddbprod01",
+        host: config.host,
+        database: config.database,
+        user: credentials.user,
+        label: config.label,
       },
-      outboundIp: outboundIp,
-    });
+    };
   } catch (error: any) {
-    return NextResponse.json(
-      {
-        success: false,
-        message: error.message,
-        code: error.code,
-        timing: {
-          totalMs: Date.now() - startTime,
-        },
-        connectionInfo: {
-          host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
-          database: "OEDDBP01",
-          user: "oeddbprod01",
-        },
-        outboundIp: outboundIp,
+    return {
+      success: false,
+      message: error.message,
+      code: error.code,
+      timing: {
+        totalMs: Date.now() - startTime,
       },
-      { status: 500 }
-    );
+      connectionInfo: {
+        host: config.host,
+        database: config.database,
+        user: credentials.user,
+        label: config.label,
+      },
+    };
   }
+}
+
+export async function GET() {
+  const startTime = Date.now();
+  const outboundIp = await getPublicIp();
+
+  // Get credentials from environment variables
+  const credentials = {
+    user: "oeddbprod01",
+    password: "MLKXHSeSJ4xTeYtEU1Hl", // This should be in environment variables
+  };
+
+  // Test all database connections
+  const results = await Promise.all(
+    dbConfigs.map((config) => testDatabaseConnection(config, credentials))
+  );
+
+  const anySuccess = results.some((result) => result.success);
+  const status = anySuccess ? 200 : 500;
+
+  return NextResponse.json(
+    {
+      overallSuccess: anySuccess,
+      timing: {
+        totalMs: Date.now() - startTime,
+      },
+      outboundIp,
+      results,
+    },
+    { status }
+  );
 }
