@@ -40,9 +40,9 @@ async function testConnection(config: ConnectionConfig, requestInfo: any) {
   const startTime = Date.now();
   let networkInfo;
 
+  const outboundIp = await getPublicIp();
   try {
     networkInfo = await getHostDetails(config.host);
-    const outboundIp = await getPublicIp();
 
     pool = mysql.createPool({
       ...config,
@@ -94,6 +94,7 @@ async function testConnection(config: ConnectionConfig, requestInfo: any) {
       network: {
         database: networkInfo,
         request: requestInfo,
+        outboundIp,
       },
       timestamp: new Date().toISOString(),
     };
