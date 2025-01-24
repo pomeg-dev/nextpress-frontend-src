@@ -15,7 +15,7 @@ export async function GET() {
 
   try {
     const connection = await mysql.createConnection({
-      host: "10.253.227.173",
+      host: "98.85.89.58",
       user: "oeddbprod01",
       password: "MLKXHSeSJ4xTeYtEU1Hl", // Add this to .env.local and Vercel
       database: "OEDDBP01",
@@ -33,7 +33,7 @@ export async function GET() {
       },
       result,
       connectionInfo: {
-        host: "10.253.227.173",
+        host: "98.85.89.58",
         database: "OEDDBP01",
         user: "oeddbprod01",
       },
@@ -49,7 +49,7 @@ export async function GET() {
           totalMs: Date.now() - startTime,
         },
         connectionInfo: {
-          host: "10.253.227.173",
+          host: "98.85.89.58",
           database: "OEDDBP01",
           user: "oeddbprod01",
         },

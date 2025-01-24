@@ -21,7 +21,7 @@ const configs: ConnectionConfig[] = [
     password: "5rzO!owyosCyC8TQsqiwi%Z7V^r#",
   },
   {
-    host: "10.253.227.173",
+    host: "98.85.89.58",
     database: "OEDDBP01",
     user: "oeddbprod01",
     password: "MLKXHSeSJ4xTeYtEU1Hl",
