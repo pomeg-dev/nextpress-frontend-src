@@ -6,11 +6,11 @@ const dbConfigs = [
   {
     host: "3.217.9.205",
     database: "OEDDBP01",
-    label: "Primary Database",
+    label: "IP1",
   },
   {
     host: "98.85.89.58",
-    database: "OEDDBR02",
+    database: "OEDDBR01",
     label: "IP2",
   },
 ];
