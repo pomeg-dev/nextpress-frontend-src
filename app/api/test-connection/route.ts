@@ -10,7 +10,7 @@ const dbConfigs = [
   },
   {
     host: "98.85.89.58",
-    database: "OEDDBR01",
+    database: "OEDDBP01",
     label: "IP2",
   },
 ];
