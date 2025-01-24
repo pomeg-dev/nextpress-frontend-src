@@ -9,7 +9,7 @@ export async function GET() {
     const connection = await mysql.createConnection({
       host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
       user: "oeddbprod01",
-      password: process.env.DB_PASSWORD, // Add this to .env.local and Vercel
+      password: "MLKXHSeSJ4xTeYtEU1Hl", // Add this to .env.local and Vercel
       database: "OEDDBP01",
     });
 
