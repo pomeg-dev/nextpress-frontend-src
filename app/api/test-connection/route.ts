@@ -2,8 +2,16 @@
 import { NextResponse } from "next/server";
 import mysql from "mysql2/promise";
 
+async function getPublicIp() {
+  const response = await fetch("https://api.ipify.org?format=json");
+  const data = await response.json();
+  return data.ip;
+}
+
 export async function GET() {
   const startTime = Date.now();
+
+  const outboundIp = await getPublicIp();
 
   try {
     const connection = await mysql.createConnection({
@@ -29,6 +37,7 @@ export async function GET() {
         database: "OEDDBP01",
         user: "oeddbprod01",
       },
+      outboundIp: outboundIp,
     });
   } catch (error: any) {
     return NextResponse.json(
@@ -44,6 +53,7 @@ export async function GET() {
           database: "OEDDBP01",
           user: "oeddbprod01",
         },
+        outboundIp: outboundIp,
       },
       { status: 500 }
     );
