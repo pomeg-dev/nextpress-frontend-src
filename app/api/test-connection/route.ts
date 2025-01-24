@@ -4,14 +4,9 @@ import mysql from "mysql2/promise";
 // Define database configurations
 const dbConfigs = [
   {
-    host: "swapdbsoedp01.cpcrqvroa809.us-east-1.rds.amazonaws.com",
+    host: "3.217.9.205",
     database: "OEDDBP01",
     label: "Primary Database",
-  },
-  {
-    host: "10.253.227.173",
-    database: "OEDDBR01",
-    label: "IP1",
   },
   {
     host: "98.85.89.58",
