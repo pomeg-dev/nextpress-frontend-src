@@ -39,6 +39,8 @@ async function getJDERecord(jdeNumber: string): Promise<JDERecord> {
     `SELECT * FROM customers WHERE aban8 = ${jdeNumber}`
   );
 
+  console.log("JDE record:", record);
+
   if (!record || record.length === 0) {
     throw new RegistrationError(
       "JDE record not found. Please verify your JDE number.",
