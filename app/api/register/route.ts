@@ -39,10 +39,6 @@ async function getJDERecord(jdeNumber: string): Promise<JDERecord> {
     `SELECT * FROM customers WHERE aban8 = ${jdeNumber}`
   );
 
-  // Debugging
-  const testSelect = await getMysqlDataApi(`SELECT count(*) FROM customers;`);
-  console.log("Test select:", testSelect);
-
   console.log("JDE record:", record);
 
   if (!record || record.length === 0) {
