@@ -114,6 +114,8 @@ export const getSalesforceConnection = cache(async () => {
       console.log("Access token refreshed successfully");
     });
 
+    console.log("Salesforce connection::: ", conn);
+
     return conn;
   } catch (error) {
     console.error("Failed to establish Salesforce connection:", error);
