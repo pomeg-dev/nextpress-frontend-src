@@ -1,5 +1,5 @@
 // app/api/customer/data/route.ts
-import { getMysqlDataApi } from "@themes/elite-dashboard/blocks/elite-tool/data";
+import { getMysqlData } from "@/lib/server/mysql";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -36,7 +36,7 @@ export async function GET(request: NextRequest) {
   `;
 
   try {
-    const aban8result = await getMysqlDataApi(aban8Query);
+    const aban8result = await getMysqlData(aban8Query);
     if (!aban8result) {
       return NextResponse.json([]);
     }

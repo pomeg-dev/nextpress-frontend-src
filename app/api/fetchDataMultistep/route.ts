@@ -1,5 +1,5 @@
 // app/api/customer/multistep/route.ts
-import { getMysqlDataApi } from "@themes/elite-dashboard/blocks/elite-tool/data";
+import { getMysqlData } from "@/lib/server/mysql";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest) {
@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
   `;
 
   try {
-    const sqlResult = await getMysqlDataApi(sqlQuery);
+    const sqlResult = await getMysqlData(sqlQuery);
     if (!sqlResult || sqlResult.length < 1) {
       return NextResponse.json(null);
     }
