@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const aban8 = searchParams.get("aban8");
-  const tiers = JSON.parse(searchParams.get("tiers") || "[]");
 
   if (!aban8) {
     return NextResponse.json(
@@ -86,7 +85,7 @@ export async function GET(request: NextRequest) {
       const relatedAccResponse = await fetch(
         `${
           process.env.NEXT_PUBLIC_FRONTEND_URL
-        }/api/customer/data?aban8List=${data.related_accounts
+        }/fetchCustomerData?aban8List=${data.related_accounts
           .map((acc: any) => acc.related_aban8)
           .join(",")}`
       );
@@ -101,7 +100,7 @@ export async function GET(request: NextRequest) {
       }
     } else {
       const indResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/customer/data?aban8List=${aban8}`
+        `${process.env.NEXT_PUBLIC_FRONTEND_URL}/fetchCustomerData?aban8List=${aban8}`
       );
       const indData = await indResponse.json();
 
@@ -142,3 +141,58 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+
+const tiers = [
+  {
+    number_of_boxes: 6,
+    discount_percentage: 6,
+  },
+  {
+    number_of_boxes: 12,
+    discount_percentage: 12,
+  },
+  {
+    number_of_boxes: 24,
+    discount_percentage: 18,
+  },
+  {
+    number_of_boxes: 36,
+    discount_percentage: 23,
+  },
+  {
+    number_of_boxes: 48,
+    discount_percentage: 25,
+  },
+  {
+    number_of_boxes: 60,
+    discount_percentage: 27,
+  },
+  {
+    number_of_boxes: 96,
+    discount_percentage: 29,
+  },
+  {
+    number_of_boxes: 120,
+    discount_percentage: 31,
+  },
+  {
+    number_of_boxes: 156,
+    discount_percentage: 33,
+  },
+  {
+    number_of_boxes: 300,
+    discount_percentage: 35,
+  },
+  {
+    number_of_boxes: 500,
+    discount_percentage: 39,
+  },
+  {
+    number_of_boxes: 800,
+    discount_percentage: 42,
+  },
+  {
+    number_of_boxes: 1000,
+    discount_percentage: 44,
+  },
+];
