@@ -13,6 +13,9 @@ export async function GET() {
   const token = cookieStore.get("auth_token")?.value;
   const payload = cookieStore.get("auth_payload")?.value;
 
+  console.log("Token:", token);
+  console.log("Payload:", payload);
+
   if (!token || !payload) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
