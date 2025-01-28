@@ -118,7 +118,12 @@ async function fetchDataMultistep(aban8: string) {
   }
 
   // Set tiers
-  const tierBoxes = data.current_account?.ppp_tier.replace("P", "");
+  //if ppp_tier is P1K, then tierBoxes = 1000
+  let tierBoxes = data.current_account?.ppp_tier.replace("P", "");
+  if (tierBoxes === "1K") {
+    tierBoxes = "1000";
+  }
+
   const currentTierIndex = tiers.findIndex(
     (item: { number_of_boxes: number }) => item.number_of_boxes >= tierBoxes
   );
@@ -145,6 +150,7 @@ async function fetchCustomerData(
   const aban8List = aban8array
     .map((item: { related_aban8: any }) => item.related_aban8)
     .join(", ");
+  console.log("aban8List:", aban8List);
   const aban8Query = `
     SELECT
       c.aban8,
