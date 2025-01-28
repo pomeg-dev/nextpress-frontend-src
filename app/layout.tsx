@@ -32,6 +32,11 @@ export default async function Layout({
     <html {...themeProps} className={fontVariables}>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
+        {settings.google_tag_manager_enabled === true && (
+          <Suspense>
+            <GTM GTM_ID={settings.google_tag_manager_id} />
+          </Suspense>
+        )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         {children}
         <AfterContent defaultTemplate={defaultTemplate} />

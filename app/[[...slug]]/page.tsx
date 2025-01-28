@@ -5,6 +5,8 @@ import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
+import { GTM } from "../(extras)/gtm";
+import { Suspense } from "react";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -47,6 +49,11 @@ export default async function Post(props: NextProps) {
     <>
       <NPAdminBar postID={post.id} />
       <Styles settings={settings} />
+      {settings.google_tag_manager_enabled === true && (
+        <Suspense>
+          <GTM GTM_ID={settings.google_tag_manager_id} />
+        </Suspense>
+      )}
       <main data-pageurl={post.slug.slug} data-postid={post.id}>
         {post.content && <BlockParser blocks={post.content} />}
       </main>
