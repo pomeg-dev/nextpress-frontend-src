@@ -1,10 +1,10 @@
-import { trackUserLogin } from "@themes/elite-dashboard/blocks/header/utils/hubspotTracking";
 import { useState, useEffect } from "react";
 
 interface UserData {
   firstName?: string;
   name?: string;
   email?: string;
+  JDE_Account_ID__c?: any;
 }
 
 export function useAuth() {
