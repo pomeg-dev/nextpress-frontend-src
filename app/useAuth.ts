@@ -22,6 +22,7 @@ export function useAuth() {
             setUserData({
               firstName: data.payload.firstName,
               email: data.payload.email,
+              JDE_Account_ID__c: data.payload.JDE_Account_ID__c,
             });
             setLoading(false);
             return;
