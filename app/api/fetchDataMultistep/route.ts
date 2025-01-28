@@ -96,6 +96,8 @@ async function fetchDataMultistep(aban8: string) {
   const data = sqlResult[0];
   data.current_account = null;
 
+  console.log("Data:", data);
+
   if (data.account_type !== "Individual" && data.related_accounts) {
     const relatedAccData = await fetchCustomerData(data.related_accounts);
     if (relatedAccData) {
@@ -165,8 +167,11 @@ async function fetchCustomerData(
     GROUP BY c.aban8, c.acct_name, c.cust_name, c.ppp_tier, c.email;
   `;
 
+  console.log("Fetching customer data:", aban8Query);
+
   try {
     const aban8result = await getMysqlData(aban8Query);
+    console.log("Customer data:", aban8result);
     if (aban8result) {
       aban8result.forEach((account: { aban8: string; account_type: any }) => {
         const match = aban8array.find(
