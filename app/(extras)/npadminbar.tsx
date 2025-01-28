@@ -52,7 +52,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
   if (!loggedIn || !isAdmin) return null;
 
   return (
-    <div className="np-admin-bar fixed bottom-0 left-0 z-50 flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
+    <div className="np-admin-bar fixed bottom-0 left-0 z-[9999] flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
       <div>
         <span>
           Site: {blogId} | User ID: {userId} ({userName})
