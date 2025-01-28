@@ -37,6 +37,7 @@ export function useAuth() {
               firstName: session.user.name?.split(" ")[0] || "User",
               name: session.user.name,
               email: session.user.email,
+              JDE_Account_ID__c: session.user.JDE_Account_ID__c,
             });
           }
         }
