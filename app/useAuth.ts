@@ -1,3 +1,4 @@
+import { trackUserLogin } from "@themes/elite-dashboard/blocks/header/utils/hubspotTracking";
 import { useState, useEffect } from "react";
 
 interface UserData {
