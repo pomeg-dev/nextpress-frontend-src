@@ -8,6 +8,7 @@ import { getBlockTheme } from "@/lib/wp/theme";
 import { fontVariables } from "@themes/fonts/font-loader";
 import { Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
+import { Suspense } from "react";
 
 export default async function Layout({
   children,
@@ -35,10 +36,12 @@ export default async function Layout({
       {/* <body className="no-transition"> */}
       <body className="no-transition">
         <Providers>
-          <AuthCheck />
-          <BeforeContent defaultTemplate={defaultTemplate} />
-          {children}
-          <AfterContent defaultTemplate={defaultTemplate} />
+          <Suspense fallback={null}>
+            <AuthCheck />
+            <BeforeContent defaultTemplate={defaultTemplate} />
+            {children}
+            <AfterContent defaultTemplate={defaultTemplate} />
+          </Suspense>
         </Providers>
       </body>
       <Animations />
