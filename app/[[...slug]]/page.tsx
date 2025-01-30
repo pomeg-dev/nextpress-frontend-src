@@ -8,7 +8,7 @@ import { decode } from "html-entities";
 import { GTM } from "../(extras)/gtm";
 import { Suspense } from "react";
 
-export const dynamic = "force-static"; //unsure what this fixed but it was something
+export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
 
 type NextProps = {
   params: {

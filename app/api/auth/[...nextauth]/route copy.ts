@@ -1,61 +1,12 @@
 // api/auth/[...nextauth].ts
+
 import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { jwtVerify } from "jose";
 
-const SECRET_KEY = new TextEncoder().encode(
-  process.env.NEXT_PUBLIC_JWT_SECRET_KEY ||
-    "your-very-secure-and-randomly-generated-secret-key"
-);
-
+// Move the auth options to a separate variable
 const options: NextAuthOptions = {
   providers: [
-    CredentialsProvider({
-      id: "token-login",
-      name: "Token",
-      credentials: {
-        token: { label: "Token", type: "text" },
-      },
-      async authorize(credentials) {
-        console.log("credentials authorize", credentials);
-        try {
-          // For local testing
-          if (
-            process.env.NODE_ENV === "development" &&
-            credentials?.token === "validtoken"
-          ) {
-            return {
-              id: "1",
-              name: "Test User",
-              email: "test@example.com",
-              jdeAccountId: "4495", //example jde that will allow load of dash etc
-              accessToken: "test-token",
-              refreshToken: "test-refresh-token",
-            };
-          }
-
-          if (!credentials?.token) {
-            return null;
-          }
-
-          // Verify the JWT token
-          const { payload } = await jwtVerify(credentials.token, SECRET_KEY);
-
-          return {
-            id: payload.sub as string,
-            name: (payload.firstName as string) || (payload.lastName as string),
-            email: payload.email as string,
-            jdeAccountId: payload.JDE_Account_ID__c as string,
-            accessToken: credentials.token,
-            profile: payload,
-          };
-        } catch (error) {
-          console.error("Token verification error:", error);
-          return null;
-        }
-      },
-    }),
     CredentialsProvider({
       id: "salesforce-login",
       name: "Salesforce",
@@ -64,13 +15,11 @@ const options: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("credentials22 authorize", credentials);
         try {
           if (!credentials?.username || !credentials?.password) {
             throw new Error("Missing username or password");
           }
 
-          // Your existing Salesforce authentication logic here
           const encodedUNPW = Buffer.from(
             `${credentials.username}:${credentials.password}`
           ).toString("base64");
@@ -169,11 +118,11 @@ const options: NextAuthOptions = {
 
           const userInfo = await userInfoResponse.json();
 
+          // Return user object with tokens and user info
           return {
             id: userInfo.user_id || tokenData.id,
             name: userInfo.name || credentials.username,
             email: userInfo.email || credentials.username,
-            jdeAccountId: userInfo.jdeAccountId || null,
             accessToken: tokenData.access_token,
             refreshToken: tokenData.refresh_token,
             profile: userInfo,
@@ -190,47 +139,26 @@ const options: NextAuthOptions = {
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   callbacks: {
-    async signIn({ user, account }) {
-      // Store the auth token in a cookie for the payload route
-      // if (account?.provider === "token-login" && user.accessToken) {
-      //   const response = await fetch("/api/auth/set-token", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({ token: user.accessToken }),
-      //   });
-
-      //   if (!response.ok) {
-      //     return false;
-      //   }
-      // }
-      return true;
-    },
     async jwt({ token, user, account }) {
+      // Initial sign in
       if (user && account) {
         token.accessToken = (user as any).accessToken;
         token.refreshToken = (user as any).refreshToken;
-        token.jdeAccountId = (user as any).jdeAccountId;
-        token.tokenExpiry = Date.now() + 7200 * 1000;
-        token.provider = account.provider;
+        token.tokenExpiry = Date.now() + 7200 * 1000; // Assuming 2 hour expiry
       }
 
-      if (
-        token.provider === "salesforce-login" &&
-        Date.now() >= (token.tokenExpiry as number)
-      ) {
-        return refreshAccessToken(token);
+      // Return previous token if the access token has not expired
+      if (Date.now() < (token.tokenExpiry as number)) {
+        return token;
       }
 
-      return token;
+      // Access token has expired, try to refresh it
+      return refreshAccessToken(token);
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).accessToken = token.accessToken;
         (session.user as any).refreshToken = token.refreshToken;
-        (session.user as any).provider = token.provider;
-        (session.user as any).jdeAccountId = token.jdeAccountId;
       }
       return session;
     },
@@ -284,5 +212,8 @@ async function refreshAccessToken(token: any) {
   }
 }
 
+// Create the auth handler with the options
 const handler = NextAuth(options);
+
+// Export the handler as GET and POST
 export { handler as GET, handler as POST };

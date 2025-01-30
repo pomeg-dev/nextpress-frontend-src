@@ -6,6 +6,8 @@ import "../ui/globals.scss";
 import { getDefaultTemplate } from "@/lib/wp/posts";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { fontVariables } from "@themes/fonts/font-loader";
+import { Providers } from "./providers";
+import { AuthCheck } from "./AuthCheck";
 
 export default async function Layout({
   children,
@@ -32,9 +34,12 @@ export default async function Layout({
     <html {...themeProps} className={fontVariables}>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
-        <BeforeContent defaultTemplate={defaultTemplate} />
-        {children}
-        <AfterContent defaultTemplate={defaultTemplate} />
+        <Providers>
+          <AuthCheck />
+          <BeforeContent defaultTemplate={defaultTemplate} />
+          {children}
+          <AfterContent defaultTemplate={defaultTemplate} />
+        </Providers>
       </body>
       <Animations />
     </html>
