@@ -16,7 +16,7 @@ const RETRY_DELAY_MS = 1000;
 let conn: Connection | null = null;
 
 // Environment check
-const isDevelopment = process.env.NEXT_PUBLIC_SALESFORCE_DOMAIN!.includes(
+const isDevelopment = !process.env.NEXT_PUBLIC_SALESFORCE_DOMAIN || process.env.NEXT_PUBLIC_SALESFORCE_DOMAIN!.includes(
   "orapharma--orapharmad"
 );
 
