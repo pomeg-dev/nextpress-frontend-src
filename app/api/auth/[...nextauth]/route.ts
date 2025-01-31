@@ -235,7 +235,7 @@ const options: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Remove token from URL
+      // Remove token from URL.
       const cleanUrl = url.replace(/[?&]token=[^&]+/, "");
       const finalUrl = cleanUrl.replace(/\?$/, "");
 
