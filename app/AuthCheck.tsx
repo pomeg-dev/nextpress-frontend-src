@@ -12,31 +12,22 @@ export function AuthCheck() {
   useEffect(() => {
     const handleAuth = async () => {
       const token = searchParams.get("token");
+
       if (token && status === "unauthenticated") {
         try {
           const result = await signIn("token-login", {
             token,
-            redirect: false,
+            redirect: true,
           });
 
-          console.log("Auth result:", result); // Debug log
-
           if (result?.error) {
-            console.log("Auth error:", result.error); // Debug log
+            console.log("Auth error:", result.error);
             router.push("/register");
           }
         } catch (error) {
           console.error("Auth error:", error);
           router.push("/register");
         }
-      } else {
-        //remove only the token param from the URL
-        window.history.replaceState(
-          {},
-          "",
-          window.location.pathname +
-            window.location.search.replace(/&?token=[^&]+/, "")
-        );
       }
     };
 

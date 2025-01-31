@@ -234,10 +234,26 @@ const options: NextAuthOptions = {
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Remove token from URL
+      const cleanUrl = url.replace(/[?&]token=[^&]+/, "");
+      const finalUrl = cleanUrl.replace(/\?$/, "");
+
+      // If it's a relative URL, resolve it relative to the base URL
+      if (finalUrl.startsWith("/")) {
+        return `${baseUrl}${finalUrl}`;
+      }
+      // If it's already an absolute URL, just return it
+      else if (finalUrl.startsWith("http")) {
+        return finalUrl;
+      }
+      // Default to the base URL
+      return baseUrl;
+    },
   },
   pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
+    signIn: "/register",
+    error: "/register",
   },
 };
 
