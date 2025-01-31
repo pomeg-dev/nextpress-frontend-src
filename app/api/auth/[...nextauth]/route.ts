@@ -243,7 +243,7 @@ const options: NextAuthOptions = {
       if (finalUrl.startsWith("/")) {
         return `${baseUrl}${finalUrl}`;
       }
-      // If it's already an absolute URL, just return it
+      // If it's already an absolute URL, just return ita
       else if (finalUrl.startsWith("http")) {
         return finalUrl;
       }
