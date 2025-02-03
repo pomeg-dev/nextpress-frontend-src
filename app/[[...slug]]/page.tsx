@@ -5,6 +5,7 @@ import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
+import { redirect } from "next/navigation";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -35,14 +36,6 @@ export default async function Post(props: NextProps) {
   }
   const settings = await getSettings();
 
-  // return (
-  //   <>
-  //     {/* <div className="flex pb-[20px]" style={{ marginBottom: "100px" }}>
-  //       {JSON.stringify(post.template.before_content)}
-  //     </div> */}
-  //     <div className="pb-[20px]">{JSON.stringify(post.content)}</div>
-  //   </>
-  // );
   return (
     <>
       <NPAdminBar postID={post.id} />
@@ -82,6 +75,10 @@ export async function generateMetadata(props: NextProps) {
   if (!post) return null;
 
   if (post.yoastHeadJSON) {
+    if (post.yoastHeadJSON.redirect) {
+      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+    }
+
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (!path || path == "")
