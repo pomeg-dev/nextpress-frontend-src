@@ -5,7 +5,7 @@ import { PostWithContent } from "@/lib/types";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 
 export const dynamic = "force-static"; //unsure what this fixed but it was something
 
@@ -34,6 +34,11 @@ export default async function Post(props: NextProps) {
   } else {
     post = await getPostByPath(path);
   }
+
+  if (post['404'] && post['404'] === true) {
+    notFound();
+  }
+
   const settings = await getSettings();
 
   return (
