@@ -21,14 +21,6 @@ export function GTM({ GTM_ID }: { GTM_ID: string }) {
 
   return (
     <>
-      {/* <noscript>
-        <iframe
-          src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
-          height="0"
-          width="0"
-          style={{ display: "none", visibility: "hidden" }}
-        />
-      </noscript> */}
       <Script
         src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
         strategy="afterInteractive"
