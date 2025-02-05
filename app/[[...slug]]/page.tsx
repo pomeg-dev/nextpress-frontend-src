@@ -8,6 +8,8 @@ import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { VWO } from "../(extras)/vwo";
+import { VideoAsk } from "../(extras)/video-ask";
 import { GTM } from "../(extras)/gtm";
 import BeforeContent from "../BeforeContent";
 import AfterContent from "../AfterContent";
@@ -65,11 +67,29 @@ export default async function Post(props: NextProps) {
             dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.schema) }}
           />
         }
+        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
+          <Suspense>
+            <VWO accountId={settings.vwo_account_id} />
+          </Suspense>
+        )}
       </head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
+        {(settings.videoask_enabled === true && settings.videoask_url) && (
+          <Suspense>
+            <VideoAsk videoask_url={settings.videoask_url} />
+          </Suspense>
+        )}
         {settings.google_tag_manager_enabled === true && (
           <Suspense>
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
+                height="0"
+                width="0"
+                style={{ display: "none", visibility: "hidden" }}
+              />
+            </noscript>
             <GTM GTM_ID={settings.google_tag_manager_id} />
           </Suspense>
         )}

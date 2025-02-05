@@ -9,6 +9,7 @@ export type Post = {
   date: Date;
   title: string;
   excerpt: string;
+  featured_image: FeaturedImage;
   image: PostImage;
   categories: PostCategory[];
   category_names: string[];
@@ -49,6 +50,16 @@ export type PostTag = {
 export type PostImage = {
   full: string;
   thumbnail: string;
+};
+
+export type FeaturedImage = {
+  sizes: {
+    full: string;
+    large: string;
+    medium: string;
+    thumbnail: string;
+  };
+  url: string;
 };
 
 export type PostType = {
