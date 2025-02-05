@@ -16,7 +16,6 @@ export function CoreBlock({ ...block } : Block) {
   if (tagMatch) {
     tagName = tagMatch[1];
     const rawAttributes = tagMatch[2];
-    console.log('test1', rawAttributes);
     tagHtml = tagMatch[3];
     tagAtts = (rawAttributes
       .trim()
