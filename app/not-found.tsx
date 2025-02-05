@@ -45,6 +45,14 @@ export default async function NotFound() {
       <body className="no-transition">
         {settings.google_tag_manager_enabled === true && (
           <Suspense>
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
+                height="0"
+                width="0"
+                style={{ display: "none", visibility: "hidden" }}
+              />
+            </noscript>
             <GTM GTM_ID={settings.google_tag_manager_id} />
           </Suspense>
         )}

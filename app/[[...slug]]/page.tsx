@@ -53,15 +53,17 @@ export default async function Post(props: NextProps) {
   return (
     <>
       <head>
-        {metadata.hreflang && metadata.hreflang.map((locale: { code: string; href: string }) => (
-          <link
-            key={locale.code}
-            rel="alternate"
-            hrefLang={locale.code}
-            href={locale.href}
-          />
-        ))}
-        {metadata.schema &&
+        {(metadata && metadata.hreflang && metadata.hreflang.length > 0) &&
+          metadata.hreflang.map((locale: { code: string; href: string }) => (
+            <link
+              key={locale.code}
+              rel="alternate"
+              hrefLang={locale.code}
+              href={locale.href}
+            />
+          ))
+        }
+        {(metadata && metadata.schema) &&
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.schema) }}
