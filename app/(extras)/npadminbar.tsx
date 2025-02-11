@@ -1,50 +1,82 @@
-import { cookies } from "next/headers";
+"use client";
+
+import { logout } from "@/lib/wp/user-flow";
+import { Session } from "next-auth";
+import { useSession, signOut, SessionProvider, } from "next-auth/react";
+import { useEffect, useState } from "react";
+
+interface ExtendedUser extends Session {
+  id: number;
+  blog_id: string;
+  blog_url: string;
+  is_admin: boolean;
+  token: string;
+}
 
 export function NPAdminBar({ postID }: { postID: number }) {
-  const cookieStore = cookies();
-  const allCookies = cookieStore.getAll();
-
-  const nextpressCookies = allCookies.filter((cookie) =>
-    cookie.name.startsWith("nextpress_wp_")
+  return (
+    <SessionProvider>
+      <NPAdminBarContent postID={postID} />
+    </SessionProvider>
   );
+}
 
-  const decodedCookies = nextpressCookies
-    .map((cookie) => {
-      try {
-        return JSON.parse(atob(cookie.value));
-      } catch (e) {
-        console.error(`Failed to parse ${cookie.name} cookie:`, e);
-        return null;
-      }
-    })
-    .filter(Boolean);
+function NPAdminBarContent({ postID }: { postID: number }) {
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userId, setUserId] = useState(0);
+  const [userName, setUserName] = useState('');
+  const [blogUrl, setBlogUrl] = useState('');
+  const [blogId, setBlogId] = useState('');
+  const [token, setToken] = useState('');
+  const { data: session } = useSession();
 
-  if (decodedCookies.length === 0) return null;
+  const handleLogout = () => {
+    logout()
+    signOut();
+  };
+
+  useEffect(() => {
+    if (session && session.user) {
+      const user = session.user as ExtendedUser;
+      setLoggedIn(true);
+      setUserId(user.id);
+      setUserName(session.user.name ?? '');
+      setBlogId(user.blog_id);
+      setBlogUrl(user.blog_url);
+      setIsAdmin(user.is_admin);
+      setToken(user.token);
+    }
+  }, [session]);
+
+  if (!loggedIn || !isAdmin) return null;
 
   return (
-    <div className="np-admin-bar fixed bottom-0 left-0 z-50 w-full bg-[#0073aa] py-2 text-center text-white">
-      {decodedCookies.map((data, index) => (
-        <div key={index} style={{ marginBottom: "5px" }}>
-          <span>
-            Site {data.blog_id} | User ID: {data.user_id}
-          </span>
-          <a
-            href={
-              data.edit_link ||
-              `${data.wp_url}/wp-admin/post.php?post=${postID}&action=edit`
-            }
-            style={{
-              color: "white",
-              textDecoration: "underline",
-              marginLeft: "10px",
-            }}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Edit this page on Site {data.blog_id}
-          </a>
-        </div>
-      ))}
+    <div className="np-admin-bar fixed bottom-0 left-0 z-[9999] flex w-full justify-between bg-[#0073aa] px-8 py-2 text-center text-white">
+      <div>
+        <span>
+          Site: {blogId} | User ID: {userId} ({userName})
+        </span>
+        <a
+          href={`${blogUrl}/wp-admin?token=${token}`}
+          className="ml-4 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Dashboard
+        </a>
+        <a
+          href={
+            `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`
+          }
+          className="ml-4 underline"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Edit this page on Site {blogId}
+        </a>
+      </div>
+      <span className="cursor-pointer underline" onClick={() => handleLogout()}>Logout</span>
     </div>
   );
 }

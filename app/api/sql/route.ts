@@ -2,7 +2,7 @@ import { getMysqlData } from "@/lib/server/mysql";
 import { type NextRequest } from "next/server";
 
 // Whitelist of allowed SQL operations
-const ALLOWED_OPERATIONS = ["SELECT", "WITH"];
+const ALLOWED_OPERATIONS = ["SELECT", "WITH", "SHOW"];
 
 // Blacklist of dangerous SQL keywords
 const DANGEROUS_KEYWORDS = [

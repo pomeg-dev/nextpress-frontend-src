@@ -1,11 +1,9 @@
 import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
-import { PostWithContent } from "@/lib/types";
+import { getPostByPath, getDefaultTemplate, getPosts } from "@/lib/wp/posts";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
-import { decode } from "html-entities";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { VWO } from "../(extras)/vwo";
@@ -13,8 +11,14 @@ import { VideoAsk } from "../(extras)/video-ask";
 import { GTM } from "../(extras)/gtm";
 import BeforeContent from "../BeforeContent";
 import AfterContent from "../AfterContent";
+import { GatedPost } from "../(extras)/gated-post";
+import classNames from "classnames";
+import { SidebarMenu } from '@/ui/components/organisms/SidebarMenu';
+import { PostWithContent } from '@/lib/types';
+import { decode } from 'html-entities';
 
-export const dynamic = "force-static"; //unsure what this fixed but it was something
+// Should be force-static - but this breaks cookies/session.
+export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
 
 type NextProps = {
   params: {
@@ -95,10 +99,20 @@ export default async function Post(props: NextProps) {
             <GTM GTM_ID={settings.google_tag_manager_id} />
           </Suspense>
         )}
+        {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
         <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
         <Styles settings={settings} />
-        <main data-pageurl={post.slug.slug} data-postid={post.id}>
+        {post?.acf_data?.sidebar_menu &&
+          <SidebarMenu menuItems={post?.acf_data?.sidebar_menu} path={path} />
+        }
+        <main
+          className={classNames(
+            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] min-h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
+          )}
+          data-pageurl={post.slug.slug}
+          data-postid={post.id}
+        >
           {post.content && <BlockParser blocks={post.content} />}
         </main>
         <AfterContent defaultTemplate={defaultTemplate} />
