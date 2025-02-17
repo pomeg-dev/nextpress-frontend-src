@@ -37,7 +37,6 @@ export default async function Post(props: NextProps) {
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
-  if (slug && slug[0] === "block-preview") return null;
 
   const path = slug ? slug.join("/") : "";
   let post;
