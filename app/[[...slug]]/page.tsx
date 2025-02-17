@@ -136,7 +136,7 @@ export async function generateMetadata(props: NextProps) {
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
   if (slug && slug[0] === "draft") return null;
-
+  
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
