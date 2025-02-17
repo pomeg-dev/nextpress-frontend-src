@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
@@ -48,4 +48,12 @@ const BlockPreview = () => {
   );
 };
 
-export default BlockPreview;
+const BlockPreviewPage = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <BlockPreview />
+    </Suspense>
+  );
+};
+
+export default BlockPreviewPage;
