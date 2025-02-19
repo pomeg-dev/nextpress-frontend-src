@@ -24,6 +24,10 @@ export function GTM({ GTM_ID }: { GTM_ID: string }) {
       <Script
         src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
         strategy="afterInteractive"
+        onLoad={() => {
+          // Track initial page load
+          pageview(window.location.pathname);
+        }}
       />
     </>
   );
