@@ -1,9 +1,5 @@
 import Animations from "./(extras)/animations";
-import BeforeContent from "./BeforeContent";
-import AfterContent from "./AfterContent";
-import { cookies } from "next/headers";
 import "../ui/globals.scss";
-import { getDefaultTemplate } from "@/lib/wp/posts";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { fontVariables } from "@themes/fonts/font-loader";
 import { Providers } from "./providers";
@@ -15,7 +11,6 @@ export default async function Layout({
 }: {
   children: React.ReactNode;
 }) {
-  const defaultTemplate = await getDefaultTemplate();
   const themes = await getBlockTheme();
 
   // THIS NEEDS CHANGING NT VERY GOOD
@@ -33,17 +28,7 @@ export default async function Layout({
 
   return (
     <html {...themeProps} className={fontVariables}>
-      {/* <body className="no-transition"> */}
-      <body className="no-transition">
-        <Providers>
-          <Suspense fallback={null}>
-            <AuthCheck />
-            <BeforeContent defaultTemplate={defaultTemplate} />
-            {children}
-            <AfterContent defaultTemplate={defaultTemplate} />
-          </Suspense>
-        </Providers>
-      </body>
+      {children}
       <Animations />
     </html>
   );
