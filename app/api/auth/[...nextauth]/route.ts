@@ -22,7 +22,8 @@ const options: NextAuthOptions = {
         try {
           // For local testing
           if (
-            process.env.NODE_ENV === "development" &&
+            (process.env.NODE_ENV === "development" ||
+              process.env.NEXT_PUBLIC_VERCEL_ENV === "preview") &&
             credentials?.token === "validtoken"
           ) {
             return {
