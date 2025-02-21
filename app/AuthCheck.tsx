@@ -20,12 +20,14 @@ export function AuthCheck() {
         process.env.NODE_ENV === "development" ||
         process.env.VERCEL_ENV === "preview";
 
+      console.log("isDevOrPreview", isDevOrPreview);
       if (isDevOrPreview && passcode) {
         try {
           const result = await signIn("token-login", {
             token: "validtoken", // This matches the dev token check in [...nextauth].ts
             redirect: false,
           });
+          debugger;
 
           if (!result?.error) {
             return; // Successfully authenticated with passcode
