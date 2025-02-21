@@ -118,6 +118,25 @@ export type WPQuery = {
   tax_relation?: "AND" | "OR";
 };
 
+export type ImageProps = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  blurImage?: string;
+};
+
+export type LinkItemProps = {
+  url?: string;
+  target?: string;
+  title?: string;
+};
+
+export type ButtonProps = {
+  link: LinkItemProps;
+};
+
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {

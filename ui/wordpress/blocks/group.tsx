@@ -9,7 +9,7 @@ type GroupProps = Block & {
 
 const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
   const { innerBlocks, data } = block;
-  const backgroundColor = data.attrs?.backgroundColor;
+  const backgroundColor = data.attrs?.style?.color?.background || data.attrs?.backgroundColor;
   const textColor = data.attrs?.style?.color?.text || "primary";
 
   return (
@@ -22,7 +22,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
       {innerBlocks &&
         backgroundColor ? (
           <div
-            className="mb-6 p-8"
+            className="p-8"
             style={{
               backgroundColor: 
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
