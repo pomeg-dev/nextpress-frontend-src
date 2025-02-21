@@ -1,6 +1,6 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 // const cacheControl: RequestCache =
-//   process.env.VERCEL_ENV === "production" ? "force-cache" : "no-store";
+//   process.env.NEXT_PUBLIC_VERCEL_ENV === "production" ? "force-cache" : "no-store";
 const cacheControl: RequestCache = "force-cache";
 
 export async function getPostByPath(path: string) {

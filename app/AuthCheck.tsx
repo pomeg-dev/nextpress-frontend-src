@@ -18,13 +18,13 @@ export function AuthCheck() {
       // Handle passcode bypass for dev/preview environments
       const isDevOrPreview =
         process.env.NODE_ENV === "development" ||
-        process.env.VERCEL_ENV === "preview";
+        process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
 
       console.log(
         "isDevOrPreview",
         isDevOrPreview,
-        "ppp",
-        process.env.VERCEL_ENV
+        "NEXT_PUBLIC_VERCEL_ENV",
+        process.env.NEXT_PUBLIC_VERCEL_ENV
       );
       if (isDevOrPreview && passcode) {
         try {
@@ -32,7 +32,6 @@ export function AuthCheck() {
             token: "validtoken", // This matches the dev token check in [...nextauth].ts
             redirect: false,
           });
-          debugger;
 
           if (!result?.error) {
             return; // Successfully authenticated with passcode

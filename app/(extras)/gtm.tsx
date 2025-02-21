@@ -15,7 +15,7 @@ export function GTM({ GTM_ID }: { GTM_ID: string }) {
     }
   }, [pathname, searchParams]);
 
-  if (process.env.VERCEL_ENV !== "production") {
+  if (process.env.NEXT_PUBLIC_VERCEL_ENV !== "production") {
     return null;
   }
 
