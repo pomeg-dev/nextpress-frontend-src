@@ -20,7 +20,12 @@ export function AuthCheck() {
         process.env.NODE_ENV === "development" ||
         process.env.VERCEL_ENV === "preview";
 
-      console.log("isDevOrPreview", isDevOrPreview);
+      console.log(
+        "isDevOrPreview",
+        isDevOrPreview,
+        "ppp",
+        process.env.VERCEL_ENV
+      );
       if (isDevOrPreview && passcode) {
         try {
           const result = await signIn("token-login", {
