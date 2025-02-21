@@ -3,7 +3,7 @@
 import Script from "next/script";
 
 export function VWO({ accountId }: { accountId: string }) {
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV !== "production") {
+  if (process.env.VERCEL_ENV !== "production") {
     return null;
   }
 

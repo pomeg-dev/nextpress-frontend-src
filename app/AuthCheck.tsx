@@ -18,7 +18,7 @@ export function AuthCheck() {
       // Handle passcode bypass for dev/preview environments
       const isDevOrPreview =
         process.env.NODE_ENV === "development" ||
-        process.env.NEXT_PUBLIC_VERCEL_ENV === "preview";
+        process.env.VERCEL_ENV === "preview";
 
       if (isDevOrPreview && passcode) {
         try {
