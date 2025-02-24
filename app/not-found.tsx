@@ -3,7 +3,6 @@ import { getSettings } from "@/lib/wp/settings";
 import { BlockParser } from "@/ui/block-parser";
 import classNames from "classnames";
 import BeforeContent from "./BeforeContent";
-import { Styles } from "./(extras)/styles";
 import AfterContent from "./AfterContent";
 import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
@@ -40,8 +39,6 @@ export default async function NotFound() {
             </Suspense>
           )}
           <BeforeContent defaultTemplate={defaultTemplate} />
-          <Styles settings={settings} />
-
           {settings.posts_404 && post ? (
             <main data-pageurl={post.path} data-postid={post.id}>
               {post.content && <BlockParser blocks={post.content} />}

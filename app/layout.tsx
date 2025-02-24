@@ -1,10 +1,6 @@
-import Animations from "./(extras)/animations";
 import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
-import { fontVariables } from "@themes/fonts/font-loader";
-import { Providers } from "./providers";
-import { AuthCheck } from "./AuthCheck";
-import { Suspense } from "react";
+import { fontVariables } from "ui/fonts/font-loader";
 
 export default async function Layout({
   children,
@@ -29,7 +25,6 @@ export default async function Layout({
   return (
     <html {...themeProps} className={fontVariables}>
       {children}
-      <Animations />
     </html>
   );
 }

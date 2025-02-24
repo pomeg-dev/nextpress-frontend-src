@@ -3,7 +3,6 @@ import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
-import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
@@ -16,7 +15,7 @@ import AfterContent from "../AfterContent";
 import { AuthCheck } from '../AuthCheck';
 import { Providers } from '../providers';
 
-export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
+export const dynamic = "force-dynamic";
 
 type NextProps = {
   params: {
@@ -77,7 +76,6 @@ export default async function Post(props: NextProps) {
           </Suspense>
         )}
       </head>
-      {/* <body className="no-transition"> */}
       <body className="no-transition">
         {(settings.videoask_enabled === true && settings.videoask_url) && (
           <Suspense>
