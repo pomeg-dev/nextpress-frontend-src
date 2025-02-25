@@ -24,7 +24,7 @@ export default async function NotFound() {
   return (
     <Providers>
       <Suspense fallback={null}>
-        <body className="no-transition">
+        <body>
           {settings.google_tag_manager_enabled === true && (
             <Suspense>
               <noscript>

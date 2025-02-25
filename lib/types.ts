@@ -137,6 +137,13 @@ export type ButtonProps = {
   link: LinkItemProps;
 };
 
+export type MenuItemsProps = {
+  title: string;
+  url: string;
+  target?: string;
+  classes?: string[];
+};
+
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {

@@ -76,7 +76,7 @@ export default async function Post(props: NextProps) {
           </Suspense>
         )}
       </head>
-      <body className="no-transition">
+      <body>
         {(settings.videoask_enabled === true && settings.videoask_url) && (
           <Suspense>
             <VideoAsk videoask_url={settings.videoask_url} />
