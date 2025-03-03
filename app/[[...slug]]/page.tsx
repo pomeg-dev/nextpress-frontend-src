@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound } from "next/navigation";
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPostByPath, getDefaultTemplate, getPosts } from "@/lib/wp/posts";
@@ -13,9 +13,9 @@ import BeforeContent from "../BeforeContent";
 import AfterContent from "../AfterContent";
 import { GatedPost } from "../(extras)/gated-post";
 import classNames from "classnames";
-import { SidebarMenu } from '@/ui/components/organisms/SidebarMenu';
-import { PostWithContent } from '@/lib/types';
-import { decode } from 'html-entities';
+import { SidebarMenu } from "@/ui/components/organisms/SidebarMenu";
+import { PostWithContent } from "@/lib/types";
+import { decode } from "html-entities";
 
 // Should be force-static - but this breaks cookies/session.
 export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
@@ -46,7 +46,7 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
 
-  if (post['404'] && post['404'] === true) {
+  if (post["404"] && post["404"] === true) {
     notFound();
   }
 
@@ -57,7 +57,9 @@ export default async function Post(props: NextProps) {
   return (
     <>
       <head>
-        {(metadata && metadata.hreflang && metadata.hreflang.length > 0) &&
+        {metadata &&
+          metadata.hreflang &&
+          metadata.hreflang.length > 0 &&
           metadata.hreflang.map((locale: { code: string; href: string }) => (
             <link
               key={locale.code}
@@ -65,15 +67,16 @@ export default async function Post(props: NextProps) {
               hrefLang={locale.code}
               href={locale.href}
             />
-          ))
-        }
-        {(metadata && metadata.schema) &&
+          ))}
+        {metadata && metadata.schema && (
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.schema) }}
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(metadata.schema),
+            }}
           />
-        }
-        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
+        )}
+        {settings.vwo_enabled === true && settings.vwo_account_id && (
           <Suspense>
             <VWO accountId={settings.vwo_account_id} />
           </Suspense>
@@ -81,7 +84,7 @@ export default async function Post(props: NextProps) {
       </head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
-        {(settings.videoask_enabled === true && settings.videoask_url) && (
+        {settings.videoask_enabled === true && settings.videoask_url && (
           <Suspense>
             <VideoAsk videoask_url={settings.videoask_url} />
           </Suspense>
@@ -99,20 +102,13 @@ export default async function Post(props: NextProps) {
             <GTM GTM_ID={settings.google_tag_manager_id} />
           </Suspense>
         )}
-        {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
+        {settings.enable_login_redirect && (
+          <GatedPost settings={settings} path={path} />
+        )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
         <Styles settings={settings} />
-        {post?.acf_data?.sidebar_menu &&
-          <SidebarMenu menuItems={post?.acf_data?.sidebar_menu} path={path} />
-        }
-        <main
-          className={classNames(
-            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] min-h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
-          )}
-          data-pageurl={post.slug.slug}
-          data-postid={post.id}
-        >
+        <main data-pageurl={post.slug.slug} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
         <AfterContent defaultTemplate={defaultTemplate} />
@@ -136,7 +132,7 @@ export async function generateMetadata(props: NextProps) {
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
   if (slug && slug[0] === "draft") return null;
-  
+
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
@@ -173,22 +169,29 @@ export async function generateMetadata(props: NextProps) {
       locale: post.yoastHeadJSON.og_locale || null,
       type: post.yoastHeadJSON.og_type || null,
       title: post.yoastHeadJSON.og_title || null,
-      url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
-        post.yoastHeadJSON.og_url.replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          frontendDomainURL
-        ) : 
-        null,
+      url:
+        post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL
+          ? post.yoastHeadJSON.og_url.replace(
+              new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
+              frontendDomainURL
+            )
+          : null,
       siteName: post.yoastHeadJSON.og_site_name || null,
-      images: post.yoastHeadJSON.og_image ?
-        post.yoastHeadJSON.og_image.map((image: { url: string; width: number; height: number; type: string; }) => 
-          ({
-            url: image.url,
-            width: image.width,
-            height: image.height,
-            type: image.type,
-          })
-        ) : null,
+      images: post.yoastHeadJSON.og_image
+        ? post.yoastHeadJSON.og_image.map(
+            (image: {
+              url: string;
+              width: number;
+              height: number;
+              type: string;
+            }) => ({
+              url: image.url,
+              width: image.width,
+              height: image.height,
+              type: image.type,
+            })
+          )
+        : null,
     };
 
     const twitter = {
@@ -196,31 +199,30 @@ export async function generateMetadata(props: NextProps) {
       creator: post.yoastHeadJSON.author || null,
       title: post.yoastHeadJSON.og_title || null,
       description: post.yoastHeadJSON.title || null,
-      images: post.yoastHeadJSON.og_image ?
-        post.yoastHeadJSON.og_image.map((image: { url: any; }) => 
-          image.url) :
-        null,
+      images: post.yoastHeadJSON.og_image
+        ? post.yoastHeadJSON.og_image.map((image: { url: any }) => image.url)
+        : null,
     };
 
     let other = {};
     if (post.yoastHeadJSON.twitter_misc) {
       other = {
-        'twitter:label1': 'Written by',
-        'twitter:data1': post.yoastHeadJSON.twitter_misc['Written by'],
-        'twitter:label2': 'Estimated reading time',
-        'twitter:data2': post.yoastHeadJSON.twitter_misc['Estimated reading time'],
+        "twitter:label1": "Written by",
+        "twitter:data1": post.yoastHeadJSON.twitter_misc["Written by"],
+        "twitter:label2": "Estimated reading time",
+        "twitter:data2":
+          post.yoastHeadJSON.twitter_misc["Estimated reading time"],
       };
     }
 
-    const updatedSchema = process.env.NEXT_PUBLIC_API_URL ?
-      JSON.parse(
-        JSON.stringify(post.yoastHeadJSON.schema).replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          frontendDomainURL
+    const updatedSchema = process.env.NEXT_PUBLIC_API_URL
+      ? JSON.parse(
+          JSON.stringify(post.yoastHeadJSON.schema).replace(
+            new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
+            frontendDomainURL
+          )
         )
-      ) :
-      post.yoastHeadJSON.schema;
-
+      : post.yoastHeadJSON.schema;
 
     return {
       ...post.yoastHeadJSON,
