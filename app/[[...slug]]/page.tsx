@@ -106,9 +106,7 @@ export default async function Post(props: NextProps) {
         )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
-        {post?.acf_data?.sidebar_menu &&
-          <SidebarMenu menuItems={post?.acf_data?.sidebar_menu} path={path} />
-        }
+        <Styles settings={settings} />
         <main
           className={classNames(
             post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] min-h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
