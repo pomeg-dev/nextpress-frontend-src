@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { getGA4Report, RequestBody } from "@/lib/server/ga";
 import { type NextRequest } from "next/server";
 
