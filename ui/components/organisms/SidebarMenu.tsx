@@ -14,25 +14,29 @@ export function SidebarMenu({
   menuItems: any;
   path: string;
 }) {
-  const [menuItemsFiltered, setMenuItems] = useState<any>(menuItems);
+  const [menuItemsFiltered, setMenuItems] = useState<any>([]);
 
   // Add children menu items on mount.
   useEffect(() => {
     if (menuItems) {
-      const menuItemsTemp = [...menuItems];
-      menuItemsTemp.forEach((item: any) => {
+      menuItems.forEach((item: any) => {
         // If has post_parent, get Id and add to parent object as child.
         if (item.menu_item_parent && item.menu_item_parent !== "0") {
-          const parent = menuItemsTemp.find(
+          const parent = menuItems.find(
             (parent: any) => parent.ID == item.menu_item_parent
           );
           if (parent) {
             if (!parent.children) {
               parent.children = [];
             }
-            parent.children.push(item);
+
+            // Only add if not already in children.
+            if (!parent.children.find((child: any) => child.ID === item.ID)) {
+              parent.children.push(item);
+            }
+
             // Remove child from main menu.
-            const menuItemsFilteredTemp = menuItemsTemp.filter(
+            const menuItemsFilteredTemp = menuItems.filter(
               (menuItem: any) => menuItem.ID !== item.ID
             );
 
@@ -41,9 +45,7 @@ export function SidebarMenu({
         }
       });
     }
-  }, [menuItems]);
-
-  console.log(2, menuItemsFiltered);
+  }, []);
 
   return (
     <aside
@@ -78,40 +80,44 @@ export function SidebarMenu({
                     className="block w-full"
                   >
                     {item.title}
-                    {item.children &&
-                      <ul className="mt-4 flex flex-col gap-1 text-base">
-                        {item.children.map(
-                          (
-                            child: {
-                              url: string;
-                              target: string;
-                              title: string;
-                              classes: string[];
-                            },
-                            i: number
-                          ) => (
-                            <li
-                              key={i}
-                              className={classNames(
-                                "rounded-sm p-2 border border-transparent hover:border-black",
-                                !path && linkFilter(child.url, API_URL) === '/' && "bg-[rgba(0,86,163,0.05)]",
-                                path && linkFilter(child.url, API_URL).includes(path) && "bg-[rgba(0,86,163,0.05)]",
-                              )}
-                              id={linkFilter(child.url, API_URL)}
-                            >
-                              <Link
-                                href={linkFilter(child.url, API_URL)}
-                                target={child.target}
-                                className="block w-full"
-                              >
-                                {child.title}
-                              </Link>
-                            </li>
-                          )
-                        )}
-                      </ul>
-                    }
                   </Link>
+
+                  {item.children &&
+                    <ul className="mt-4 flex flex-col gap-1 text-base">
+                      {item.children.map(
+                        (
+                          child: {
+                            url: string;
+                            target: string;
+                            title: string;
+                            classes: string[];
+                          },
+                          i: number
+                        ) => (
+                          <li
+                            key={i}
+                            className={classNames(
+                              "rounded-sm p-2 border border-transparent hover:border-black",
+                              !path && linkFilter(child.url, API_URL) === '/' 
+                                && "bg-[rgba(0,86,163,0.05)]",
+                              path && linkFilter(child.url, API_URL).replace(/^\/+|\/+$/g, "") === path 
+                                ? "bg-[rgba(0,86,163,0.05)]"
+                                : "bg-white",
+                            )}
+                            id={linkFilter(child.url, API_URL)}
+                          >
+                            <Link
+                              href={linkFilter(child.url, API_URL)}
+                              target={child.target}
+                              className="block w-full"
+                            >
+                              {child.title}
+                            </Link>
+                          </li>
+                        )
+                      )}
+                    </ul>
+                  }
                 </li>
               )
             )}
