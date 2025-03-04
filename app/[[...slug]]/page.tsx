@@ -13,7 +13,6 @@ import BeforeContent from "../BeforeContent";
 import AfterContent from "../AfterContent";
 import { GatedPost } from "../(extras)/gated-post";
 import classNames from "classnames";
-import { SidebarMenu } from "@/ui/components/organisms/SidebarMenu";
 import { PostWithContent } from "@/lib/types";
 import { decode } from "html-entities";
 
