@@ -1,34 +1,23 @@
 "use client";
 
-import { pageview } from "@/lib/gtm";
-import { usePathname, useSearchParams } from "next/navigation";
-import Script from "next/script";
+import { GoogleTagManager } from "@next/third-parties/google";
+import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 
 export function GTM({ GTM_ID }: { GTM_ID: string }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
+  //on path change, fire pageview
   useEffect(() => {
-    if (pathname) {
-      pageview(pathname);
-    }
-  }, [pathname, searchParams]);
+    pageview(pathname);
+  }, [pathname]);
 
-  if (process.env.NEXT_PUBLIC_VERCEL_ENV !== "production") {
-    return null;
-  }
+  return <GoogleTagManager gtmId={GTM_ID} />;
+}
 
-  return (
-    <>
-      <Script
-        src={`https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`}
-        strategy="afterInteractive"
-        onLoad={() => {
-          // Track initial page load
-          pageview(window.location.pathname);
-        }}
-      />
-    </>
-  );
+function pageview(url: string) {
+  (window as unknown as Window).dataLayer?.push({
+    event: "pageview",
+    page: url,
+  });
 }

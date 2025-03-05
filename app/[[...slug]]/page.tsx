@@ -83,24 +83,6 @@ export default async function Post(props: NextProps) {
       </head>
       {/* <body className="no-transition"> */}
       <body className="no-transition">
-        {settings.videoask_enabled === true && settings.videoask_url && (
-          <Suspense>
-            <VideoAsk videoask_url={settings.videoask_url} />
-          </Suspense>
-        )}
-        {settings.google_tag_manager_enabled === true && (
-          <Suspense>
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-              />
-            </noscript>
-            <GTM GTM_ID={settings.google_tag_manager_id} />
-          </Suspense>
-        )}
         {settings.enable_login_redirect && (
           <GatedPost settings={settings} path={path} />
         )}
