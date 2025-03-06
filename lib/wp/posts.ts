@@ -121,7 +121,7 @@ export async function getRestPosts(
       };
       return res;
     } else {
-      const  res = await response.json();
+      const res = await response.json();
       return res;
     }
   } catch (error) {
