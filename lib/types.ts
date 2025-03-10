@@ -13,6 +13,7 @@ export type Post = {
   image: PostImage;
   categories: PostCategory[];
   category_names: string[];
+  terms: {[key: string]: string[]};
   template: Template;
   tags: PostTag[];
   related_posts: number[];
@@ -71,6 +72,7 @@ export type PostType = {
 export type Block = {
   id: number;
   blockName: string;
+  className?: string;
   slug: string;
   innerHTML: string;
   innerContent: string;
@@ -143,6 +145,8 @@ export type MenuItemsProps = {
   target?: string;
   classes?: string[];
 };
+
+export type Cards = "PostCard" | "ProductCard";
 
 import { DefaultSession } from "next-auth";
 
