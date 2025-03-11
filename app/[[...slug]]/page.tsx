@@ -48,15 +48,17 @@ export default async function Post(props: NextProps) {
   }
 
   const settings = await getSettings();
-
-  const updatedSchema = process.env.NEXT_PUBLIC_API_URL 
-    ? JSON.parse(
-        JSON.stringify(post.yoastHeadJSON.schema).replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          getFrontEndUrl(settings)
-        )
-      ) 
-    : post.yoastHeadJSON.schema;
+  let updatedSchema = null;
+  if (post?.yoastHeadJSON?.schema) {
+    updatedSchema = process.env.NEXT_PUBLIC_API_URL 
+      ? JSON.parse(
+          JSON.stringify(post.yoastHeadJSON.schema).replace(
+            new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+            getFrontEndUrl(settings)
+          )
+        ) 
+      : post.yoastHeadJSON.schema;
+  }
 
   return (
     <>
