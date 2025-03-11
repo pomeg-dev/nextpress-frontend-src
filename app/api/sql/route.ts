@@ -1,3 +1,4 @@
+// app/api/sql/route.ts
 import { getMysqlData } from "@/lib/server/mysql";
 import { type NextRequest } from "next/server";
 
@@ -32,26 +33,25 @@ function isQuerySafe(sql: string): boolean {
   return true;
 }
 
-export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const sql = searchParams.get("sql");
-
-  if (!sql) {
-    return new Response(JSON.stringify({ error: "No SQL query provided" }), {
-      status: 400,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
-  if (!isQuerySafe(sql)) {
-    return new Response(JSON.stringify({ error: "Unsafe SQL query" }), {
-      status: 403,
-      headers: { "Content-Type": "application/json" },
-    });
-  }
-
+export async function POST(request: NextRequest) {
   try {
-    const data = await getMysqlData(sql);
+    const { sql, credentials } = await request.json();
+
+    if (!sql) {
+      return new Response(JSON.stringify({ error: "No SQL query provided" }), {
+        status: 400,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    if (!isQuerySafe(sql)) {
+      return new Response(JSON.stringify({ error: "Unsafe SQL query" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const data = await getMysqlData(sql, undefined, credentials);
     return new Response(JSON.stringify(data), {
       status: 200,
       headers: { "Content-Type": "application/json" },

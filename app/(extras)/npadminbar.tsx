@@ -1,8 +1,8 @@
 "use client";
 
-import { logout } from "@/lib/wp/user-flow";
+import { logout } from "@/lib/wp/user";
 import { Session } from "next-auth";
-import { useSession, signOut, SessionProvider, } from "next-auth/react";
+import { useSession, signOut, SessionProvider } from "next-auth/react";
 import { useEffect, useState } from "react";
 
 interface ExtendedUser extends Session {
@@ -25,14 +25,14 @@ function NPAdminBarContent({ postID }: { postID: number }) {
   const [loggedIn, setLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [userId, setUserId] = useState(0);
-  const [userName, setUserName] = useState('');
-  const [blogUrl, setBlogUrl] = useState('');
-  const [blogId, setBlogId] = useState('');
-  const [token, setToken] = useState('');
+  const [userName, setUserName] = useState("");
+  const [blogUrl, setBlogUrl] = useState("");
+  const [blogId, setBlogId] = useState("");
+  const [token, setToken] = useState("");
   const { data: session } = useSession();
 
   const handleLogout = () => {
-    logout()
+    logout();
     signOut();
   };
 
@@ -41,7 +41,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
       const user = session.user as ExtendedUser;
       setLoggedIn(true);
       setUserId(user.id);
-      setUserName(session.user.name ?? '');
+      setUserName(session.user.name ?? "");
       setBlogId(user.blog_id);
       setBlogUrl(user.blog_url);
       setIsAdmin(user.is_admin);
@@ -66,9 +66,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
           Dashboard
         </a>
         <a
-          href={
-            `${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`
-          }
+          href={`${blogUrl}/wp-admin/post.php?post=${postID}&action=edit&token=${token}`}
           className="ml-4 underline"
           target="_blank"
           rel="noopener noreferrer"
@@ -76,7 +74,9 @@ function NPAdminBarContent({ postID }: { postID: number }) {
           Edit this page on Site {blogId}
         </a>
       </div>
-      <span className="cursor-pointer underline" onClick={() => handleLogout()}>Logout</span>
+      <span className="cursor-pointer underline" onClick={() => handleLogout()}>
+        Logout
+      </span>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { postLogin } from "@/lib/wp/user-flow";
+import { postLogin } from "@/lib/wp/user";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions = {
