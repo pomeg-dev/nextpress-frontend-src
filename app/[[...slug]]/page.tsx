@@ -1,21 +1,21 @@
 import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
+import { getPosts, getPostByPath } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import { VWO } from "../(extras)/vwo";
-import { VideoAsk } from "../(extras)/video-ask";
-import { GTM } from "../(extras)/gtm";
-import BeforeContent from "../BeforeContent";
-import AfterContent from "../AfterContent";
-import { AuthCheck } from '../AuthCheck';
-import { Providers } from '../providers';
 
 export const dynamic = "force-dynamic";
+
+const getFrontEndUrl = (settings: any) => {
+  let frontendDomainURL = "http://localhost:3000";
+  if (settings.blocks_api_url) {
+    frontendDomainURL = settings.blocks_api_url.replace("/api/blocks", "");
+  }
+  return frontendDomainURL;
+};
 
 type NextProps = {
   params: {
@@ -48,66 +48,28 @@ export default async function Post(props: NextProps) {
   }
 
   const settings = await getSettings();
-  const defaultTemplate = await getDefaultTemplate();
-  const metadata = await generateMetadata(props);
+
+  const updatedSchema = process.env.NEXT_PUBLIC_API_URL 
+    ? JSON.parse(
+        JSON.stringify(post.yoastHeadJSON.schema).replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+          getFrontEndUrl(settings)
+        )
+      ) 
+    : post.yoastHeadJSON.schema;
 
   return (
     <>
-      <head>
-        {(metadata && metadata.hreflang && metadata.hreflang.length > 0) &&
-          metadata.hreflang.map((locale: { code: string; href: string }) => (
-            <link
-              key={locale.code}
-              rel="alternate"
-              hrefLang={locale.code}
-              href={locale.href}
-            />
-          ))
-        }
-        {(metadata && metadata.schema) &&
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(metadata.schema) }}
-          />
-        }
-        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
-          <Suspense>
-            <VWO accountId={settings.vwo_account_id} />
-          </Suspense>
-        )}
-      </head>
-      <body>
-        {(settings.videoask_enabled === true && settings.videoask_url) && (
-          <Suspense>
-            <VideoAsk videoask_url={settings.videoask_url} />
-          </Suspense>
-        )}
-        {settings.google_tag_manager_enabled === true && (
-          <Suspense>
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-              />
-            </noscript>
-            <GTM GTM_ID={settings.google_tag_manager_id} />
-          </Suspense>
-        )}
-        <Providers>
-          <Suspense fallback={null}>
-            <AuthCheck />
-            <BeforeContent defaultTemplate={defaultTemplate} />
-            <NPAdminBar postID={post.id} />
-            {/* <Styles settings={settings} /> */}
-            <main data-pageurl={post.slug.slug} data-postid={post.id}>
-              {post.content && <BlockParser blocks={post.content} />}
-            </main>
-            <AfterContent defaultTemplate={defaultTemplate} />
-          </Suspense>
-        </Providers>
-      </body>
+      {updatedSchema &&
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(updatedSchema) }}
+        />
+      }
+      <NPAdminBar postID={post.id} />
+      <main data-pageurl={post.slug.slug} data-postid={post.id}>
+        {post.content && <BlockParser blocks={post.content} />}
+      </main>
     </>
   );
 }
@@ -131,11 +93,7 @@ export async function generateMetadata(props: NextProps) {
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
-
-  let frontendDomainURL = "http://localhost:3000";
-  if (settings.blocks_api_url) {
-    frontendDomainURL = settings.blocks_api_url.replace("/api/blocks", "");
-  }
+  const frontendDomainURL = getFrontEndUrl(settings);
 
   if (!post) return null;
 
@@ -182,44 +140,36 @@ export async function generateMetadata(props: NextProps) {
         ) : null,
     };
 
-    const twitter = {
+    const twitter: {[key: string]: any} = {
       card: post.yoastHeadJSON.twitter_card || null,
       creator: post.yoastHeadJSON.author || null,
       title: post.yoastHeadJSON.og_title || null,
       description: post.yoastHeadJSON.title || null,
-      images: post.yoastHeadJSON.og_image ?
-        post.yoastHeadJSON.og_image.map((image: { url: any; }) => 
-          image.url) :
-        null,
+      images: post.yoastHeadJSON.og_image 
+        ? post.yoastHeadJSON.og_image.map((image: { url: any; }) => image.url) 
+        : null,
+      label1: 'Written by',
+      data1: post.yoastHeadJSON.twitter_misc?.['Written by'] || "Unknown",
+      label2: 'Estimated reading time',
+      data2: post.yoastHeadJSON.twitter_misc?.['Estimated reading time'] || "N/A",
     };
 
-    let other = {};
-    if (post.yoastHeadJSON.twitter_misc) {
-      other = {
-        'twitter:label1': 'Written by',
-        'twitter:data1': post.yoastHeadJSON.twitter_misc['Written by'],
-        'twitter:label2': 'Estimated reading time',
-        'twitter:data2': post.yoastHeadJSON.twitter_misc['Estimated reading time'],
-      };
+    const languages: {[key: string]: any} = {};
+    if (post.hreflang && post.hreflang.length > 0) {
+      languages["x-default"] = post.yoastHeadJSON?.canonical || '/';
+      post.hreflang.map((locale: { code: string; href: string }) => {
+        languages[locale.code] = locale.href;
+      });
     }
-
-    const updatedSchema = process.env.NEXT_PUBLIC_API_URL ?
-      JSON.parse(
-        JSON.stringify(post.yoastHeadJSON.schema).replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          frontendDomainURL
-        )
-      ) :
-      post.yoastHeadJSON.schema;
-
 
     return {
       ...post.yoastHeadJSON,
-      openGraph,
-      twitter,
-      other,
-      schema: updatedSchema,
-      hreflang: post.hreflang || null,
+      ...openGraph,
+      ...twitter,
+      alternates: {
+        canonical: post.yoastHeadJSON?.canonical || '/',
+        languages
+      },
     };
   } else return null;
 }
