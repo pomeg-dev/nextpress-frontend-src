@@ -1,18 +1,20 @@
+import { notFound } from "next/navigation";
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath, getDefaultTemplate } from "@/lib/wp/posts";
-import { PostWithContent } from "@/lib/types";
+import { getPostByPath, getDefaultTemplate, getPosts } from "@/lib/wp/posts";
 import { Styles } from "../(extras)/styles";
 import { getSettings } from "@/lib/wp/settings";
-import { decode } from "html-entities";
-import { GatedPost } from "../(extras)/gated-post";
-import { notFound } from "next/navigation";
-import AfterContent from "../AfterContent";
-import BeforeContent from "../BeforeContent";
+import { redirect } from "next/navigation";
 import { Suspense } from "react";
+import { VWO } from "../(extras)/vwo";
+import { VideoAsk } from "../(extras)/video-ask";
 import { GTM } from "../(extras)/gtm";
+import BeforeContent from "../BeforeContent";
+import AfterContent from "../AfterContent";
+import { GatedPost } from "../(extras)/gated-post";
 import classNames from "classnames";
-import { SidebarMenu } from "@themes/components/organisms/SidebarMenu";
+import { PostWithContent } from "@/lib/types";
+import { decode } from "html-entities";
 
 // Should be force-static - but this breaks cookies/session.
 export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
@@ -43,37 +45,51 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
 
-  if (post['404'] && post['404'] === true) {
+  if (post["404"] && post["404"] === true) {
     notFound();
   }
 
   const settings = await getSettings();
   const defaultTemplate = await getDefaultTemplate();
+  const metadata = await generateMetadata(props);
 
   return (
     <>
-      <head></head>
-      {/* <body className="no-transition"> */}
-      <body className="no-transition">
-        {settings.google_tag_manager_enabled === true && (
+      <head>
+        {metadata &&
+          metadata.hreflang &&
+          metadata.hreflang.length > 0 &&
+          metadata.hreflang.map((locale: { code: string; href: string }) => (
+            <link
+              key={locale.code}
+              rel="alternate"
+              hrefLang={locale.code}
+              href={locale.href}
+            />
+          ))}
+        {metadata && metadata.schema && (
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(metadata.schema),
+            }}
+          />
+        )}
+        {settings.vwo_enabled === true && settings.vwo_account_id && (
           <Suspense>
-            <GTM GTM_ID={settings.google_tag_manager_id} />
+            <VWO accountId={settings.vwo_account_id} />
           </Suspense>
         )}
-        {settings.enable_login_redirect && <GatedPost settings={settings} path={path} />}
+      </head>
+      {/* <body className="no-transition"> */}
+      <body className="no-transition">
+        {settings.enable_login_redirect && (
+          <GatedPost settings={settings} path={path} />
+        )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
         <Styles settings={settings} />
-        {post?.acf_data?.sidebar_menu &&
-          <SidebarMenu menuItems={post?.acf_data?.sidebar_menu} path={path} />
-        }
-        <main
-          className={classNames(
-            post?.acf_data?.sidebar_menu && "w-[calc(100%-300px)] min-h-[calc(100vh-73px)] ml-[300px] bg-[rgb(245,248,249)]"
-          )}
-          data-pageurl={post.slug.slug}
-          data-postid={post.id}
-        >
+        <main data-pageurl={post.slug.slug} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
         <AfterContent defaultTemplate={defaultTemplate} />
@@ -110,14 +126,92 @@ export async function generateMetadata(props: NextProps) {
   if (!post) return null;
 
   if (post.yoastHeadJSON) {
+    if (post.yoastHeadJSON.redirect) {
+      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+    }
+
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
-    if (!path || path == "")
+    if (post.yoastHeadJSON.canonical) {
+      const canonical = post.yoastHeadJSON.canonical.replace(
+        process.env.NEXT_PUBLIC_API_URL,
+        frontendDomainURL
+      );
+      post.yoastHeadJSON.alternates = { canonical: canonical };
+    } else if (!path || path == "") {
       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
-    else
+    } else {
       post.yoastHeadJSON.alternates = {
         canonical: `${frontendDomainURL}/${path}`,
       };
-    return post.yoastHeadJSON;
+    }
+
+    const openGraph = {
+      locale: post.yoastHeadJSON.og_locale || null,
+      type: post.yoastHeadJSON.og_type || null,
+      title: post.yoastHeadJSON.og_title || null,
+      url:
+        post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL
+          ? post.yoastHeadJSON.og_url.replace(
+              new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
+              frontendDomainURL
+            )
+          : null,
+      siteName: post.yoastHeadJSON.og_site_name || null,
+      images: post.yoastHeadJSON.og_image
+        ? post.yoastHeadJSON.og_image.map(
+            (image: {
+              url: string;
+              width: number;
+              height: number;
+              type: string;
+            }) => ({
+              url: image.url,
+              width: image.width,
+              height: image.height,
+              type: image.type,
+            })
+          )
+        : null,
+    };
+
+    const twitter = {
+      card: post.yoastHeadJSON.twitter_card || null,
+      creator: post.yoastHeadJSON.author || null,
+      title: post.yoastHeadJSON.og_title || null,
+      description: post.yoastHeadJSON.title || null,
+      images: post.yoastHeadJSON.og_image
+        ? post.yoastHeadJSON.og_image.map((image: { url: any }) => image.url)
+        : null,
+    };
+
+    let other = {};
+    if (post.yoastHeadJSON.twitter_misc) {
+      other = {
+        "twitter:label1": "Written by",
+        "twitter:data1": post.yoastHeadJSON.twitter_misc["Written by"],
+        "twitter:label2": "Estimated reading time",
+        "twitter:data2":
+          post.yoastHeadJSON.twitter_misc["Estimated reading time"],
+      };
+    }
+
+    const updatedSchema = process.env.NEXT_PUBLIC_API_URL
+      ? JSON.parse(
+          JSON.stringify(post.yoastHeadJSON.schema).replace(
+            new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
+            frontendDomainURL
+          )
+        )
+      : post.yoastHeadJSON.schema;
+
+    return {
+      ...post.yoastHeadJSON,
+      openGraph,
+      twitter,
+      other,
+      schema: updatedSchema,
+      hreflang: post.hreflang || null,
+    };
   } else return null;
 }

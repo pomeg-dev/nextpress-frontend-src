@@ -7,7 +7,7 @@ export async function logout() {
     method: "GET",
     next: { tags: ["users"] },
     cache: "no-store",
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -34,9 +34,9 @@ export async function postLogin(params: LoginParams) {
     cache: "no-store",
     body: JSON.stringify(params),
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -57,9 +57,9 @@ export async function requestPasswordReset(email: FormDataEntryValue | null) {
     cache: "no-store",
     body: JSON.stringify({ email }),
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -86,9 +86,9 @@ export async function resetPassword(params: ResetParams) {
     cache: "no-store",
     body: JSON.stringify(params),
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
   });
 
   if (!response.ok) {
@@ -115,11 +115,64 @@ export async function registerUser(params: RegisterParams) {
     cache: "no-store",
     body: JSON.stringify(params),
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     },
-    credentials: 'include',
+    credentials: "include",
   });
 
+  if (!response.ok) {
+    console.log(url);
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const res = await response.json();
+  return res;
+}
+
+interface GetMetaResponse {
+  metaValue: any;
+  success: boolean;
+}
+
+export async function getMeta(
+  userId: number,
+  metaKey: string
+): Promise<GetMetaResponse> {
+  const url = `${WP_API_URL}/wp-json/nextpress/get-meta/${userId}/${metaKey}`;
+  console.log(url);
+  const response = await fetch(url, {
+    method: "GET",
+    next: { tags: ["users"] },
+    cache: "no-store",
+    credentials: "include",
+  });
+
+  if (!response.ok) {
+    console.log(url);
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const res = await response.json();
+  return res;
+}
+
+export async function saveMeta(
+  userId: number,
+  metaKey: string,
+  metaValue: any
+) {
+  const url = `${WP_API_URL}/wp-json/nextpress/save-meta`;
+
+  const response = await fetch(url, {
+    method: "POST",
+    next: { tags: ["users"] },
+    cache: "no-store",
+    body: JSON.stringify({ userId, metaKey, metaValue }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
   if (!response.ok) {
     console.log(url);
     throw new Error(`HTTP error! status: ${response.status}`);

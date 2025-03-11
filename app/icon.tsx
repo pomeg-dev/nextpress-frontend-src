@@ -1,4 +1,4 @@
-import { getSettings } from "@/lib/api";
+import { getSettings } from "@/lib/wp/settings";
 import { ImageResponse } from "next/og";
 
 // Route segment config
@@ -17,7 +17,11 @@ export default async function Icon({ params }: any) {
   const faviconUrl = settings.favicon?.url;
   if (faviconUrl) {
     return new ImageResponse(
-      <img alt="avatar" src={faviconUrl} width="32px" height="32px"></img>,
+      (
+        <picture>
+          <img alt="avatar" src={faviconUrl} width="32px" height="32px"></img>
+        </picture>
+      ),
       size
     );
   }
@@ -32,7 +36,7 @@ export default async function Icon({ params }: any) {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          borderRadius: settings.border_radius_medium + "px",
+          borderRadius: "3px",
           color: settings.secondary_color ? settings.secondary_color : "#fff",
         }}
       >

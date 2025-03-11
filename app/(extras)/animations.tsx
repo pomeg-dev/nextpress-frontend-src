@@ -9,12 +9,10 @@ export default function Animations() {
   const animatedElements = useRef(new Set());
   const pathname = usePathname();
   const router = useRouter();
-  console.log("aniamtion run... pathname:", pathname);
 
   //remove no-transition class after hydration, prevents all css animations from running on page load
   useEffect(() => {
     setHydrated(true);
-    console.log("hydrated");
     document.body.classList.remove("no-transition");
   }, []);
 
