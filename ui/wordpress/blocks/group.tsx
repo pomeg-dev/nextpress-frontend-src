@@ -19,9 +19,10 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
   return (
     <div
       className={classNames(
-        "core-block group relative overflow-hidden",
+        "core-block group-block relative overflow-hidden",
         invertColors &&
-          "[&_.text-primary]:text-white [&_.text-white]:text-primary [&_.bg-primary]:bg-white [&_circle]:fill-white"
+          "[&_.text-primary]:text-white [&_.text-white]:text-primary [&_.bg-primary]:bg-white [&_circle]:fill-white",
+        data.attrs?.style?.color?.text && "has-text-color",
       )}
       style={{
         color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
@@ -36,7 +37,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
       {innerBlocks &&
         backgroundColor ? (
           <div
-            className="p-8"
+            className="has-background p-8"
             style={{
               backgroundColor: 
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,

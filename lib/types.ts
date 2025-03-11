@@ -146,7 +146,7 @@ export type MenuItemsProps = {
   classes?: string[];
 };
 
-export type Cards = "PostCard" | "ProductCard";
+export type Cards = "PostCard" | "ProductCard" | "CourseCard";
 
 import { DefaultSession } from "next-auth";
 
