@@ -123,7 +123,8 @@ async function getHostDetails(hostname: string) {
 export async function GET(request: NextRequest) {
   try {
     const requestInfo = {
-      ip: request.ip || request.headers.get("x-real-ip"),
+      // ip: request.ip || request.headers.get("x-real-ip"),
+      ip: request.headers.get("x-real-ip"),
       forwardedFor: request.headers.get("x-forwarded-for"),
       vercelRegion: request.headers.get("x-vercel-ip-region"),
       userAgent: request.headers.get("user-agent"),

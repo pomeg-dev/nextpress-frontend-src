@@ -6,6 +6,7 @@ import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
+import { Metadata } from 'next';
 
 export const dynamic = "force-dynamic";
 
@@ -18,17 +19,12 @@ const getFrontEndUrl = (settings: any) => {
 };
 
 type NextProps = {
-  params: {
-    slug: string[];
-  };
-  searchParams: {
-    preview: string;
-    _thumbnail_id: string;
-  };
+  params: Promise<{ slug: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 };
 
-export default async function Post(props: NextProps) {
-  const { slug } = props.params;
+export default async function Post({ params, searchParams }: NextProps) {
+  const { slug } = await params;
 
   //dont run for favicon, api, status requests
   if (slug && slug[0] === "favicon.ico") return null;
@@ -83,21 +79,28 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata(props: NextProps) {
-  const { slug } = props.params;
+export async function generateMetadata(
+  { params }: NextProps,
+): Promise<Metadata> {
+  const { slug } = await params;
+
+  const notFound = {
+    title: "Not found",
+    description: "Not found",
+  };
 
   //dont run for favicon, api, status requests
-  if (slug && slug[0] === "favicon.ico") return null;
-  if (slug && slug[0] === "api") return null;
-  if (slug && slug[0] === "status") return null;
-  if (slug && slug[0] === "draft") return null;
+  if (slug && slug[0] === "favicon.ico") return notFound;
+  if (slug && slug[0] === "api") return notFound;
+  if (slug && slug[0] === "status") return notFound;
+  if (slug && slug[0] === "draft") return notFound;
 
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
   const frontendDomainURL = getFrontEndUrl(settings);
 
-  if (!post) return null;
+  if (!post) return notFound;
 
   if (post.yoastHeadJSON) {
     if (post.yoastHeadJSON.redirect) {
@@ -173,5 +176,5 @@ export async function generateMetadata(props: NextProps) {
         languages
       },
     };
-  } else return null;
+  } else return notFound;
 }

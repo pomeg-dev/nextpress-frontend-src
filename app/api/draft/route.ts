@@ -32,7 +32,7 @@ export async function GET(request: Request) {
   // }
 
   // Enable Draft Mode by setting the cookie
-  draftMode().enable();
+  (await draftMode()).enable();
 
   // Redirect to the path from the fetched post
   redirect("/draft/" + id);

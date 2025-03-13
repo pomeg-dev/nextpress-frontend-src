@@ -1,10 +1,10 @@
-type PageProps = {
-  params: {
-    slug: string;
-  };
-};
+// type PageProps = {
+//   params: {
+//     slug: string;
+//   };
+// };
 
-export default async function Page(props: PageProps) {
+export default async function Page() {
   return <div>status</div>;
 }
 // import { AccordionElement } from "ui/components/molecules/AccordionElement";
