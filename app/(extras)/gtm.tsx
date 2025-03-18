@@ -16,7 +16,7 @@ export function GTM({ GTM_ID }: { GTM_ID: string }) {
 }
 
 function pageview(url: string) {
-  (window as unknown as Window).dataLayer?.push({
+  (window as any).dataLayer?.push({
     event: "pageview",
     page: url,
   });
