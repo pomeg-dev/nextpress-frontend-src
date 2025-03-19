@@ -7,8 +7,6 @@ import { getSettings } from "@/lib/wp/settings";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { VWO } from "../(extras)/vwo";
-import { VideoAsk } from "../(extras)/video-ask";
-import { GTM } from "../(extras)/gtm";
 import BeforeContent from "../BeforeContent";
 import AfterContent from "../AfterContent";
 import { GatedPost } from "../(extras)/gated-post";
