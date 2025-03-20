@@ -148,6 +148,18 @@ export type MenuItemsProps = {
 
 export type Cards = "PostCard" | "ProductCard" | "CourseCard";
 
+export type ProductProps = {
+  id?: number;
+  title: string;
+  price: number;
+  currency?: string;
+  image?: ImageProps;
+  product_type?: string[];
+  size?: string;
+  subscription?: string;
+  qty?: number;
+};
+
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
