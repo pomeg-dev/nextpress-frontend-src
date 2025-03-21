@@ -151,16 +151,33 @@ export type Cards = "PostCard" | "ProductCard" | "CourseCard";
 
 export type ProductProps = {
   title: string;
-  price: number;
-  url?: string;
+  slug?: string;
   id?: number;
-  sku?: string;
-  currency?: string;
+  url?: string;
+  description?: string;
   image?: ImageProps;
   product_type?: string[];
-  size?: string;
-  subscription?: string;
+  price: number;
+  sku?: string;
+  currency?: string;
   qty?: number;
+  attributes?: {
+    [key: string]: string | undefined;
+  },
+  options?: {
+    name: string;
+    label: string;
+    info_label?: string;
+    info_content?: string;
+    choices: { label: string; value: string; }[];
+  }[];
+  purchase_options?: {
+    name: string;
+    label: string;
+    description?: string;
+    discount_percent?: number;
+    choices?: { label: string; value: string; }[];
+  }[];
 };
 
 import { DefaultSession } from "next-auth";
