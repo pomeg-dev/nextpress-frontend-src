@@ -18,6 +18,7 @@ export type Post = {
   tags: PostTag[];
   related_posts: number[];
   password: string;
+  card?: Cards
 };
 
 export type Slug = {
@@ -64,7 +65,7 @@ export type FeaturedImage = {
 };
 
 export type PostType = {
-  id: number;
+  id: string | number;
   name: string;
   slug: string;
 };
@@ -149,9 +150,11 @@ export type MenuItemsProps = {
 export type Cards = "PostCard" | "ProductCard" | "CourseCard";
 
 export type ProductProps = {
-  id?: number;
   title: string;
   price: number;
+  url?: string;
+  id?: number;
+  sku?: string;
   currency?: string;
   image?: ImageProps;
   product_type?: string[];
