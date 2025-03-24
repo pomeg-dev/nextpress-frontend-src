@@ -183,6 +183,23 @@ export type ProductProps = {
   }[];
 };
 
+export type OrderProps = {
+  id: number;
+  number: number | string;
+  status: string;
+  date: Date | string;
+  total: number;
+  discount_percent?: number;
+  products: ProductProps[];
+  currency?: string;
+  is_repeat?: boolean;
+  tracking_details?: {
+    id?: number | string;
+    courier?: string;
+    url?: string;
+  };
+};
+
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
