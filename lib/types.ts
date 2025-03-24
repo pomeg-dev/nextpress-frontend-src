@@ -145,6 +145,9 @@ export type MenuItemsProps = {
   url: string;
   target?: string;
   classes?: string[];
+  children?: MenuItemsProps[];
+  active?: boolean;
+  gated?: boolean;
 };
 
 export type Cards = "PostCard" | "ProductCard" | "CourseCard";
