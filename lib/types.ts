@@ -193,6 +193,7 @@ export type OrderProps = {
   products: ProductProps[];
   currency?: string;
   is_repeat?: boolean;
+  frequency?: string;
   tracking_details?: {
     id?: number | string;
     courier?: string;
