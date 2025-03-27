@@ -1,36 +1,32 @@
-import { notFound } from "next/navigation";
+import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPostByPath, getDefaultTemplate, getPosts } from "@/lib/wp/posts";
-import { Styles } from "../(extras)/styles";
-import { getSettings } from "@/lib/wp/settings";
-import { redirect } from "next/navigation";
-import { Suspense } from "react";
-import { VWO } from "../(extras)/vwo";
-import BeforeContent from "../BeforeContent";
-import AfterContent from "../AfterContent";
-import { GatedPost } from "../(extras)/gated-post";
-import classNames from "classnames";
+import { getPosts, getPostByPath } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
+import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
+import { redirect } from "next/navigation";
+import { Metadata } from 'next';
 
-// Should be force-static - but this breaks cookies/session.
-export const dynamic = "force-dynamic"; //unsure what this fixed but it was something
+export const dynamic = "force-dynamic";
 
-type NextProps = {
-  params: {
-    slug: string[];
-  };
-  searchParams: {
-    preview: string;
-    _thumbnail_id: string;
-  };
+const getFrontEndUrl = (settings: any) => {
+  let frontendDomainURL = "http://localhost:3000";
+  if (settings.frontend_url) {
+    frontendDomainURL = settings.frontend_url;
+  }
+  return frontendDomainURL;
 };
 
-export default async function Post(props: NextProps) {
-  const { slug } = props.params;
+type NextProps = {
+  params: Promise<{ slug: string[] }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+};
 
-  //dont run for favicon, api, status requests
+export default async function Post({ params, searchParams }: NextProps) {
+  const { slug } = await params;
+
+  // Dont run for favicon, api, status requests
   if (slug && slug[0] === "favicon.ico") return null;
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
@@ -43,55 +39,35 @@ export default async function Post(props: NextProps) {
     post = await getPostByPath(path);
   }
 
-  if (post["404"] && post["404"] === true) {
+  if (post['404'] && post['404'] === true) {
     notFound();
   }
 
   const settings = await getSettings();
-  const defaultTemplate = await getDefaultTemplate();
-  const metadata = await generateMetadata(props);
+  let updatedSchema = null;
+  if (post?.yoastHeadJSON?.schema) {
+    updatedSchema = process.env.NEXT_PUBLIC_API_URL 
+      ? JSON.parse(
+          JSON.stringify(post.yoastHeadJSON.schema).replace(
+            new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+            getFrontEndUrl(settings)
+          )
+        ) 
+      : post.yoastHeadJSON.schema;
+  }
 
   return (
     <>
-      <head>
-        {metadata &&
-          metadata.hreflang &&
-          metadata.hreflang.length > 0 &&
-          metadata.hreflang.map((locale: { code: string; href: string }) => (
-            <link
-              key={locale.code}
-              rel="alternate"
-              hrefLang={locale.code}
-              href={locale.href}
-            />
-          ))}
-        {metadata && metadata.schema && (
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(metadata.schema),
-            }}
-          />
-        )}
-        {settings.vwo_enabled === true && settings.vwo_account_id && (
-          <Suspense>
-            <VWO accountId={settings.vwo_account_id} />
-          </Suspense>
-        )}
-      </head>
-      {/* <body className="no-transition"> */}
-      <body className="no-transition">
-        {settings.enable_login_redirect && (
-          <GatedPost settings={settings} path={path} />
-        )}
-        <BeforeContent defaultTemplate={defaultTemplate} />
-        <NPAdminBar postID={post.id} />
-        <Styles settings={settings} />
-        <main data-pageurl={post.slug.slug} data-postid={post.id}>
-          {post.content && <BlockParser blocks={post.content} />}
-        </main>
-        <AfterContent defaultTemplate={defaultTemplate} />
-      </body>
+      {updatedSchema &&
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(updatedSchema) }}
+        />
+      }
+      <NPAdminBar postID={post.id} />
+      <main data-pageurl={post.slug.slug} data-postid={post.id}>
+        {post.content && <BlockParser blocks={post.content} />}
+      </main>
     </>
   );
 }
@@ -103,25 +79,28 @@ export async function generateStaticParams() {
   }));
 }
 
-export async function generateMetadata(props: NextProps) {
-  const { slug } = props.params;
+export async function generateMetadata(
+  { params }: NextProps,
+): Promise<Metadata> {
+  const { slug } = await params;
 
-  //dont run for favicon, api, status requests
-  if (slug && slug[0] === "favicon.ico") return null;
-  if (slug && slug[0] === "api") return null;
-  if (slug && slug[0] === "status") return null;
-  if (slug && slug[0] === "draft") return null;
+  const notFound = {
+    title: "Not found",
+    description: "Not found",
+  };
+
+  // Dont run for favicon, api, status, draft requests
+  if (slug && slug[0] === "favicon.ico") return notFound;
+  if (slug && slug[0] === "api") return notFound;
+  if (slug && slug[0] === "status") return notFound;
+  if (slug && slug[0] === "draft") return notFound;
 
   const path = slug ? slug.join("/") : "";
   const post = await getPostByPath(path);
   const settings = await getSettings();
+  const frontendDomainURL = getFrontEndUrl(settings);
 
-  let frontendDomainURL = "http://localhost:3000";
-  if (settings.blocks_api_url) {
-    frontendDomainURL = settings.blocks_api_url.replace("/api/blocks", "");
-  }
-
-  if (!post) return null;
+  if (!post) return notFound;
 
   if (post.yoastHeadJSON) {
     if (post.yoastHeadJSON.redirect) {
@@ -148,68 +127,54 @@ export async function generateMetadata(props: NextProps) {
       locale: post.yoastHeadJSON.og_locale || null,
       type: post.yoastHeadJSON.og_type || null,
       title: post.yoastHeadJSON.og_title || null,
-      url:
-        post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL
-          ? post.yoastHeadJSON.og_url.replace(
-              new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
-              frontendDomainURL
-            )
-          : null,
+      url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
+        post.yoastHeadJSON.og_url.replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+          frontendDomainURL
+        ) : 
+        null,
       siteName: post.yoastHeadJSON.og_site_name || null,
-      images: post.yoastHeadJSON.og_image
-        ? post.yoastHeadJSON.og_image.map(
-            (image: {
-              url: string;
-              width: number;
-              height: number;
-              type: string;
-            }) => ({
-              url: image.url,
-              width: image.width,
-              height: image.height,
-              type: image.type,
-            })
-          )
-        : null,
+      images: post.yoastHeadJSON.og_image ?
+        post.yoastHeadJSON.og_image.map((image: { url: string; width: number; height: number; type: string; }) => 
+          ({
+            url: image.url,
+            width: image.width,
+            height: image.height,
+            type: image.type,
+          })
+        ) : null,
     };
 
-    const twitter = {
+    const twitter: {[key: string]: any} = {
       card: post.yoastHeadJSON.twitter_card || null,
       creator: post.yoastHeadJSON.author || null,
       title: post.yoastHeadJSON.og_title || null,
       description: post.yoastHeadJSON.title || null,
-      images: post.yoastHeadJSON.og_image
-        ? post.yoastHeadJSON.og_image.map((image: { url: any }) => image.url)
+      images: post.yoastHeadJSON.og_image 
+        ? post.yoastHeadJSON.og_image.map((image: { url: any; }) => image.url) 
         : null,
+      label1: 'Written by',
+      data1: post.yoastHeadJSON.twitter_misc?.['Written by'] || "Unknown",
+      label2: 'Estimated reading time',
+      data2: post.yoastHeadJSON.twitter_misc?.['Estimated reading time'] || "N/A",
     };
 
-    let other = {};
-    if (post.yoastHeadJSON.twitter_misc) {
-      other = {
-        "twitter:label1": "Written by",
-        "twitter:data1": post.yoastHeadJSON.twitter_misc["Written by"],
-        "twitter:label2": "Estimated reading time",
-        "twitter:data2":
-          post.yoastHeadJSON.twitter_misc["Estimated reading time"],
-      };
+    const languages: {[key: string]: any} = {};
+    if (post.hreflang && post.hreflang.length > 0) {
+      languages["x-default"] = post.yoastHeadJSON?.canonical || '/';
+      post.hreflang.map((locale: { code: string; href: string }) => {
+        languages[locale.code] = locale.href;
+      });
     }
-
-    const updatedSchema = process.env.NEXT_PUBLIC_API_URL
-      ? JSON.parse(
-          JSON.stringify(post.yoastHeadJSON.schema).replace(
-            new RegExp(process.env.NEXT_PUBLIC_API_URL, "g"),
-            frontendDomainURL
-          )
-        )
-      : post.yoastHeadJSON.schema;
 
     return {
       ...post.yoastHeadJSON,
-      openGraph,
-      twitter,
-      other,
-      schema: updatedSchema,
-      hreflang: post.hreflang || null,
+      ...openGraph,
+      ...twitter,
+      alternates: {
+        canonical: post.yoastHeadJSON?.canonical || '/',
+        languages
+      },
     };
-  } else return null;
+  } else return notFound;
 }

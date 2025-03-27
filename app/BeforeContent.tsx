@@ -1,13 +1,11 @@
 import { BlockParser } from "@/ui/block-parser";
 import React from "react";
 
-type BeforeContentProps = { defaultTemplate: any };
-
-const BeforeContent = ({ defaultTemplate }: BeforeContentProps) => {
+const BeforeContent = ({ settings }: any) => {
   return (
     <>
-      {defaultTemplate.before_content && (
-        <BlockParser blocks={defaultTemplate.before_content} />
+      {settings.before_content && (
+        <BlockParser blocks={settings.before_content} />
       )}
     </>
   );

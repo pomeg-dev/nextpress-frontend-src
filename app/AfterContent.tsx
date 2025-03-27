@@ -1,13 +1,11 @@
 import { BlockParser } from "@/ui/block-parser";
 import React from "react";
 
-type AfterContentProps = { defaultTemplate: any };
-
-const AfterContent = ({ defaultTemplate }: AfterContentProps) => {
+const AfterContent = ({ settings }: any) => {
   return (
     <>
-      {defaultTemplate.after_content && (
-        <BlockParser blocks={defaultTemplate.after_content} />
+      {settings.after_content && (
+        <BlockParser blocks={settings.after_content} />
       )}
     </>
   );
