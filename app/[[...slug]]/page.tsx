@@ -7,16 +7,9 @@ import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
 import { Metadata } from 'next';
+import { getFrontEndUrl } from '@/utils/url';
 
 export const dynamic = "force-dynamic";
-
-const getFrontEndUrl = (settings: any) => {
-  let frontendDomainURL = "http://localhost:3000";
-  if (settings.frontend_url) {
-    frontendDomainURL = settings.frontend_url;
-  }
-  return frontendDomainURL;
-};
 
 type NextProps = {
   params: Promise<{ slug: string[] }>

@@ -13,10 +13,12 @@ export type Post = {
   image: PostImage;
   categories: PostCategory[];
   category_names: string[];
+  terms: {[key: string]: string[]};
   template: Template;
   tags: PostTag[];
   related_posts: number[];
   password: string;
+  card?: Cards
 };
 
 export type Slug = {
@@ -63,7 +65,7 @@ export type FeaturedImage = {
 };
 
 export type PostType = {
-  id: number;
+  id: string | number;
   name: string;
   slug: string;
 };
@@ -71,6 +73,7 @@ export type PostType = {
 export type Block = {
   id: number;
   blockName: string;
+  className?: string;
   slug: string;
   innerHTML: string;
   innerContent: string;
@@ -117,3 +120,62 @@ export type WPQuery = {
   status?: string[];
   tax_relation?: "AND" | "OR";
 };
+
+export type ImageProps = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  blurImage?: string;
+};
+
+export type LinkItemProps = {
+  url?: string;
+  target?: string;
+  title?: string;
+};
+
+export type ButtonProps = {
+  link: LinkItemProps;
+};
+
+export type MenuItemsProps = {
+  title: string;
+  url: string;
+  target?: string;
+  classes?: string[];
+  children?: MenuItemsProps[];
+  active?: boolean;
+  gated?: boolean;
+};
+
+export type Cards = "PostCard";
+
+import { DefaultSession } from "next-auth";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    user?: {
+      accessToken?: string;
+      refreshToken?: string;
+      instanceUrl?: string;
+    } & DefaultSession["user"];
+  }
+}
+
+// app/api/auth/callback/salesforce/route.ts
+import { redirect } from "next/navigation";
+import { NextRequest } from "next/server";
+
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const code = searchParams.get("code");
+
+  if (!code) {
+    return new Response("No code provided", { status: 400 });
+  }
+
+  // Redirect to the NextAuth callback endpoint
+  return redirect(`/api/auth/callback/salesforce?code=${code}`);
+}

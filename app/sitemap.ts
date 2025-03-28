@@ -2,17 +2,14 @@ import { MetadataRoute } from "next";
 import moment from "moment";
 import { getPosts } from "@/lib/wp/posts";
 import { getSettings } from "@/lib/wp/settings";
+import { getFrontEndUrl } from "@/utils/url";
 
 export const dynamic = "force-static";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const allPosts = await getPosts({ per_page: -1 });
   const settings = await getSettings();
-
-  let frontendDomainURL = "http://localhost:3000";
-  if (settings.blocks_api_url) {
-    frontendDomainURL = settings.blocks_api_url.replace('/api/blocks', '');
-  }
+  const frontendDomainURL = getFrontEndUrl(settings);
 
   const pageRoutes: any[] = [];
   const postRoutes: any[] = [];

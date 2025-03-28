@@ -2,17 +2,15 @@ import { getSettings } from "@/lib/wp/settings";
 import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
-import { VideoAsk } from "./(extras)/video-ask";
 import { GTM } from "./(extras)/gtm";
 import BeforeContent from "./BeforeContent";
 import AfterContent from "./AfterContent";
-import { VWO } from "./(extras)/vwo";
 import { Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
 
 export default async function Layout({
-  children,
+  children
 }: {
   children: React.ReactNode;
 }) {
@@ -35,16 +33,6 @@ export default async function Layout({
   return (
     <html {...themeProps} className={fontVariables}>
       <body>
-        {(settings.vwo_enabled === true && settings.vwo_account_id) && (
-          <Suspense>
-            <VWO accountId={settings.vwo_account_id} />
-          </Suspense>
-        )}
-        {(settings.videoask_enabled === true && settings.videoask_url) && (
-          <Suspense>
-            <VideoAsk videoask_url={settings.videoask_url} />
-          </Suspense>
-        )}
         {settings.google_tag_manager_enabled === true && (
           <Suspense>
             <noscript>

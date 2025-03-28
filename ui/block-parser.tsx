@@ -64,7 +64,7 @@ const importComponent = async (
   }
 };
 
-const BlockRenderer: React.FC<{ block: Block }> = async ({ block }) => {
+export const BlockRenderer: React.FC<{ block: Block }> = async ({ block }) => {
   const { blockName, innerBlocks } = block;
   let ImportedComponent: ImportedComponent | null = null;
 

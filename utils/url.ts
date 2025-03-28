@@ -25,3 +25,11 @@ export function linkFilter(linkUrl: string, API_URL: any) {
 
   return newLinkUrl;
 }
+
+export function getFrontEndUrl(settings: any) {
+  let frontendDomainURL = "http://localhost:3000";
+  if (settings.frontend_url) {
+    frontendDomainURL = settings.frontend_url;
+  }
+  return frontendDomainURL;
+};
