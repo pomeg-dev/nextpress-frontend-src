@@ -1,18 +1,40 @@
 import React from "react";
 import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
-import Parser from "html-react-parser";
+import classNames from "classnames";
 
 type QuoteProps = Block & {
   innerBlocks?: React.ReactNode;
 };
 
 const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
-  // Example of using attrs
-  const backgroundColor = block.attrs?.backgroundColor || "transparent";
-  const padding = block.attrs?.padding || "0";
+  const { innerBlocks, innerContent, data } = block;
+  const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
+  const textColor = data?.style?.color?.text || "primary";
+  let id: string | undefined = undefined;
+  if (innerContent?.[0]) {
+    const regex = /id=["']([^"']*)["']/;
+    const match = regex.exec(innerContent?.[0]);
+    id = match ? match[1] : undefined;
+  }
 
-  return Parser(block.innerHTML);
+  return (
+    <blockquote
+      id={id}
+      className={classNames(
+        "core-block quote relative overflow-hidden",
+        data?.style?.color?.text && "has-text-color",
+        block?.className
+      )}
+      style={{
+        color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
+      }}
+    >
+      {innerBlocks &&
+        <BlockParser blocks={innerBlocks} />
+      }
+    </blockquote>
+  );
 };
 
 export default Quote;

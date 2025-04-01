@@ -12,7 +12,7 @@ export default async function Post({ params, searchParams }: NextProps) {
   let blocks = null;
   if (typeof resolvedSearchParams.content === 'string') {
     try {
-      const decoded = atob(resolvedSearchParams.content);
+      const decoded = atob(decodeURIComponent(resolvedSearchParams.content));
       blocks = JSON.parse(decoded);
     } catch (error) {
       console.error('Error parsing block content:', error);
@@ -21,7 +21,7 @@ export default async function Post({ params, searchParams }: NextProps) {
 
   return (
     <>
-      <PreviewWrapper postId={resolvedSearchParams.post_id}>
+      <PreviewWrapper postId={resolvedSearchParams.post_id} iframeId={resolvedSearchParams.iframe_id}>
         {blocks && <BlockParser blocks={blocks} />}
       </PreviewWrapper>
     </>

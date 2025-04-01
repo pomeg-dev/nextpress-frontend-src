@@ -2,20 +2,37 @@
 
 import { useEffect, useRef } from "react";
 
-export function PreviewWrapper({ children, postId }: { children: React.ReactNode, postId?: string | string[] }) {
+export function PreviewWrapper({
+  children, 
+  postId,
+  iframeId
+}: { 
+  children: React.ReactNode;
+  postId?: string | string[];
+  iframeId?: string | string[];
+}) {
   const mainRef = useRef<HTMLElement>(null);
   
   useEffect(() => {
     const calculateHeight = () => {
       if (mainRef.current) {
-        const height = mainRef.current.offsetHeight + 40;
+        const children = mainRef.current.children;
+        let totalMargin = 0;
+        for (let i = 0; i < children.length; i++) {
+          const childStyle = window.getComputedStyle(children[i] as HTMLElement);
+          const marginTop = parseInt(childStyle.marginTop, 10) || 0;
+          const marginBottom = parseInt(childStyle.marginBottom, 10) || 0;
+          totalMargin += marginTop + marginBottom;
+        }
+
+        const height = mainRef.current.offsetHeight + totalMargin;
         mainRef.current.setAttribute('data-height', `${height}`);
 
         if (window.parent && window.parent !== window) {
           window.parent.postMessage({
             type: 'blockPreviewHeight',
             height: height,
-            postId: postId
+            iframeId: iframeId
           }, '*');
         }
       }

@@ -6,7 +6,10 @@ export type GetPostsParams = WPQuery & {
   include_content?: boolean;
 };
 
-export async function getPosts(params: GetPostsParams = {}) {
+export async function getPosts(
+  params: GetPostsParams = {},
+  withHeaders: boolean = false
+) {
   const queryParams = new URLSearchParams();
 
   // List of parameters that should be comma-separated when they're arrays
@@ -48,7 +51,7 @@ export async function getPosts(params: GetPostsParams = {}) {
   }
 
   const res = await response.json();
-  return res;
+  return withHeaders ? { posts: res, headers: response.headers } : res;
 }
 
 export async function getPostByPath(
@@ -101,44 +104,22 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
   return res;
 }
 
-export async function getRestPosts(
-  postType: string = 'posts',
-  params?: any,
-  withHeaders: boolean = false
-) {
-  const searchParams = params ? '?' + new URLSearchParams(params).toString() : '';
-  try {
-    const response = await fetch(`${API_URL}/wp-json/wp/v2/${postType}${searchParams}`, {
-      method: "GET",
-      next: { tags: ["posts"] },
-      cache: "force-cache",
-    });
-    
-    if (withHeaders) {
-      const res = {
-        headers: response.headers,
-        data: await response.json(),
-      };
-      return res;
-    } else {
-      const  res = await response.json();
-      return res;
-    }
-  } catch (error) {
-    console.error(error);
-  }
-}
-
 export async function getTaxTerms(taxonomy: string) {
-  try {
-    const response = await fetch(`${API_URL}/wp-json/wp/v2/${taxonomy}`, {
-      method: "GET",
-      next: { tags: ["posts"] },
-      cache: "force-cache",
-    });
-    const res = await response.json();
-    return res;
-  } catch (error) {
-    console.error(error);
+  const url = `${API_URL}/wp-json/nextpress/tax_list/${encodeURIComponent(
+    taxonomy
+  )}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    next: { tags: ["template"] },
+    cache: "no-cache",
+  });
+
+  if (!response.ok) {
+    console.error(`Failed to fetch default template: ${url}`);
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
+
+  const res = await response.json();
+  return res;
 }

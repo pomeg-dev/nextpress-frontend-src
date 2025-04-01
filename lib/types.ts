@@ -91,9 +91,11 @@ export type BlockType = {
 };
 
 export type WPQuery = {
+  include_content?: boolean;
   page?: number;
   post__in?: number[];
   post__not_in?: number[];
+  post_type?: string | string[];
   per_page?: number;
   search?: string;
   after?: string;
@@ -119,6 +121,9 @@ export type WPQuery = {
   slug?: string[];
   status?: string[];
   tax_relation?: "AND" | "OR";
+  category_name?: string | string[],
+  tag_name?: string | string[],
+  [key: `filter_${string}`]: string | string[] | number | number[];
 };
 
 export type ImageProps = {

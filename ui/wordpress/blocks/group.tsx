@@ -8,13 +8,24 @@ type GroupProps = Block & {
 };
 
 const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
-  const { innerBlocks, data } = block;
-  const backgroundColor = data.attrs?.backgroundColor;
-  const textColor = data.attrs?.style?.color?.text || "primary";
+  const { innerBlocks, innerContent, data } = block;
+  const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
+  const textColor = data?.style?.color?.text || "primary";
+  let id: string | undefined = undefined;
+  if (innerContent?.[0]) {
+    const regex = /id=["']([^"']*)["']/;
+    const match = regex.exec(innerContent?.[0]);
+    id = match ? match[1] : undefined;
+  }
 
   return (
     <div
-      className="core-block group"
+      id={id}
+      className={classNames(
+        "core-block group-block relative overflow-hidden",
+        data?.style?.color?.text && "has-text-color",
+        block?.className
+      )}
       style={{
         color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
       }}
@@ -22,13 +33,15 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
       {innerBlocks &&
         backgroundColor ? (
           <div
-            className="mb-6 p-8"
+            className="has-background break-out"
             style={{
               backgroundColor: 
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
             }}
           >
-            <BlockParser blocks={innerBlocks} />
+            <div className="container py-8">
+              <BlockParser blocks={innerBlocks} />
+            </div>
           </div>
         ) : (
           <BlockParser blocks={innerBlocks} />
