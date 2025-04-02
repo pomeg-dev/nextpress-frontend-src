@@ -27,7 +27,8 @@ const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
         block?.className
       )}
       style={{
-        color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
+        color: textColor && textColor.includes('#') ? textColor : `var(--color-${textColor})`,
+        backgroundColor: backgroundColor && backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
       }}
     >
       {innerBlocks &&
