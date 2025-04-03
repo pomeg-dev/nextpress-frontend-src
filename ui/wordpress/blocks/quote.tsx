@@ -10,7 +10,7 @@ type QuoteProps = Block & {
 const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
   const { innerBlocks, innerContent, data } = block;
   const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
-  const textColor = data?.style?.color?.text || "primary";
+  const textColor = data?.style?.color?.text;
   let id: string | undefined = undefined;
   if (innerContent?.[0]) {
     const regex = /id=["']([^"']*)["']/;
@@ -27,12 +27,16 @@ const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
         block?.className
       )}
       style={{
-        color: textColor && textColor.includes('#') ? textColor : `var(--color-${textColor})`,
-        backgroundColor: backgroundColor && backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
+        ...(textColor && {
+          color: textColor.includes('#') ? textColor : `var(--color-${textColor})`
+        }),
+        ...(backgroundColor && {
+          backgroundColor: backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`
+        })
       }}
     >
       {innerBlocks &&
-        <BlockParser blocks={innerBlocks} />
+      <BlockParser blocks={innerBlocks} />
       }
     </blockquote>
   );

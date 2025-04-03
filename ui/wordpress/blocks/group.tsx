@@ -10,7 +10,7 @@ type GroupProps = Block & {
 const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
   const { innerBlocks, innerContent, data } = block;
   const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
-  const textColor = data?.style?.color?.text || "primary";
+  const textColor = data?.style?.color?.text || data?.textColor || "primary";
   let id: string | undefined = undefined;
   if (innerContent?.[0]) {
     const regex = /id=["']([^"']*)["']/;
@@ -27,7 +27,9 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
         block?.className
       )}
       style={{
-        color: textColor.includes('#') ? textColor : `var(--color-${textColor})`,
+        ...(textColor && {
+          color: textColor.includes('#') ? textColor : `var(--color-${textColor})`
+        }),
       }}
     >
       {innerBlocks &&
@@ -39,7 +41,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
             }}
           >
-            <div className="container py-8">
+            <div className="container py-lg">
               <BlockParser blocks={innerBlocks} />
             </div>
           </div>
