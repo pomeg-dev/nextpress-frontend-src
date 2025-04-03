@@ -58,8 +58,8 @@ const importComponent = async (
 
     return getComponent(npModule);
   } catch (error) {
-    console.error(`Failed to import component: ${componentPath}`, error);
-    console.error("Import path attempted:", componentPath);
+    console.log(`Failed to import component: ${componentPath}`, error);
+    console.log("Import path attempted:", componentPath);
     return getComponent(Fallback);
   }
 };

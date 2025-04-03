@@ -8,11 +8,31 @@ type HeadingProps = Block & {
 };
 
 const Heading: React.FC<HeadingProps> = ({ ...block }: Block) => {
-  // Example of using attrs
-  const backgroundColor = block.attrs?.backgroundColor || "transparent";
-  const padding = block.attrs?.padding || "0";
+  const { data } = block;
+  const backgroundColor = data?.style?.color?.background || data?.backgroundColor || "transparent";
+  const textColor = data?.style?.color?.text || data?.textColor || "primary";
 
-  return Parser(block.innerHTML);
+  let styleStr = "";
+  if (backgroundColor && backgroundColor !== "transparent") {
+    const bgColor = backgroundColor.includes('#') 
+      ? backgroundColor
+      :`var(--color-${backgroundColor})` ;
+    styleStr += `background-color: ${bgColor}; `;
+  }
+  
+  if (textColor && textColor !== "primary") {
+    const txtColor = textColor.includes('#') 
+      ? textColor
+      : `var(--color-${textColor})` ;
+    styleStr += `color: ${txtColor}; `;
+  }
+  
+  let modifiedHTML = block.innerHTML;
+  if (styleStr) {
+    modifiedHTML = block.innerHTML.replace(/<(h[1-6])(.*?)>/, `<$1$2 style="${styleStr}">`);
+  }
+
+  return Parser(modifiedHTML);
 };
 
 export default Heading;

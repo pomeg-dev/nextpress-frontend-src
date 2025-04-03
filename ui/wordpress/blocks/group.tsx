@@ -18,12 +18,25 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
     id = match ? match[1] : undefined;
   }
 
+  const layoutType = data?.layout?.type;
+  const flexWrap = data?.layout?.flexWrap;
+  const layoutClasses = classNames({
+    'flex': layoutType === 'flex',
+    'flex-nowrap': layoutType === 'flex' && flexWrap === 'nowrap',
+    'flex-wrap': layoutType === 'flex' && flexWrap === 'wrap',
+    'items-center': layoutType === 'flex',
+    'justify-between': layoutType === 'flex',
+    'gap-4': layoutType === 'flex',
+    'w-fit': layoutType === 'flex',
+  });
+
   return (
     <div
       id={id}
       className={classNames(
         "core-block group-block relative overflow-hidden",
         data?.style?.color?.text && "has-text-color",
+        layoutClasses,
         block?.className
       )}
       style={{
