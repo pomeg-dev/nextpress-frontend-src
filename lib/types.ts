@@ -157,6 +157,12 @@ export type MenuItemsProps = {
 
 export type Cards = "PostCard";
 
+export type BlockOptions = {
+  theme_override?: string; 
+  padding_top?: number | string; 
+  padding_bottom?: number | string;
+};
+
 import { DefaultSession } from "next-auth";
 
 declare module "next-auth" {
