@@ -13,7 +13,14 @@ export async function getPosts(
   const queryParams = new URLSearchParams();
 
   // List of parameters that should be comma-separated when they're arrays
-  const commaSeparatedParams = ["post__in", "category", "tag"]; // Add more as needed
+  const commaSeparatedParams = [
+    "post__in", 
+    "category", 
+    "tag", 
+    "tag_id",
+    "category__in",
+    "tag__in"
+  ]; // Add more as needed
 
   // Add each parameter to the query string if it's defined
   Object.entries(params).forEach(([key, value]) => {

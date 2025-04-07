@@ -1,6 +1,7 @@
 export type Post = {
   acf_data: any;
   breadcrumbs: string;
+  content: string;
   id: number;
   slug: Slug;
   type: PostType;
@@ -18,7 +19,7 @@ export type Post = {
   tags: PostTag[];
   related_posts: number[];
   password: string;
-  card?: Cards
+  card?: Cards;
 };
 
 export type Slug = {
@@ -123,6 +124,8 @@ export type WPQuery = {
   tax_relation?: "AND" | "OR";
   category_name?: string | string[],
   tag_name?: string | string[],
+  category__in?: number[],
+  tag__in?: number[],
   [key: `filter_${string}`]: string | string[] | number | number[];
 };
 
@@ -136,7 +139,7 @@ export type ImageProps = {
 };
 
 export type LinkItemProps = {
-  url?: string;
+  url: string;
   target?: string;
   title?: string;
 };
