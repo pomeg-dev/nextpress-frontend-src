@@ -136,6 +136,7 @@ export type ImageProps = {
   height?: number;
   className?: string;
   blurImage?: string;
+  blurDataURL?: string;
 };
 
 export type LinkItemProps = {
