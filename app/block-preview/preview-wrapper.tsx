@@ -25,7 +25,18 @@ export function PreviewWrapper({
           totalMargin += marginTop + marginBottom;
         }
 
-        const height = mainRef.current.offsetHeight + totalMargin;
+        let height: string | number = mainRef.current.offsetHeight + totalMargin;
+        const customBlock = mainRef.current.querySelector('.custom-block');
+        if (
+          customBlock && 
+          (
+            customBlock.classList.contains('h-screen') || 
+            customBlock.classList.contains('h-[100vh]')
+          )
+        ) {
+          height = "100vh";
+        }
+
         mainRef.current.setAttribute('data-height', `${height}`);
 
         if (window.parent && window.parent !== window) {
