@@ -150,6 +150,7 @@ export type ButtonProps = {
 };
 
 export type MenuItemsProps = {
+  ID: number;
   title: string;
   url: string;
   target?: string;
