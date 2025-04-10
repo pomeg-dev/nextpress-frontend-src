@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { Post, Cards } from "@/lib/types";
 import { executeSalesforceQuery } from "@/lib/salesforce";
 

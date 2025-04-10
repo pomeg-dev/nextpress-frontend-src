@@ -182,8 +182,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       status: "success",
-      email: registrationResponse.email || email,
-      identifier: registrationResponse.identifier,
+      email: email,
       codeVerifier: registrationResponse.codeVerifier,
       codeChallenge: registrationResponse.codeChallenge,
     });
