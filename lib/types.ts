@@ -137,6 +137,8 @@ export type ImageProps = {
   className?: string;
   blurImage?: string;
   blurDataURL?: string;
+  quality?: number;
+  sizes?: string;
 };
 
 export type LinkItemProps = {
@@ -150,7 +152,7 @@ export type ButtonProps = {
 };
 
 export type MenuItemsProps = {
-  ID: number;
+  ID?: number;
   title: string;
   url: string;
   target?: string;
