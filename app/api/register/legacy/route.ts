@@ -1,3 +1,5 @@
+// api/register/route.ts
+
 import { NextResponse } from "next/server";
 import { executeSalesforceQuery } from "@/lib/salesforce";
 import { getMysqlDataApi } from "@themes/elite-dashboard/blocks/elite-tool/data";

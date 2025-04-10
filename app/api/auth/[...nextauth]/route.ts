@@ -64,19 +64,19 @@ const options: NextAuthOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        console.log("credentials22 authorize", credentials);
         try {
           if (!credentials?.username || !credentials?.password) {
             throw new Error("Missing username or password");
           }
 
-          // Your existing Salesforce authentication logic here
           const encodedUNPW = Buffer.from(
             `${credentials.username}:${credentials.password}`
           ).toString("base64");
 
           // Step 1: Get Authorization Code
-          const authUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/authorize`;
+          const authUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/authorize";
+
           const authHeaders = new Headers();
           authHeaders.append("Auth-Request-Type", "Named-User");
           authHeaders.append("Authorization", `Basic ${encodedUNPW}`);
@@ -93,12 +93,11 @@ const options: NextAuthOptions = {
           authParams.append("response_type", "code_credentials");
           authParams.append(
             "client_id",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
           );
           authParams.append(
             "redirect_uri",
-            // "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
-            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
           );
 
           const authResponse = await fetch(authUrl, {
@@ -119,22 +118,23 @@ const options: NextAuthOptions = {
           }
 
           // Step 2: Exchange Code for Tokens
-          const tokenUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/token`;
+          const tokenUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/token";
 
           const tokenParams = new URLSearchParams();
           tokenParams.append("grant_type", "authorization_code");
           tokenParams.append("code", code);
           tokenParams.append(
             "client_id",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
           );
           tokenParams.append(
             "client_secret",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_SECRET!
+            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
           );
           tokenParams.append(
             "redirect_uri",
-            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
           );
 
           const tokenResponse = await fetch(tokenUrl, {
@@ -154,7 +154,8 @@ const options: NextAuthOptions = {
           const tokenData = await tokenResponse.json();
 
           // Fetch user info from Salesforce
-          const userInfoUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/userinfo`;
+          const userInfoUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/userinfo";
           const userInfoResponse = await fetch(userInfoUrl, {
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
@@ -169,14 +170,14 @@ const options: NextAuthOptions = {
 
           const userInfo = await userInfoResponse.json();
 
+          // Return user object with tokens and user info
           return {
             id: userInfo.user_id || tokenData.id,
             name: userInfo.name || credentials.username,
             email: userInfo.email || credentials.username,
-            jdeAccountId: userInfo.jdeAccountId || null,
             accessToken: tokenData.access_token,
             refreshToken: tokenData.refresh_token,
-            profile: userInfo,
+            profile: userInfo, // Store full profile in the token
           };
         } catch (error) {
           console.error("Authentication error:", error);

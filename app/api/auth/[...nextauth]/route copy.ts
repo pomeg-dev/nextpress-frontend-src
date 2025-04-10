@@ -8,7 +8,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      id: "salesforce-login",
+      id: "salesforce",
       name: "Salesforce",
       credentials: {
         username: { label: "Username", type: "text" },
