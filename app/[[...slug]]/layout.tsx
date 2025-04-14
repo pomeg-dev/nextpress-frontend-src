@@ -1,18 +1,15 @@
 import { getSettings } from "@/lib/wp/settings";
-import BeforeContent from "../BeforeContent";
-import AfterContent from "../AfterContent";
 import { getPostByPath, getPosts } from "@/lib/wp/posts";
-import { PostWithContent } from "@/lib/types";
+import { Block, Post, PostWithContent } from "@/lib/types";
 import { BlockParser } from "@/ui/block-parser";
 
-const addAcfData = (template: { data: { acf_data: any; }; }[], post: { acf_data: any; }) => {
-  if (!post.acf_data) return template;
-  if (template && template.length > 0) {
-    template.map((block: { data: { acf_data: any; }; }) => {
-      block.data.acf_data = {...post.acf_data};
+const additionalPostData = (blocks: Block[], post: Post) => {
+  if (blocks && blocks.length > 0) {
+    blocks.map((block: Block) => {
+      block.data.current_post = {...post};
     });
   }
-  return template;
+  return blocks;
 };
 
 export default async function Layout({
@@ -34,42 +31,41 @@ export default async function Layout({
   }
 
   // Wrap acf_data into before/after/sidebar content.
-  if (settings?.after_content) {
-    settings.after_content = addAcfData(settings.after_content, post);
+  let beforeContent = null;
+  if (post?.template?.before_content && post?.template?.before_content.length > 0) {
+    beforeContent = additionalPostData(post.template.before_content, post);
+  } else if (settings?.before_content) {
+    beforeContent = additionalPostData(settings.before_content, post);
   }
-  if (settings?.before_content) {
-    settings.before_content = addAcfData(settings.before_content, post);
+
+  let afterContent = null;
+  if (post?.template?.after_content && post?.template?.after_content.length > 0) {
+    afterContent = additionalPostData(post.template.after_content, post);
+  } else if (settings?.after_content) {
+    afterContent = additionalPostData(settings.after_content, post);
   }
-  if (post?.template?.before_content) {
-    post.template.before_content = addAcfData(post.template.before_content, post);
-  }
-  if (post?.template?.after_content) {
-    post.template.after_content = addAcfData(post.template.after_content, post);
-  }
+
+  let sidebarContent = null;
   if (post?.template?.sidebar_content) {
-    post.template.sidebar_content = addAcfData(post.template.sidebar_content, post);
+    sidebarContent = additionalPostData(post.template.sidebar_content, post);
   }
 
   return (
     <>
-      {post?.template?.before_content && post?.template?.before_content?.length > 0 ? (
-        <BeforeContent settings={post.template} />
-      ) : (
-        <BeforeContent settings={settings} />
-      )}
-      {post?.template?.sidebar_content ? (
-        <div className="content-sidebar container flex">
+      {beforeContent &&
+        <BlockParser blocks={beforeContent} />
+      }
+      {sidebarContent ? (
+        <div data-cpt={post.type.id} className="content-sidebar container flex">
           {children}
-          <aside><BlockParser blocks={post.template.sidebar_content} /></aside>
+          <aside><BlockParser blocks={sidebarContent} /></aside>
         </div>
       ) : (
         <>{children}</>
       )}
-      {post?.template?.after_content && post?.template?.after_content?.length > 0 ? (
-        <AfterContent settings={post.template} />
-      ) : (
-        <AfterContent settings={settings} />
-      )}
+      {afterContent &&
+        <BlockParser blocks={afterContent} />
+      }
     </>
   );
 }

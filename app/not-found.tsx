@@ -2,8 +2,6 @@ import { getPostByPath } from "@/lib/wp/posts";
 import { getSettings } from "@/lib/wp/settings";
 import { BlockParser } from "@/ui/block-parser";
 import classNames from "classnames";
-import BeforeContent from "./BeforeContent";
-import AfterContent from "./AfterContent";
 
 export default async function NotFound() {
   const settings = await getSettings();
@@ -13,7 +11,9 @@ export default async function NotFound() {
 
   return (
     <>
-      <BeforeContent settings={settings} />
+      {settings?.before_content && (
+        <BlockParser blocks={settings.before_content} />
+      )}
       {settings.posts_404 && post ? (
         <main data-pageurl={post.path} data-postid={post.id}>
           {post.content && <BlockParser blocks={post.content} />}
@@ -33,7 +33,9 @@ export default async function NotFound() {
           </div>
         </div>
       )}
-      <AfterContent settings={settings} />
+      {settings?.after_content && (
+        <BlockParser blocks={settings.after_content} />
+      )}
     </>
   );
 }
