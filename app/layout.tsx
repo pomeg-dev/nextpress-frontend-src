@@ -3,8 +3,6 @@ import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
-import BeforeContent from "./BeforeContent";
-import AfterContent from "./AfterContent";
 import { Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
@@ -49,9 +47,7 @@ export default async function Layout({
         <Providers>
           <Suspense fallback={null}>
             <AuthCheck />
-            <BeforeContent settings={settings} />
             {children}
-            <AfterContent settings={settings} />
           </Suspense>
         </Providers>
       </body>

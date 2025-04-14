@@ -1,13 +1,14 @@
 import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath } from "@/lib/wp/posts";
+import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
 import { redirect } from "next/navigation";
 import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
+import CategoryArchive from '@/ui/category-archive';
 
 export const dynamic = "force-dynamic";
 
@@ -24,6 +25,23 @@ export default async function Post({ params, searchParams }: NextProps) {
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
 
+  // Get settings.
+  const settings = await getSettings();
+
+  // Handle category pages.
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    const taxonomy = slug[1];
+    const term = slug[2];
+    return (
+      <CategoryArchive taxonomy={taxonomy} term={term} />
+    );
+  }
+
   const path = slug ? slug.join("/") : "";
   let post;
   if (slug && slug[0] === "draft") {
@@ -36,7 +54,6 @@ export default async function Post({ params, searchParams }: NextProps) {
     notFound();
   }
 
-  const settings = await getSettings();
   let updatedSchema = null;
   if (post?.yoastHeadJSON?.schema) {
     updatedSchema = process.env.NEXT_PUBLIC_API_URL 
@@ -89,9 +106,17 @@ export async function generateMetadata(
   if (slug && slug[0] === "draft") return notFound;
 
   const path = slug ? slug.join("/") : "";
-  const post = await getPostByPath(path);
   const settings = await getSettings();
   const frontendDomainURL = getFrontEndUrl(settings);
+  let post = await getPostByPath(path);
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    post = await getTaxTerm(slug[1], slug[2]);
+  }
 
   if (!post) return notFound;
 

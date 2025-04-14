@@ -130,3 +130,21 @@ export async function getTaxTerms(taxonomy: string) {
   const res = await response.json();
   return res;
 }
+
+export async function getTaxTerm(taxonomy: string, term: string) {
+  const url = `${API_URL}/wp-json/nextpress/tax_term/${encodeURIComponent(taxonomy)}/${encodeURIComponent(term)}`;
+
+  const response = await fetch(url, {
+    method: "GET",
+    next: { tags: ["template"] },
+    cache: "no-cache",
+  });
+
+  if (!response.ok) {
+    console.error(`Failed to fetch default template: ${url}`);
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  const res = await response.json();
+  return res;
+}
