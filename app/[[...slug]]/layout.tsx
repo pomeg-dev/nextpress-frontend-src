@@ -6,7 +6,9 @@ import { BlockParser } from "@/ui/block-parser";
 const additionalPostData = (blocks: Block[], post: Post) => {
   if (blocks && blocks.length > 0) {
     blocks.map((block: Block) => {
-      block.data.current_post = {...post};
+      if (!block.data.current_post) {
+        block.data.current_post = {...post};
+      }
     });
   }
   return blocks;
@@ -56,7 +58,7 @@ export default async function Layout({
         <BlockParser blocks={beforeContent} />
       }
       {sidebarContent ? (
-        <div data-cpt={post.type.id} className="content-sidebar container flex">
+        <div data-cpt={post.type.id} className="content-sidebar container">
           {children}
           <aside><BlockParser blocks={sidebarContent} /></aside>
         </div>
