@@ -3,9 +3,41 @@ import { getPostByPath, getPosts } from "@/lib/wp/posts";
 import { Block, Post, PostWithContent } from "@/lib/types";
 import { BlockParser } from "@/ui/block-parser";
 
+const parseTemplateBlocks = (
+  postBlocks: Block[] = [], 
+  settingsBlocks: Block[] = [], 
+  post: Post,
+  before: boolean = false,
+) => {
+  const headerFooterMap = new Map();
+  postBlocks.forEach((block) => {
+    if (block.blockName && 
+        (block.blockName.toLowerCase().includes('header') || 
+         block.blockName.toLowerCase().includes('footer'))) {
+      headerFooterMap.set(block.blockName, block);
+    }
+  });
+  
+  const filteredSettingsBlocks = settingsBlocks.filter((block) => {
+    if (!block.blockName) return true;
+    
+    return !headerFooterMap.has(block.blockName);
+  });
+  
+  let blocks = before ? 
+    [...filteredSettingsBlocks, ...postBlocks] : 
+    [...postBlocks, ...filteredSettingsBlocks];
+  
+  blocks = additionalPostData(blocks, post);
+  return blocks;
+};
+
 const additionalPostData = (blocks: Block[], post: Post) => {
   if (blocks && blocks.length > 0) {
     blocks.map((block: Block) => {
+      if (!block.data) {
+        block.data = {};
+      }
       if (!block.data.current_post) {
         block.data.current_post = {...post};
       }
@@ -33,19 +65,22 @@ export default async function Layout({
   }
 
   // Wrap acf_data into before/after/sidebar content.
-  let beforeContent = null;
-  if (post?.template?.before_content && post?.template?.before_content.length > 0) {
-    beforeContent = additionalPostData(post.template.before_content, post);
-  } else if (settings?.before_content) {
-    beforeContent = additionalPostData(settings.before_content, post);
-  }
+  let beforeContent = parseTemplateBlocks(
+    post?.template?.before_content && post?.template?.before_content.length > 0 
+      ? post.template.before_content
+      : [],
+    settings?.before_content || [],
+    post,
+    true
+  );
 
-  let afterContent = null;
-  if (post?.template?.after_content && post?.template?.after_content.length > 0) {
-    afterContent = additionalPostData(post.template.after_content, post);
-  } else if (settings?.after_content) {
-    afterContent = additionalPostData(settings.after_content, post);
-  }
+  let afterContent = parseTemplateBlocks(
+    post?.template?.after_content && post?.template?.after_content.length > 0 
+      ? post.template.after_content
+      : [],
+    settings?.after_content || [],
+    post,
+  );
 
   let sidebarContent = null;
   if (post?.template?.sidebar_content) {
@@ -58,10 +93,10 @@ export default async function Layout({
         <BlockParser blocks={beforeContent} />
       }
       {sidebarContent ? (
-        <div data-cpt={post.type.id} className="content-sidebar container">
+        <section data-cpt={post.type.id} className="content-sidebar container">
           {children}
           <aside><BlockParser blocks={sidebarContent} /></aside>
-        </div>
+        </section>
       ) : (
         <>{children}</>
       )}

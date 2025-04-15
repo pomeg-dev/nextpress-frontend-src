@@ -77,7 +77,7 @@ export type Block = {
   className?: string;
   slug: string;
   innerHTML: string;
-  innerContent: string;
+  innerContent: string[];
   type: BlockType;
   attrs?: Record<string, any>;
   innerBlocks: Block[];
