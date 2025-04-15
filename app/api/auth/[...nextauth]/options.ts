@@ -1,0 +1,228 @@
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { jwtVerify } from "jose";
+
+const SECRET_KEY = new TextEncoder().encode(
+  process.env.NEXT_PUBLIC_JWT_SECRET_KEY ||
+    "your-very-secure-and-randomly-generated-secret-key"
+);
+
+export const options: NextAuthOptions = {
+  providers: [
+    CredentialsProvider({
+      id: "token-login",
+      name: "Token",
+      credentials: {
+        token: { label: "Token", type: "text" },
+      },
+      async authorize(credentials) {
+        console.log("token-login authorize", credentials);
+        try {
+          // For local testing
+          if (
+            process.env.NODE_ENV === "development" &&
+            credentials?.token === "validtoken"
+          ) {
+            return {
+              id: "1",
+              name: "Test User",
+              email: "test@example.com",
+              jdeAccountId: "4495", // example jde that will allow load of dash etc
+              accessToken: "test-token",
+            };
+          }
+
+          if (!credentials?.token) {
+            return null;
+          }
+
+          // Verify the JWT token
+          const { payload } = await jwtVerify(credentials.token, SECRET_KEY);
+
+          return {
+            id: payload.sub as string,
+            name: (payload.firstName as string) || (payload.lastName as string),
+            email: payload.email as string,
+            jdeAccountId: payload.JDE_Account_ID__c as string,
+            accessToken: credentials.token,
+            profile: payload,
+          };
+        } catch (error) {
+          console.error("Token verification error:", error);
+          return null;
+        }
+      },
+    }),
+    // Keep the Salesforce login provider for admin/backend use if needed
+    CredentialsProvider({
+      id: "salesforce-login",
+      name: "Salesforce",
+      credentials: {
+        username: { label: "Username", type: "text" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        try {
+          if (!credentials?.username || !credentials?.password) {
+            throw new Error("Missing username or password");
+          }
+
+          const encodedUNPW = Buffer.from(
+            `${credentials.username}:${credentials.password}`
+          ).toString("base64");
+
+          // Step 1: Get Authorization Code
+          const authUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/authorize";
+
+          const authHeaders = new Headers();
+          authHeaders.append("Auth-Request-Type", "Named-User");
+          authHeaders.append("Authorization", `Basic ${encodedUNPW}`);
+          authHeaders.append(
+            "Content-Type",
+            "application/x-www-form-urlencoded"
+          );
+          authHeaders.append(
+            "Cookie",
+            "BrowserId=nqRygq15Ee-kRQvRUiomZQ; CookieConsentPolicy=0:1; LSKey-c$CookieConsentPolicy=0:1; oinfo=c3RhdHVzPURFTU8mdHlwZT02Jm9pZD0wMEREZjAwMDAwMFFTMHY="
+          );
+
+          const authParams = new URLSearchParams();
+          authParams.append("response_type", "code_credentials");
+          authParams.append(
+            "client_id",
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
+          );
+          authParams.append(
+            "redirect_uri",
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
+          );
+
+          const authResponse = await fetch(authUrl, {
+            method: "POST",
+            headers: authHeaders,
+            body: authParams,
+          });
+
+          if (!authResponse.ok) {
+            throw new Error(`Authorization failed: ${authResponse.statusText}`);
+          }
+
+          const authData = await authResponse.json();
+          const { code } = authData;
+
+          if (!code) {
+            throw new Error("No authorization code received");
+          }
+
+          // Step 2: Exchange Code for Tokens
+          const tokenUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/token";
+
+          const tokenParams = new URLSearchParams();
+          tokenParams.append("grant_type", "authorization_code");
+          tokenParams.append("code", code);
+          tokenParams.append(
+            "client_id",
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
+          );
+          tokenParams.append(
+            "client_secret",
+            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
+          );
+          tokenParams.append(
+            "redirect_uri",
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
+          );
+
+          const tokenResponse = await fetch(tokenUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: tokenParams,
+          });
+
+          if (!tokenResponse.ok) {
+            throw new Error(
+              `Token exchange failed: ${tokenResponse.statusText}`
+            );
+          }
+
+          const tokenData = await tokenResponse.json();
+
+          // Fetch user info from Salesforce
+          const userInfoUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/userinfo";
+          const userInfoResponse = await fetch(userInfoUrl, {
+            headers: {
+              Authorization: `Bearer ${tokenData.access_token}`,
+            },
+          });
+
+          if (!userInfoResponse.ok) {
+            throw new Error(
+              `Failed to fetch user info: ${userInfoResponse.statusText}`
+            );
+          }
+
+          const userInfo = await userInfoResponse.json();
+
+          // Return user object with tokens and user info
+          return {
+            id: userInfo.user_id || tokenData.id,
+            name: userInfo.name || credentials.username,
+            email: userInfo.email || credentials.username,
+            accessToken: tokenData.access_token,
+            profile: userInfo, // Store full profile in the token
+          };
+        } catch (error) {
+          console.error("Authentication error:", error);
+          return null;
+        }
+      },
+    }),
+  ],
+  session: {
+    strategy: "jwt",
+    maxAge: 30 * 24 * 60 * 60, // 30 days
+  },
+  callbacks: {
+    async jwt({ token, user, account }) {
+      if (user && account) {
+        token.accessToken = (user as any).accessToken;
+        token.jdeAccountId = (user as any).jdeAccountId;
+        token.provider = account.provider;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (session.user) {
+        (session.user as any).accessToken = token.accessToken;
+        (session.user as any).provider = token.provider;
+        (session.user as any).jdeAccountId = token.jdeAccountId;
+      }
+      return session;
+    },
+    async redirect({ url, baseUrl }) {
+      // Remove token from URL.
+      const cleanUrl = url.replace(/[?&]token=[^&]+/, "");
+      const finalUrl = cleanUrl.replace(/\?$/, "");
+
+      // If it's a relative URL, resolve it relative to the base URL
+      if (finalUrl.startsWith("/")) {
+        return `${baseUrl}${finalUrl}`;
+      }
+      // If it's already an absolute URL, just return it
+      else if (finalUrl.startsWith("http")) {
+        return finalUrl;
+      }
+      // Default to the base URL
+      return baseUrl;
+    },
+  },
+  pages: {
+    signIn: "/register",
+    error: "/register",
+  },
+};
