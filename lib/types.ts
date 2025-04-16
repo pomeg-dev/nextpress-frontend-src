@@ -122,10 +122,10 @@ export type WPQuery = {
   slug?: string[];
   status?: string[];
   tax_relation?: "AND" | "OR";
-  category_name?: string | string[],
-  tag_name?: string | string[],
-  category__in?: number[],
-  tag__in?: number[],
+  category_name?: string | string[];
+  tag_name?: string | string[];
+  category__in?: number[];
+  tag__in?: number[];
   [key: `filter_${string}`]: string | string[] | number | number[];
 };
 

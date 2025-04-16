@@ -58,7 +58,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
                 backgroundColor.includes('#') ? backgroundColor : `var(--color-${backgroundColor})`,
             }}
           >
-            <div className="container py-lg">
+            <div className="container py-8">
               <BlockParser blocks={innerBlocks} />
             </div>
           </div>
