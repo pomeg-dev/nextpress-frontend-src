@@ -1,4 +1,4 @@
-import { getTaxTerm } from "@/lib/wp/posts";
+import { getTaxTerm, getTaxTerms } from "@/lib/wp/posts";
 import { Feed } from "@ui/components/archive/Feed";
 
 export default async function CategoryArchive({
@@ -29,11 +29,9 @@ export default async function CategoryArchive({
       {
         label: "",
         placeholder: "All",
-        taxonomy: taxonomy, 
-        terms: [
-          { term_id: termObject.term_id, slug: term, name: termObject.name }
-        ],
-        type: "button"
+        taxonomy: taxonomy,
+        terms: await getTaxTerms(taxonomy),
+        type: "select"
       }
     ]
   };
