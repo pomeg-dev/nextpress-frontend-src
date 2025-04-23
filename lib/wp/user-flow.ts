@@ -27,8 +27,7 @@ interface LoginParams {
 
 export async function postLogin(params: LoginParams) {
   const url = `${WP_API_URL}/wp-json/nextpress/login`;
-  console.log('url', url);
-
+  
   const response = await fetch(url, {
     method: "POST",
     next: { tags: ["users"] },
@@ -39,7 +38,7 @@ export async function postLogin(params: LoginParams) {
     },
     credentials: "include",
   });
-
+  
   if (!response.ok) {
     console.log(url);
     throw new Error(`HTTP error! status: ${response.status}`);

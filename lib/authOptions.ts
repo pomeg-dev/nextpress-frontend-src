@@ -2,6 +2,7 @@ import { postLogin } from "@/lib/wp/user-flow";
 import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions = {
+  debug: true,
   providers: [
     CredentialsProvider({
       name: "WordPress",
@@ -12,7 +13,6 @@ export const authOptions = {
         referrer: { label: "Referrer", type: "text" },
       },
       async authorize(credentials) {
-        console.log(credentials);
         try {
           const response = await postLogin({
             user_login: credentials?.userLogin ?? null,
