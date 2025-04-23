@@ -47,6 +47,7 @@ function NPAdminBarContent({ postID }: { postID: number }) {
       setIsAdmin(user.is_admin);
       setToken(user.token);
     }
+    console.log(session);
   }, [session]);
 
   if (!loggedIn || !isAdmin) return null;

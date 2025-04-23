@@ -149,6 +149,7 @@ export type LinkItemProps = {
 
 export type ButtonProps = {
   link: LinkItemProps;
+  style?: string;
 };
 
 export type MenuItemsProps = {

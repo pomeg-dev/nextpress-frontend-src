@@ -27,6 +27,7 @@ interface LoginParams {
 
 export async function postLogin(params: LoginParams) {
   const url = `${WP_API_URL}/wp-json/nextpress/login`;
+  console.log('url', url);
 
   const response = await fetch(url, {
     method: "POST",
