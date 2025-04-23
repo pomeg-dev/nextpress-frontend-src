@@ -15,6 +15,7 @@ export async function getPosts(
   // List of parameters that should be comma-separated when they're arrays
   const commaSeparatedParams = [
     "post__in", 
+    "post__not_in", 
     "category", 
     "tag", 
     "tag_id",
