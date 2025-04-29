@@ -97,6 +97,7 @@ export type WPQuery = {
   post__in?: number[];
   post__not_in?: number[];
   post_type?: string | string[];
+  post_type__not_in?: string | string[];
   per_page?: number;
   search?: string;
   after?: string;
