@@ -48,8 +48,6 @@ export async function getPosts(
     queryParams.toString() ? `?${queryParams.toString()}` : ""
   }`;
 
-  console.log(url);
-
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["posts"] },

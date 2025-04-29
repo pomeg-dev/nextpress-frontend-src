@@ -83,43 +83,6 @@ export default async function Post({ params, searchParams }: NextProps) {
 }
 
 export async function generateStaticParams() {
-  if (process.env.NODE_ENV === 'development') {
-    const allPages = await getPosts({ 
-      per_page: 50,   
-      post_type: 'page',
-      include_metadata: false
-    });
-
-    const customPosts = await getPosts({ 
-      per_page: 50,   
-      post_type: 'any',
-      post_type__not_in: ['post', 'page'],
-      include_metadata: false,
-    });
-
-    const recentPosts = await getPosts({ 
-      per_page: 10, 
-      post_type: 'post',
-      orderby: 'date', 
-      order: 'desc',
-      include_metadata: false,
-    });
-
-    const combinedParams = [
-      ...allPages.map((post: PostWithContent) => ({
-        params: { slug: post.slug.full_path },
-      })),
-      ...customPosts.map((post: PostWithContent) => ({
-        params: { slug: post.slug.full_path },
-      })),
-      ...recentPosts.map((post: PostWithContent) => ({
-        params: { slug: post.slug.full_path },
-      }))
-    ];
-
-    return combinedParams;
-  }
-
   const postsPerBatch = 100;
   const maxConcurrentRequests = 5;
   let allParams: { params: { slug: string[] } }[] = [];
