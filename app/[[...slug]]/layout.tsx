@@ -143,22 +143,51 @@ export async function generateStaticParams() {
   }
 
   const postsPerBatch = 100;
-  let page = 1;
+  const maxConcurrentRequests = 5; // Control how many requests run in parallel
   let allParams: { params: { slug: string[] } }[] = [];
+  
+  // Start with page 1
+  let currentStartPage = 1;
   let hasMorePosts = true;
   
   while (hasMorePosts) {
-    const posts = await getPosts({ per_page: postsPerBatch, page });
+    // Calculate page numbers for this batch
+    const pageNumbers = Array.from(
+      { length: maxConcurrentRequests }, 
+      (_, i) => currentStartPage + i
+    );
     
-    if (posts.length === 0) {
+    // Fetch these pages in parallel
+    const batchResults = await Promise.all(
+      pageNumbers.map(pageNum => 
+        getPosts({ per_page: postsPerBatch, page: pageNum })
+          .catch(error => {
+            console.error(`Error fetching page ${pageNum}:`, error);
+            return []; // Return empty array on error
+          })
+      )
+    );
+    
+    // Check if we've reached the end
+    const anyResultsInBatch = batchResults.some(posts => posts.length > 0);
+    
+    if (!anyResultsInBatch) {
       hasMorePosts = false;
     } else {
-      const newParams = posts.map((post: PostWithContent) => ({
-        params: { slug: post.slug.full_path },
-      }));
+      // Process valid results from this batch
+      for (const posts of batchResults) {
+        if (posts && posts.length > 0) {
+          const pageParams = posts.map((post: PostWithContent) => ({
+            params: { slug: post.slug.full_path },
+          }));
+          
+          allParams = [...allParams, ...pageParams];
+        }
+      }
       
-      allParams = [...allParams, ...newParams];
-      page++;
+      // Move to the next batch of pages
+      currentStartPage += maxConcurrentRequests;
+      console.log(`Processed up to page ${currentStartPage - 1}, found ${allParams.length} posts so far`);
     }
   }
   
