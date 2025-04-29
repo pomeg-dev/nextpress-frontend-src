@@ -86,20 +86,23 @@ export async function generateStaticParams() {
   if (process.env.NODE_ENV === 'development') {
     const allPages = await getPosts({ 
       per_page: 50,   
-      post_type: 'page'
+      post_type: 'page',
+      include_metadata: false
     });
 
     const customPosts = await getPosts({ 
       per_page: 50,   
       post_type: 'any',
       post_type__not_in: ['post', 'page'],
+      include_metadata: false,
     });
 
     const recentPosts = await getPosts({ 
       per_page: 10, 
       post_type: 'post',
       orderby: 'date', 
-      order: 'desc' 
+      order: 'desc',
+      include_metadata: false,
     });
 
     const combinedParams = [
@@ -118,38 +121,31 @@ export async function generateStaticParams() {
   }
 
   const postsPerBatch = 100;
-  const maxConcurrentRequests = 5; // Control how many requests run in parallel
+  const maxConcurrentRequests = 5;
   let allParams: { params: { slug: string[] } }[] = [];
-  
-  // Start with page 1
   let currentStartPage = 1;
   let hasMorePosts = true;
   
   while (hasMorePosts) {
-    // Calculate page numbers for this batch
     const pageNumbers = Array.from(
       { length: maxConcurrentRequests }, 
       (_, i) => currentStartPage + i
     );
     
-    // Fetch these pages in parallel
     const batchResults = await Promise.all(
       pageNumbers.map(pageNum => 
-        getPosts({ per_page: postsPerBatch, page: pageNum })
+        getPosts({ per_page: postsPerBatch, page: pageNum, include_metadata: false })
           .catch(error => {
             console.error(`Error fetching page ${pageNum}:`, error);
-            return []; // Return empty array on error
+            return [];
           })
       )
     );
     
-    // Check if we've reached the end
     const anyResultsInBatch = batchResults.some(posts => posts.length > 0);
-    
     if (!anyResultsInBatch) {
       hasMorePosts = false;
     } else {
-      // Process valid results from this batch
       for (const posts of batchResults) {
         if (posts && posts.length > 0) {
           const pageParams = posts.map((post: PostWithContent) => ({
@@ -160,9 +156,7 @@ export async function generateStaticParams() {
         }
       }
       
-      // Move to the next batch of pages
       currentStartPage += maxConcurrentRequests;
-      console.log(`Processed up to page ${currentStartPage - 1}, found ${allParams.length} posts so far`);
     }
   }
   

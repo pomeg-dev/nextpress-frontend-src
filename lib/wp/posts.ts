@@ -4,6 +4,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 export type GetPostsParams = WPQuery & {
   include_content?: boolean;
+  include_metadata?: boolean;
 };
 
 export async function getPosts(
@@ -34,7 +35,7 @@ export async function getPosts(
           // For other array parameters, keep the original behavior
           value.forEach((item) => queryParams.append(key, item.toString()));
         }
-      } else if (key === "include_content") {
+      } else if (key === "include_content" || key === "include_metadata") {
         // Convert boolean to 0 or 1 for include_content
         queryParams.append(key, value ? "1" : "0");
       } else {
