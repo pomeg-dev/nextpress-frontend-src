@@ -83,7 +83,7 @@ export default async function Post({ params, searchParams }: NextProps) {
 }
 
 export async function generateStaticParams() {
-  if (process.env.NODE_ENV === 'development') {
+  // if (process.env.NODE_ENV === 'development') {
     const allPages = await getPosts({ 
       per_page: 50,   
       post_type: 'page'
@@ -115,29 +115,29 @@ export async function generateStaticParams() {
     ];
 
     return combinedParams;
-  }
+  // }
 
-  const postsPerBatch = 100;
-  let page = 1;
-  let allParams: { params: { slug: string[] } }[] = [];
-  let hasMorePosts = true;
+  // const postsPerBatch = 100;
+  // let page = 1;
+  // let allParams: { params: { slug: string[] } }[] = [];
+  // let hasMorePosts = true;
   
-  while (hasMorePosts) {
-    const posts = await getPosts({ per_page: postsPerBatch, page });
+  // while (hasMorePosts) {
+  //   const posts = await getPosts({ per_page: postsPerBatch, page });
     
-    if (posts.length === 0) {
-      hasMorePosts = false;
-    } else {
-      const newParams = posts.map((post: PostWithContent) => ({
-        params: { slug: post.slug.full_path },
-      }));
+  //   if (posts.length === 0) {
+  //     hasMorePosts = false;
+  //   } else {
+  //     const newParams = posts.map((post: PostWithContent) => ({
+  //       params: { slug: post.slug.full_path },
+  //     }));
       
-      allParams = [...allParams, ...newParams];
-      page++;
-    }
-  }
+  //     allParams = [...allParams, ...newParams];
+  //     page++;
+  //   }
+  // }
   
-  return allParams;
+  // return allParams;
 }
 
 export async function generateMetadata(
