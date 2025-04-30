@@ -3,7 +3,7 @@ import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
 import { GTM } from "./(extras)/gtm";
-import { Providers } from "./providers";
+import { LocaleProvider, Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
 
@@ -31,25 +31,27 @@ export default async function Layout({
   return (
     <html {...themeProps} className={fontVariables}>
       <body>
-        {settings.google_tag_manager_enabled === true && (
-          <Suspense>
-            <noscript>
-              <iframe
-                src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
-                height="0"
-                width="0"
-                style={{ display: "none", visibility: "hidden" }}
-              />
-            </noscript>
-            <GTM GTM_ID={settings.google_tag_manager_id} />
-          </Suspense>
-        )}
-        <Providers>
-          <Suspense fallback={null}>
-            <AuthCheck />
-            {children}
-          </Suspense>
-        </Providers>
+        <LocaleProvider defaultLocale="en">
+          {settings.google_tag_manager_enabled === true && (
+            <Suspense>
+              <noscript>
+                <iframe
+                  src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
+                  height="0"
+                  width="0"
+                  style={{ display: "none", visibility: "hidden" }}
+                />
+              </noscript>
+              <GTM GTM_ID={settings.google_tag_manager_id} />
+            </Suspense>
+          )}
+          <Providers>
+            <Suspense fallback={null}>
+              <AuthCheck />
+              {children}
+            </Suspense>
+          </Providers>
+        </LocaleProvider>
       </body>
     </html>
   );

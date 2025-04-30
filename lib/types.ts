@@ -145,8 +145,8 @@ export type ImageProps = {
 
 export type LinkItemProps = {
   url: string;
-  target?: string;
   title?: string;
+  target?: string;
 };
 
 export type ButtonProps = {
@@ -165,6 +165,7 @@ export type MenuItemsProps = {
   children?: MenuItemsProps[];
   active?: boolean;
   gated?: boolean;
+  acf_data?: any;
 };
 
 export type Cards = "PostCard";
