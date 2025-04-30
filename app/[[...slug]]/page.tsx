@@ -97,7 +97,12 @@ export async function generateStaticParams() {
     
     const batchResults = await Promise.all(
       pageNumbers.map(pageNum => 
-        getPosts({ per_page: postsPerBatch, page: pageNum, include_metadata: false })
+        getPosts({
+          per_page: postsPerBatch, 
+          page: pageNum, 
+          include_metadata: false,
+          slug_only: true,
+        })
           .catch(error => {
             console.error(`Error fetching page ${pageNum}:`, error);
             return [];

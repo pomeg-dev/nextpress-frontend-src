@@ -5,6 +5,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 export type GetPostsParams = WPQuery & {
   include_content?: boolean;
   include_metadata?: boolean;
+  slug_only?: boolean;
 };
 
 export async function getPosts(
@@ -35,8 +36,8 @@ export async function getPosts(
           // For other array parameters, keep the original behavior
           value.forEach((item) => queryParams.append(key, item.toString()));
         }
-      } else if (key === "include_content" || key === "include_metadata") {
-        // Convert boolean to 0 or 1 for include_content
+      } else if (key === "include_content" || key === "include_metadata" || key === "slug_only") {
+        // Convert boolean to 0 or 1
         queryParams.append(key, value ? "1" : "0");
       } else {
         queryParams.append(key, value.toString());
@@ -59,7 +60,7 @@ export async function getPosts(
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
-  const res = await response.json();
+  const res = await response.json()
   return withHeaders ? { posts: res, headers: response.headers } : res;
 }
 

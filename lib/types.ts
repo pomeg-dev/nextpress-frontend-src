@@ -141,6 +141,7 @@ export type ImageProps = {
   quality?: number;
   sizes?: string;
   description?: string;
+  placeholder?: PlaceholderValue | undefined;
 };
 
 export type LinkItemProps = {
@@ -177,6 +178,7 @@ export type BlockOptions = {
 };
 
 import { DefaultSession } from "next-auth";
+import { PlaceholderValue } from "next/dist/shared/lib/get-img-props";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
