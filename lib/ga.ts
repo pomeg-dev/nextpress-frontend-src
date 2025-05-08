@@ -7,7 +7,7 @@ export async function getGA4ReportApi(
   try {
     const url =
       process.env.NEXT_PUBLIC_FRONTEND_URL +
-      "/ga?" +
+      "/api/ga?" +
       new URLSearchParams({
         requestBody: JSON.stringify(requestBody),
         propertyId,
