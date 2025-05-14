@@ -82,8 +82,9 @@ export default async function Layout({
     post,
   );
 
+  const disableSidebar = post?.acf_data?.disable_sidebar || false;
   let sidebarContent = null;
-  if (post?.template?.sidebar_content) {
+  if (post?.template?.sidebar_content && !disableSidebar) {
     sidebarContent = additionalPostData(post.template.sidebar_content, post);
   }
 
@@ -93,7 +94,7 @@ export default async function Layout({
         <BlockParser blocks={beforeContent} />
       }
       {sidebarContent ? (
-        <section data-cpt={post.type.id} className="content-sidebar container">
+        <section className="content-sidebar container">
           {children}
           <aside><BlockParser blocks={sidebarContent} /></aside>
         </section>

@@ -75,7 +75,7 @@ export default async function Post({ params, searchParams }: NextProps) {
         />
       }
       <NPAdminBar postID={post.id} />
-      <main data-pageurl={post.slug.slug} data-postid={post.id}>
+      <main data-cpt={post.type.id} data-pageurl={post.slug.slug} data-postid={post.id}>
         {post.content && <BlockParser blocks={post.content} />}
       </main>
     </>
