@@ -22,14 +22,14 @@ export async function getPosts(
     "tag", 
     "tag_id",
     "category__in",
-    "tag__in"
+    "tag__in",
   ]; // Add more as needed
 
   // Add each parameter to the query string if it's defined
   Object.entries(params).forEach(([key, value]) => {
     if (value !== undefined) {
       if (Array.isArray(value)) {
-        if (commaSeparatedParams.includes(key)) {
+        if (commaSeparatedParams.includes(key) || key.includes('filter_')) {
           // Join array values with commas for specified parameters
           queryParams.append(key, value.join(","));
         } else {
