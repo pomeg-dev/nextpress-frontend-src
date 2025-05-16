@@ -75,9 +75,7 @@ export default async function Post({ params, searchParams }: NextProps) {
         />
       }
       <NPAdminBar postID={post.id} />
-      <main data-cpt={post.type.id} data-pageurl={post.slug.slug} data-postid={post.id}>
-        {post.content && <BlockParser blocks={post.content} />}
-      </main>
+      {post.content && <BlockParser blocks={post.content} />}
     </>
   );
 }
@@ -174,6 +172,7 @@ export async function generateMetadata(
         process.env.NEXT_PUBLIC_API_URL,
         frontendDomainURL
       );
+      post.yoastHeadJSON.canonical = canonical;
       post.yoastHeadJSON.alternates = { canonical: canonical };
     } else if (!path || path == "") {
       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };

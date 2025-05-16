@@ -95,11 +95,15 @@ export default async function Layout({
       }
       {sidebarContent ? (
         <section className="content-sidebar container">
-          {children}
-          <aside><BlockParser blocks={sidebarContent} /></aside>
+          <main data-cpt={post.type.id} data-pageurl={post.slug.slug} data-postid={post.id}>
+            {children}
+          </main>
+          <aside className="sidebar"><BlockParser blocks={sidebarContent} /></aside>
         </section>
       ) : (
-        <>{children}</>
+        <main className="no-sidebar" data-cpt={post.type.id} data-pageurl={post.slug.slug} data-postid={post.id}>
+          <>{children}</>
+        </main>
       )}
       {afterContent &&
         <BlockParser blocks={afterContent} />
