@@ -57,7 +57,6 @@ export async function getPosts(
   });
 
   if (!response.ok) {
-    console.log(url);
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
@@ -125,7 +124,7 @@ export async function getTaxTerms(taxonomy: string) {
   const url = `${API_URL}/wp-json/nextpress/tax_list/${encodeURIComponent(
     taxonomy
   )}`;
-
+  
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["template"] },
