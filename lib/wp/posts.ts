@@ -1,4 +1,5 @@
 import { WPQuery } from "@/lib/types";
+import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -64,11 +65,12 @@ export async function getPosts(
   return withHeaders ? { posts: res, headers: response.headers } : res;
 }
 
-export async function getPostByPath(
+export const getPostByPath = cache(async function getPostByPath(
   path?: string,
   includeContent: boolean = true,
   isDraft: boolean = false,
 ) {
+  if (path?.includes('devtools')) return;
   const baseUrl = `${API_URL}/wp-json/nextpress/router`;
   const fullPath = path && !isDraft ? `/${path}` : "";
   const queryParams = new URLSearchParams({
@@ -77,19 +79,24 @@ export async function getPostByPath(
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
   
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["post"] },
-    cache: "no-cache",
-  });
-  
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      next: { tags: ["post"] },
+      cache: "no-cache",
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const res = await response.json();
+    return res;
+    
+  } catch (error) {
+    throw error;
   }
-  
-  const res = await response.json();
-  return res;
-}
+});
 
 export type DefaultTemplateContent = {
   before_content: any[];

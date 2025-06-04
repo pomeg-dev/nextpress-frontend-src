@@ -138,6 +138,7 @@ export type ImageProps = {
   className?: string;
   blurImage?: string;
   blurDataURL?: string;
+  loading?: "eager" | "lazy" | undefined;
   quality?: number;
   sizes?: string;
   description?: string;

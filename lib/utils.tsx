@@ -1,3 +1,5 @@
+import { Block, Post } from "./types";
+
 export const makeRepeated = (arr: any, repeats: number) =>
   [].concat(...Array.from({ length: repeats }, () => arr));
 
@@ -43,3 +45,47 @@ export function getRepeaterData(array: any, key: string) {
 
   return repeaterData.filter((data: any) => Object.keys(data).length !== 0);
 }
+
+
+export const parseTemplateBlocks = (
+  postBlocks: Block[] = [], 
+  settingsBlocks: Block[] = [], 
+  post: Post,
+  before: boolean = false,
+) => {
+  const headerFooterMap = new Map();
+  postBlocks.forEach((block) => {
+    if (block.blockName && 
+        (block.blockName.toLowerCase().includes('header') || 
+         block.blockName.toLowerCase().includes('footer'))) {
+      headerFooterMap.set(block.blockName, block);
+    }
+  });
+  
+  const filteredSettingsBlocks = settingsBlocks.filter((block) => {
+    if (!block.blockName) return true;
+    
+    return !headerFooterMap.has(block.blockName);
+  });
+  
+  let blocks = before ? 
+    [...filteredSettingsBlocks, ...postBlocks] : 
+    [...postBlocks, ...filteredSettingsBlocks];
+  
+  blocks = additionalPostData(blocks, post);
+  return blocks;
+};
+
+export const additionalPostData = (blocks: Block[], post: Post) => {
+  if (blocks && blocks.length > 0) {
+    blocks.map((block: Block) => {
+      if (!block.data) {
+        block.data = {};
+      }
+      if (!block.data.current_post) {
+        block.data.current_post = {...post};
+      }
+    });
+  }
+  return blocks;
+};

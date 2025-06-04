@@ -9,6 +9,7 @@ import { redirect } from "next/navigation";
 import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
+import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
 
 export const dynamic = "force-dynamic";
 
@@ -50,10 +51,11 @@ export default async function Post({ params, searchParams }: NextProps) {
     post = await getPostByPath(path);
   }
 
-  if (post['404'] && post['404'] === true) {
+  if (!post || (post?.['404'] && post['404'] === true)) {
     notFound();
   }
 
+  // Set up schema.
   let updatedSchema = null;
   if (post?.yoastHeadJSON?.schema) {
     updatedSchema = process.env.NEXT_PUBLIC_API_URL 
@@ -66,6 +68,30 @@ export default async function Post({ params, searchParams }: NextProps) {
       : post.yoastHeadJSON.schema;
   }
 
+  // Wrap acf_data into before/after/sidebar content.
+  let beforeContent = parseTemplateBlocks(
+    post?.template?.before_content && post?.template?.before_content.length > 0 
+      ? post.template.before_content
+      : [],
+    settings?.before_content || [],
+    post,
+    true
+  );
+
+  let afterContent = parseTemplateBlocks(
+    post?.template?.after_content && post?.template?.after_content.length > 0 
+      ? post.template.after_content
+      : [],
+    settings?.after_content || [],
+    post,
+  );
+
+  const disableSidebar = post?.acf_data?.disable_sidebar || false;
+  let sidebarContent = null;
+  if (post?.template?.sidebar_content && !disableSidebar) {
+    sidebarContent = additionalPostData(post.template.sidebar_content, post);
+  }
+
   return (
     <>
       {updatedSchema &&
@@ -74,8 +100,27 @@ export default async function Post({ params, searchParams }: NextProps) {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(updatedSchema) }}
         />
       }
-      <NPAdminBar postID={post.id} />
-      {post.content && <BlockParser blocks={post.content} />}
+      {settings?.enable_user_flow &&
+        <NPAdminBar postID={post.id} />
+      }
+      {beforeContent &&
+        <BlockParser blocks={beforeContent} />
+      }
+      {sidebarContent ? (
+        <section className="content-sidebar container">
+          <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+            {post.content && <BlockParser blocks={post.content} />}
+          </main>
+          <aside className="sidebar"><BlockParser blocks={sidebarContent} /></aside>
+        </section>
+      ) : (
+        <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+          {post.content && <BlockParser blocks={post.content} />}
+        </main>
+      )}
+      {afterContent &&
+        <BlockParser blocks={afterContent} />
+      }
     </>
   );
 }
@@ -148,7 +193,7 @@ export async function generateMetadata(
   const path = slug ? slug.join("/") : "";
   const settings = await getSettings();
   const frontendDomainURL = getFrontEndUrl(settings);
-  let post = await getPostByPath(path);
+  let post = await getPostByPath(path, false);
   if (
     slug && 
     settings?.page_for_posts_slug && 

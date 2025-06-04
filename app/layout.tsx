@@ -47,7 +47,9 @@ export default async function Layout({
           )}
           <Providers>
             <Suspense fallback={null}>
-              <AuthCheck />
+              {settings.enable_user_flow &&
+                <AuthCheck />
+              }
               {children}
             </Suspense>
           </Providers>
