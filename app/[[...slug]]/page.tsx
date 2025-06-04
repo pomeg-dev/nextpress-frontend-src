@@ -126,52 +126,15 @@ export default async function Post({ params, searchParams }: NextProps) {
 }
 
 export async function generateStaticParams() {
-  const postsPerBatch = 100;
-  const maxConcurrentRequests = 5;
-  let allParams: { params: { slug: string[] } }[] = [];
-  let currentStartPage = 1;
-  let hasMorePosts = true;
-  
-  while (hasMorePosts) {
-    const pageNumbers = Array.from(
-      { length: maxConcurrentRequests }, 
-      (_, i) => currentStartPage + i
-    );
-    
-    const batchResults = await Promise.all(
-      pageNumbers.map(pageNum => 
-        getPosts({
-          per_page: postsPerBatch, 
-          page: pageNum, 
-          include_metadata: false,
-          slug_only: true,
-        })
-          .catch(error => {
-            console.error(`Error fetching page ${pageNum}:`, error);
-            return [];
-          })
-      )
-    );
-    
-    const anyResultsInBatch = batchResults.some(posts => posts.length > 0);
-    if (!anyResultsInBatch) {
-      hasMorePosts = false;
-    } else {
-      for (const posts of batchResults) {
-        if (posts && posts.length > 0) {
-          const pageParams = posts.map((post: PostWithContent) => ({
-            params: { slug: post.slug.full_path },
-          }));
-          
-          allParams = [...allParams, ...pageParams];
-        }
-      }
-      
-      currentStartPage += maxConcurrentRequests;
-    }
-  }
-  
-  return allParams;
+  const allPosts = await getPosts({ 
+    per_page: -1,
+    include_metadata: false,
+    slug_only: true,
+  });
+
+  return allPosts.map((post: PostWithContent) => ({
+    params: { slug: post.slug.full_path },
+  }));
 }
 
 export async function generateMetadata(
