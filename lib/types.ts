@@ -1,3 +1,10 @@
+export interface CookiePreferences {
+  necessary: boolean;
+  analytics: boolean;
+  marketing: boolean;
+  functional: boolean;
+}
+
 export type Post = {
   acf_data: any;
   breadcrumbs: string;
