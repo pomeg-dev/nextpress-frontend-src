@@ -9,7 +9,7 @@ export type GetPostsParams = WPQuery & {
   slug_only?: boolean;
 };
 
-export async function getPosts(
+export const getPosts = cache(async function getPosts(
   params: GetPostsParams = {},
   withHeaders: boolean = false
 ) {
@@ -62,7 +62,7 @@ export async function getPosts(
 
   const res = await response.json()
   return withHeaders ? { posts: res, headers: response.headers } : res;
-}
+});
 
 export const getPostByPath = cache(async function getPostByPath(
   path?: string,
