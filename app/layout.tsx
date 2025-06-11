@@ -7,6 +7,7 @@ import { LocaleProvider, Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
 import { VWOScript } from 'vwo-smartcode-nextjs';
+import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 
 export default async function Layout({
   children
@@ -31,26 +32,8 @@ export default async function Layout({
 
   return (
     <html {...themeProps} className={fontVariables}>
-      <head>
-        {settings?.enable_vwo && settings?.vwo_id &&
-          <VWOScript accountId={settings.vwo_id} />
-        }
-      </head>
       <body>
         <LocaleProvider defaultLocale="en">
-          {settings.google_tag_manager_enabled === true && (
-            <Suspense>
-              <noscript>
-                <iframe
-                  src={`https://www.googletagmanager.com/ns.html?id=${settings.google_tag_manager_id}`}
-                  height="0"
-                  width="0"
-                  style={{ display: "none", visibility: "hidden" }}
-                />
-              </noscript>
-              <GTM GTM_ID={settings.google_tag_manager_id} />
-            </Suspense>
-          )}
           <Providers>
             <Suspense fallback={null}>
               {settings.enable_user_flow &&
@@ -59,6 +42,15 @@ export default async function Layout({
               {children}
             </Suspense>
           </Providers>
+
+          <CookieManager 
+            settings={{
+              google_tag_manager_enabled: settings.google_tag_manager_enabled,
+              google_tag_manager_id: settings.google_tag_manager_id,
+              enable_vwo: settings.enable_vwo,
+              vwo_id: settings.vwo_id
+            }}
+          />
         </LocaleProvider>
       </body>
     </html>
