@@ -33,15 +33,17 @@ export default async function Layout({
   return (
     <html {...themeProps} className={fontVariables}>
       <body>
-        <LocaleProvider defaultLocale="en">
-          <Providers>
-            <Suspense fallback={null}>
-              {settings.enable_user_flow &&
-                <AuthCheck />
-              }
-              {children}
-            </Suspense>
-          </Providers>
+        {/* <LocaleProvider defaultLocale="en"> */}
+          {settings.enable_user_flow ? (
+            <Providers>
+              <Suspense fallback={null}>
+                  <AuthCheck />
+                {children}
+              </Suspense>
+            </Providers>
+          ) : (
+            children
+          )}
 
           <CookieManager 
             settings={{
@@ -51,7 +53,7 @@ export default async function Layout({
               vwo_id: settings.vwo_id
             }}
           />
-        </LocaleProvider>
+        {/* </LocaleProvider> */}
       </body>
     </html>
   );

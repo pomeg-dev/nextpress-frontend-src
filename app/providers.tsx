@@ -38,10 +38,6 @@ export function LocaleProvider({ children, defaultLocale = 'en' }: { children: R
       });
   }, [defaultLocale]);
 
-  if (loading || !messages) {
-    return <Loader isLoading={loading} />;
-  }
-
   return (
     <LocaleContext.Provider value={{ locale }}>
       <NextIntlClientProvider locale={locale} messages={messages}>

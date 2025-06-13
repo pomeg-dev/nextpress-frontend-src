@@ -38,7 +38,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
     <div
       id={id}
       className={classNames(
-        "core-block group-block relative overflow-hidden",
+        "core-block group-block relative",
         data?.style?.color?.text && "has-text-color",
         layoutClasses,
         block?.className

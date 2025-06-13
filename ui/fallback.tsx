@@ -1,9 +1,9 @@
 import { Block } from "@/lib/types";
-import Parser from "html-react-parser";
 import React from "react";
 import { BlockParser } from "./block-parser";
+import Parser from "html-react-parser";
 
-export function CoreBlock({ ...block } : Block) {
+export function Fallback({ ...block } : Block) {
   const { innerHTML, innerBlocks, data } = block;
 
   // Regex matches opneing tag, tag attributes and inner content.
