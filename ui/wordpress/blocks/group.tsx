@@ -2,7 +2,7 @@ import React from "react";
 import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
 import classNames from "classnames";
-import TabbedContent from "@ui/components/organisms/sommet/TabbedContent";
+import TabbedContent from "@ui/components/organisms/default/TabbedContent";
 
 type GroupProps = Block & {
   innerBlocks?: React.ReactNode;
