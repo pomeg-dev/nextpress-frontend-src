@@ -33,7 +33,7 @@ export default async function Layout({
   return (
     <html {...themeProps} className={fontVariables}>
       <body>
-        {/* <LocaleProvider defaultLocale="en"> */}
+        <LocaleProvider defaultLocale="en">
           {settings.enable_user_flow ? (
             <Providers>
               <Suspense fallback={null}>
@@ -53,7 +53,7 @@ export default async function Layout({
               vwo_id: settings.vwo_id
             }}
           />
-        {/* </LocaleProvider> */}
+        </LocaleProvider>
       </body>
     </html>
   );

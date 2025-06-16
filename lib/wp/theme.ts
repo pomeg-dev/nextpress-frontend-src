@@ -9,7 +9,7 @@ export async function getBlockTheme() {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["block_theme"] },
-    cache: "no-cache",
+    cache: "force-cache",
   });
 
   if (!response.ok) {
