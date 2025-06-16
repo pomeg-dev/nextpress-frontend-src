@@ -81,6 +81,7 @@ export function PreviewWrapper({
       ref={mainRef} 
       data-pageurl="block-preview" 
       data-postid={postId}
+      className="block-preview"
     >
       <div className="loader fixed left-0 top-0 z-[9999] flex h-full w-full items-center justify-center bg-white text-primary">Loading...</div>
       {children}
