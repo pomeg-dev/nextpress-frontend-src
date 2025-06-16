@@ -2,6 +2,7 @@ import React from "react";
 import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
 import classNames from "classnames";
+import TabbedContent from "@ui/components/organisms/sommet/TabbedContent";
 
 type GroupProps = Block & {
   innerBlocks?: React.ReactNode;
@@ -49,6 +50,7 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
         }),
       }}
     >
+      <TabbedContent />
       {innerBlocks &&
         backgroundColor ? (
           <div
