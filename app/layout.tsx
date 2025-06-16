@@ -45,14 +45,16 @@ export default async function Layout({
             children
           )}
 
-          <CookieManager 
-            settings={{
-              google_tag_manager_enabled: settings.google_tag_manager_enabled,
-              google_tag_manager_id: settings.google_tag_manager_id,
-              enable_vwo: settings.enable_vwo,
-              vwo_id: settings.vwo_id
-            }}
-          />
+          <Suspense>
+            <CookieManager 
+              settings={{
+                google_tag_manager_enabled: settings.google_tag_manager_enabled,
+                google_tag_manager_id: settings.google_tag_manager_id,
+                enable_vwo: settings.enable_vwo,
+                vwo_id: settings.vwo_id
+              }}
+            />
+          </Suspense>
         </LocaleProvider>
       </body>
     </html>

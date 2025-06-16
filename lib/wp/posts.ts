@@ -3,9 +3,7 @@ import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-// const cacheControl: RequestCache =
-//   process.env.VERCEL_ENV === "production" ? "force-cache" : "no-store";
-// const cacheControl: RequestCache = "force-cache";
+const cacheControl: RequestCache = "force-cache";
 
 export type GetPostsParams = WPQuery & {
   include_content?: boolean;
@@ -57,7 +55,7 @@ export const getPosts = cache(async function getPosts(
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["posts"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {
@@ -86,7 +84,7 @@ export const getPostByPath = cache(async function getPostByPath(
     const response = await fetch(url, {
       method: "GET",
       next: { tags: ["post"] },
-      cache: "force-cache",
+      cache: cacheControl,
     });
     
     if (!response.ok) {
@@ -112,7 +110,7 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["template"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {
@@ -132,7 +130,7 @@ export async function getTaxTerms(taxonomy: string) {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["template"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {
@@ -150,7 +148,7 @@ export async function getTaxTerm(taxonomy: string, term: string) {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["template"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {

@@ -1,5 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
+const cacheControl: RequestCache = "force-cache";
+
 export type Menu = {
   id: number;
   name: string;
@@ -21,7 +23,7 @@ export async function getAllMenus() {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["menus"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {
@@ -41,7 +43,7 @@ export async function getMenuByLocation(location: string) {
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["menu"] },
-    cache: "force-cache",
+    cache: cacheControl,
   });
 
   if (!response.ok) {
