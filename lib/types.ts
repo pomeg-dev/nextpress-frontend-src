@@ -141,6 +141,9 @@ export type ImageProps = {
   src: string;
   alt: string;
   url?: string;
+  name?: string;
+  mime_type?: string;
+  icon?: string;
   width?: number;
   height?: number;
   className?: string;
