@@ -31,7 +31,9 @@ export function PreviewWrapper({
           customBlock && 
           (
             customBlock.classList.contains('lg:h-screen') || 
+            customBlock.classList.contains('lg\:h-screen') || 
             customBlock.classList.contains('md:h-screen') || 
+            customBlock.classList.contains('md\:h-screen') || 
             customBlock.classList.contains('min-h-screen') || 
             customBlock.classList.contains('h-screen') || 
             customBlock.classList.contains('h-[100vh]')
