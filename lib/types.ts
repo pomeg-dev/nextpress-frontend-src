@@ -153,6 +153,7 @@ export type ImageProps = {
   quality?: number;
   sizes?: string;
   description?: string;
+  caption?: string;
   placeholder?: PlaceholderValue | undefined;
 };
 
