@@ -3,9 +3,11 @@ import { MetadataRoute } from "next";
 export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: {
+      // userAgent: "*",
+      // allow: "/",
+      // disallow: "/private/",
       userAgent: "*",
-      allow: "/",
-      disallow: "/private/",
+      disallow: "/"
     },
     sitemap: `/sitemap.xml`,
   };
