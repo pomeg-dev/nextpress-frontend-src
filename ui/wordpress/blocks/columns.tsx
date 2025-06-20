@@ -19,31 +19,16 @@ const Columns: React.FC<ColumnsProps> = ({ ...block }: Block) => {
     id = match ? match[1] : undefined;
   }
 
-  const columnsCount = data?.columns || (Array.isArray(innerBlocks) ? innerBlocks.length : 2);
   const isStackedOnMobile = data?.isStackedOnMobile !== false;
   const verticalAlignment = data?.verticalAlignment;
   const columnGap = data?.style?.spacing?.blockGap || data?.columnGap || '2rem';
 
   const getColumnClasses = () => {
-    const baseClasses = isStackedOnMobile ? 'flex flex-col' : 'flex flex-col sm:flex-row';
+    const baseClasses = isStackedOnMobile 
+      ? 'flex flex-col md:flex-row' 
+      : 'flex flex-col sm:flex-row';
     
-    const responsiveClasses = isStackedOnMobile ? {
-      'md:grid md:grid-cols-1': columnsCount === 1,
-      'md:grid md:grid-cols-2': columnsCount === 2,
-      'md:grid md:grid-cols-3': columnsCount === 3,
-      'md:grid md:grid-cols-4': columnsCount === 4,
-      'md:grid md:grid-cols-5': columnsCount === 5,
-      'md:grid md:grid-cols-6': columnsCount === 6,
-    } : {
-      'sm:grid sm:grid-cols-1': columnsCount === 1,
-      'sm:grid sm:grid-cols-2': columnsCount === 2,
-      'sm:grid sm:grid-cols-3': columnsCount === 3,
-      'sm:grid sm:grid-cols-4': columnsCount === 4,
-      'sm:grid sm:grid-cols-5': columnsCount === 5,
-      'sm:grid sm:grid-cols-6': columnsCount === 6,
-    };
-
-    return classNames(baseClasses, responsiveClasses);
+    return classNames(baseClasses);
   };
 
   const layoutClasses = classNames(

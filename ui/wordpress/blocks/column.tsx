@@ -11,6 +11,14 @@ const Column: React.FC<ColumnProps> = ({ ...block }: Block) => {
   const { innerBlocks, innerContent, data } = block;
   const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
   const textColor = data?.style?.color?.text || data?.textColor;
+  const columnWidth = data?.width;
+  
+  let flexBasis: string | undefined = undefined;
+  if (innerContent?.[0]) {
+    const flexBasisRegex = /flex-basis:\s*([^;'"]+)/;
+    const flexBasisMatch = flexBasisRegex.exec(innerContent[0]);
+    flexBasis = flexBasisMatch ? flexBasisMatch[1].trim() : undefined;
+  }
   
   let id: string | undefined = undefined;
   if (innerContent?.[0]) {
@@ -39,6 +47,8 @@ const Column: React.FC<ColumnProps> = ({ ...block }: Block) => {
             ? textColor 
             : `var(--color-${textColor})`
         }),
+        ...(flexBasis && { flexBasis }),
+        ...(columnWidth && !flexBasis && { flexBasis: columnWidth }),
       }}
     >
       {innerBlocks && <BlockParser blocks={innerBlocks} />}
