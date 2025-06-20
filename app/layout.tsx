@@ -45,7 +45,7 @@ export default async function Layout({
             children
           )}
 
-          {/* <Suspense>
+          <Suspense>
             <CookieManager 
               settings={{
                 google_tag_manager_enabled: settings.google_tag_manager_enabled,
@@ -54,7 +54,7 @@ export default async function Layout({
                 vwo_id: settings.vwo_id
               }}
             />
-          </Suspense> */}
+          </Suspense>
         </LocaleProvider>
       </body>
     </html>
