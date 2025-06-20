@@ -10,7 +10,7 @@ type ColumnsProps = Block & {
 const Columns: React.FC<ColumnsProps> = ({ ...block }: Block) => {
   const { innerBlocks, innerContent, data } = block;
   const backgroundColor = data?.style?.color?.background || data?.backgroundColor;
-  const textColor = data?.style?.color?.text || data?.textColor || "primary";
+  const textColor = data?.style?.color?.text || data?.textColor;
   
   let id: string | undefined = undefined;
   if (innerContent?.[0]) {
