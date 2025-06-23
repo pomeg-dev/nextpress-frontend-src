@@ -54,7 +54,7 @@ export async function getPosts(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 3600, // Revalidate every hour
+        revalidate: 86400, // Revalidate every 24 hours
         tags: ["posts"] 
       },
     });
@@ -89,7 +89,7 @@ export async function getPostByPath(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: isDraft ? 0 : 3600, // No cache for drafts, 1 hour for published
+        revalidate: isDraft ? 0 : 86400, // No cache for drafts, 24 hours for published
         tags: ["post"] 
       },
     });
@@ -146,7 +146,7 @@ export async function getTaxTerms(taxonomy: string) {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 3600, // 1 hour
+        revalidate: 86400, // 24 hours
         tags: ["taxonomy"] 
       },
     });
@@ -171,7 +171,7 @@ export async function getTaxTerm(taxonomy: string, term: string) {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 3600, // 1 hour
+        revalidate: 86400, // 24 hours
         tags: ["taxonomy"] 
       },
     });
