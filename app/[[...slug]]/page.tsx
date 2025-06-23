@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { Suspense } from 'react';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
@@ -11,13 +12,23 @@ import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
 
-// Remove this line to enable static generation:
-// export const dynamic = "force-dynamic";
-
 type NextProps = {
   params: Promise<{ slug: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 };
+
+// Create fallback components
+function AdminBarFallback() {
+  return <div className="admin-bar-loading">Loading admin bar...</div>;
+}
+
+function BlockParserFallback() {
+  return <div className="content-loading">Loading content...</div>;
+}
+
+function CategoryArchiveFallback() {
+  return <div className="archive-loading">Loading archive...</div>;
+}
 
 export default async function Post({ params, searchParams }: NextProps) {
   const { slug } = await params;
@@ -40,7 +51,9 @@ export default async function Post({ params, searchParams }: NextProps) {
     const taxonomy = slug[1];
     const term = slug[2];
     return (
-      <CategoryArchive taxonomy={taxonomy} term={term} />
+      <Suspense fallback={<CategoryArchiveFallback />}>
+        <CategoryArchive taxonomy={taxonomy} term={term} />
+      </Suspense>
     );
   }
 
@@ -102,25 +115,43 @@ export default async function Post({ params, searchParams }: NextProps) {
         />
       }
       {settings?.enable_user_flow &&
-        <NPAdminBar postID={post.id} />
+        <Suspense fallback={<AdminBarFallback />}>
+          <NPAdminBar postID={post.id} />
+        </Suspense>
       }
       {beforeContent &&
-        <BlockParser blocks={beforeContent} />
+        <Suspense fallback={<BlockParserFallback />}>
+          <BlockParser blocks={beforeContent} />
+        </Suspense>
       }
       {sidebarContent ? (
         <section className="content-sidebar container">
           <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
-            {post.content && <BlockParser blocks={post.content} />}
+            {post.content && 
+              <Suspense fallback={<BlockParserFallback />}>
+                <BlockParser blocks={post.content} />
+              </Suspense>
+            }
           </main>
-          <aside className="sidebar"><BlockParser blocks={sidebarContent} /></aside>
+          <aside className="sidebar">
+            <Suspense fallback={<BlockParserFallback />}>
+              <BlockParser blocks={sidebarContent} />
+            </Suspense>
+          </aside>
         </section>
       ) : (
         <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
-          {post.content && <BlockParser blocks={post.content} />}
+          {post.content && 
+            <Suspense fallback={<BlockParserFallback />}>
+              <BlockParser blocks={post.content} />
+            </Suspense>
+          }
         </main>
       )}
       {afterContent &&
-        <BlockParser blocks={afterContent} />
+        <Suspense fallback={<BlockParserFallback />}>
+          <BlockParser blocks={afterContent} />
+        </Suspense>
       }
     </>
   );
@@ -134,17 +165,16 @@ export async function generateStaticParams() {
       slug_only: true
     });
     
-    // Fix: Return slug as array, not nested under params
     return allPosts
-      .filter((post: PostWithContent) => post.slug?.full_path) // Filter out invalid slugs
+      .filter((post: PostWithContent) => post.slug?.full_path)
       .map((post: PostWithContent) => ({
         slug: Array.isArray(post.slug.full_path) 
           ? post.slug.full_path 
-          : post.slug.full_path.split('/').filter(Boolean), // Convert string to array
+          : post.slug.full_path.split('/').filter(Boolean),
       }));
   } catch (error) {
     console.error('Error generating static params:', error);
-    return []; // Return empty array on error to prevent build failure
+    return [];
   }
 }
 
@@ -184,7 +214,7 @@ export async function generateMetadata(
       redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
     }
 
-    post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
+    post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title);
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
       const canonical = post.yoastHeadJSON.canonical.replace(
