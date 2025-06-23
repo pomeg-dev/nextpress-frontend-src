@@ -128,8 +128,8 @@ export default async function Post({ params, searchParams }: NextProps) {
 export async function generateStaticParams() {
   const allPosts = await getPosts({ 
     per_page: -1,
-    include_metadata: true,
-    include_content: true,
+    include_metadata: false,
+    slug_only: true
   });
   
 
