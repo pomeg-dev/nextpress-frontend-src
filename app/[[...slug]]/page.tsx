@@ -11,7 +11,8 @@ import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
 
-export const dynamic = "force-dynamic";
+// Remove this line to enable static generation:
+// export const dynamic = "force-dynamic";
 
 type NextProps = {
   params: Promise<{ slug: string[] }>
@@ -126,18 +127,25 @@ export default async function Post({ params, searchParams }: NextProps) {
 }
 
 export async function generateStaticParams() {
-  const allPosts = await getPosts({ 
-    per_page: -1,
-    include_metadata: false,
-    slug_only: true
-  });
-  
-
-  return allPosts.map((post: PostWithContent) => ({
-    params: { 
-      slug: post.slug.full_path,
-    },
-  }));
+  try {
+    const allPosts = await getPosts({ 
+      per_page: -1,
+      include_metadata: false,
+      slug_only: true
+    });
+    
+    // Fix: Return slug as array, not nested under params
+    return allPosts
+      .filter((post: PostWithContent) => post.slug?.full_path) // Filter out invalid slugs
+      .map((post: PostWithContent) => ({
+        slug: Array.isArray(post.slug.full_path) 
+          ? post.slug.full_path 
+          : post.slug.full_path.split('/').filter(Boolean), // Convert string to array
+      }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return []; // Return empty array on error to prevent build failure
+  }
 }
 
 export async function generateMetadata(

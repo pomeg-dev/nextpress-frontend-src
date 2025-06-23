@@ -3,8 +3,6 @@ import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const cacheControl: RequestCache = "force-cache";
-
 export type GetPostsParams = WPQuery & {
   include_content?: boolean;
   include_metadata?: boolean;
@@ -52,18 +50,25 @@ export const getPosts = cache(async function getPosts(
     queryParams.toString() ? `?${queryParams.toString()}` : ""
   }`;
 
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["posts"] },
-    cache: cacheControl,
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      next: { 
+        revalidate: 3600, // Revalidate every hour instead of force-cache
+        tags: ["posts"] 
+      },
+    });
 
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const res = await response.json()
+    return withHeaders ? { posts: res, headers: response.headers } : res;
+  } catch (error) {
+    console.error('Error fetching posts:', error);
+    throw error;
   }
-
-  const res = await response.json()
-  return withHeaders ? { posts: res, headers: response.headers } : res;
 });
 
 export const getPostByPath = cache(async function getPostByPath(
@@ -83,8 +88,10 @@ export const getPostByPath = cache(async function getPostByPath(
   try {
     const response = await fetch(url, {
       method: "GET",
-      next: { tags: ["post"] },
-      cache: cacheControl,
+      next: { 
+        revalidate: isDraft ? 0 : 3600, // No cache for drafts, 1 hour for published
+        tags: ["post"] 
+      },
     });
     
     if (!response.ok) {
@@ -95,6 +102,7 @@ export const getPostByPath = cache(async function getPostByPath(
     return res;
     
   } catch (error) {
+    console.error('Error fetching post by path:', error);
     throw error;
   }
 });
@@ -107,19 +115,26 @@ export type DefaultTemplateContent = {
 export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
   const url = `${API_URL}/wp-json/nextpress/default-template`;
 
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["template"] },
-    cache: cacheControl,
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      next: { 
+        revalidate: 7200, // 2 hours - templates change less frequently
+        tags: ["template"] 
+      },
+    });
 
-  if (!response.ok) {
-    console.error(`Failed to fetch default template: ${url}`);
-    throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch default template: ${url}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const res: DefaultTemplateContent = await response.json();
+    return res;
+  } catch (error) {
+    console.error('Error fetching default template:', error);
+    throw error;
   }
-
-  const res: DefaultTemplateContent = await response.json();
-  return res;
 }
 
 export async function getTaxTerms(taxonomy: string) {
@@ -127,35 +142,49 @@ export async function getTaxTerms(taxonomy: string) {
     taxonomy
   )}`;
   
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["template"] },
-    cache: cacheControl,
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      next: { 
+        revalidate: 3600, // 1 hour
+        tags: ["taxonomy"] 
+      },
+    });
 
-  if (!response.ok) {
-    console.error(`Failed to fetch default template: ${url}`);
-    throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch taxonomy terms: ${url}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const res = await response.json();
+    return res;
+  } catch (error) {
+    console.error('Error fetching taxonomy terms:', error);
+    throw error;
   }
-
-  const res = await response.json();
-  return res;
 }
 
 export async function getTaxTerm(taxonomy: string, term: string) {
   const url = `${API_URL}/wp-json/nextpress/tax_term/${encodeURIComponent(taxonomy)}/${encodeURIComponent(term)}`;
 
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["template"] },
-    cache: cacheControl,
-  });
+  try {
+    const response = await fetch(url, {
+      method: "GET",
+      next: { 
+        revalidate: 3600, // 1 hour
+        tags: ["taxonomy"] 
+      },
+    });
 
-  if (!response.ok) {
-    console.error(`Failed to fetch default template: ${url}`);
-    throw new Error(`HTTP error! status: ${response.status}`);
+    if (!response.ok) {
+      console.error(`Failed to fetch taxonomy term: ${url}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const res = await response.json();
+    return res;
+  } catch (error) {
+    console.error('Error fetching taxonomy term:', error);
+    throw error;
   }
-
-  const res = await response.json();
-  return res;
 }
