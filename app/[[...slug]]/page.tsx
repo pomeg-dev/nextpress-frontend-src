@@ -11,6 +11,7 @@ import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
+import Loader from '@ui/components/atoms/Loader';
 
 type NextProps = {
   params: Promise<{ slug: string[] }>
@@ -19,15 +20,15 @@ type NextProps = {
 
 // Create fallback components
 function AdminBarFallback() {
-  return <div className="admin-bar-loading">Loading admin bar...</div>;
+  return <Loader isLoading={true} />;
 }
 
 function BlockParserFallback() {
-  return <div className="content-loading">Loading content...</div>;
+  return <Loader isLoading={true} />;
 }
 
 function CategoryArchiveFallback() {
-  return <div className="archive-loading">Loading archive...</div>;
+  return <Loader isLoading={true} />;
 }
 
 export default async function Post({ params, searchParams }: NextProps) {

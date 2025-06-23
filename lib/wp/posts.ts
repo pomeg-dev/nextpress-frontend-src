@@ -54,7 +54,7 @@ export const getPosts = cache(async function getPosts(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 3600, // Revalidate every hour instead of force-cache
+        revalidate: 3600, // Revalidate every hour
         tags: ["posts"] 
       },
     });
