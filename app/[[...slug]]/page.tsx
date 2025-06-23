@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
-import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
+import { getPosts, getPostByPath, getTaxTerm, testWordPressAPI } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
@@ -20,6 +20,10 @@ type NextProps = {
 
 export default async function Post({ params, searchParams }: NextProps) {
   const { slug } = await params;
+
+  if (process.env.NODE_ENV === 'production') {
+    testWordPressAPI();
+  }
 
   // Dont run for favicon, api, status requests
   if (slug && slug[0] === "favicon.ico") return null;
