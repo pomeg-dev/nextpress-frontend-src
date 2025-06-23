@@ -64,27 +64,7 @@ export const getPosts = cache(async function getPosts(
     queryParams.toString() ? `?${queryParams.toString()}` : ""
   }`;
 
-  // Build granular cache tags
   const cacheTags = ["posts"];
-  
-  if (params.post_type) {
-    const postTypes = Array.isArray(params.post_type) ? params.post_type : [params.post_type];
-    postTypes.forEach(type => cacheTags.push(`posts-${type}`));
-  }
-  
-  if (params.category) {
-    const categories = Array.isArray(params.category) ? params.category : [params.category];
-    categories.forEach(cat => cacheTags.push(`posts-category-${cat}`));
-  }
-  
-  if (params.tag) {
-    const tags = Array.isArray(params.tag) ? params.tag : [params.tag];
-    tags.forEach(tag => cacheTags.push(`posts-tag-${tag}`));
-  }
-  
-  if (params.author) {
-    cacheTags.push(`posts-author-${params.author}`);
-  }
 
   console.log(`🌐 [${requestId}] Fetching URL:`, url);
   console.log(`🏷️ [${requestId}] Cache tags:`, cacheTags);
@@ -168,7 +148,7 @@ export const getPosts = cache(async function getPosts(
 
     return withHeaders ? { posts: res, headers: response.headers } : res;
     
-  } catch (error) {
+  } catch (error: any) {
     const errorTime = Date.now() - functionStartTime;
     console.error(`💥 [${requestId}] getPosts error after`, errorTime, 'ms:', error);
     
@@ -477,7 +457,7 @@ export async function testWordPressAPI() {
       
       results.push({ url, status, time, size });
       
-    } catch (error) {
+    } catch (error: any) {
       const time = Date.now() - start;
       console.log(`❌ [${requestId}] ${url}: ERROR (${time}ms)`, error.message);
       results.push({ url, status: 'ERROR', time, error: error.message });
