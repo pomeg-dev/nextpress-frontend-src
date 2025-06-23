@@ -9,7 +9,7 @@ export type GetPostsParams = WPQuery & {
   slug_only?: boolean;
 };
 
-export const getPosts = cache(async function getPosts(
+export async function getPosts(
   params: GetPostsParams = {},
   withHeaders: boolean = false
 ) {
@@ -69,9 +69,9 @@ export const getPosts = cache(async function getPosts(
     console.error('Error fetching posts:', error);
     throw error;
   }
-});
+};
 
-export const getPostByPath = cache(async function getPostByPath(
+export async function getPostByPath(
   path?: string,
   includeContent: boolean = true,
   isDraft: boolean = false,
@@ -105,7 +105,7 @@ export const getPostByPath = cache(async function getPostByPath(
     console.error('Error fetching post by path:', error);
     throw error;
   }
-});
+};
 
 export type DefaultTemplateContent = {
   before_content: any[];
