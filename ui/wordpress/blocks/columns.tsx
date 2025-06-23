@@ -25,8 +25,8 @@ const Columns: React.FC<ColumnsProps> = ({ ...block }: Block) => {
 
   const getColumnClasses = () => {
     const baseClasses = isStackedOnMobile 
-      ? 'flex flex-col md:flex-row' 
-      : 'flex flex-col sm:flex-row';
+      ? 'flex flex-col md:flex-row w-full' 
+      : 'flex flex-col sm:flex-row w-full';
     
     return classNames(baseClasses);
   };
