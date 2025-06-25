@@ -6,7 +6,6 @@ import { GTM } from "./(extras)/gtm";
 import { LocaleProvider, Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
-import { VWOScript } from 'vwo-smartcode-nextjs';
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 
 export default async function Layout({
