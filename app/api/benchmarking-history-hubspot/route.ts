@@ -29,7 +29,7 @@ export async function GET(request: NextRequest) {
 
     // Get custom events for this contact
     const eventsResponse = await fetch(
-      `https://api.hubapi.com/events/v3/events?objectType=contact&objectId=${contact.id}&eventType=pe46500455_benchmarking_calculator_ran&limit=100`,
+      `https://api.hubapi.com/events/v3/events?objectType=contact&objectId=${contact.id}&eventType=pe46500455_benchmarking_calculator_ran&limit=200`,
       {
         headers: { Authorization: `Bearer ${hubspotToken}` }
       }
