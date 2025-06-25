@@ -22,14 +22,14 @@ export function LocaleProvider({ children, defaultLocale = 'en' }: { children: R
     const hostname = window.location.hostname;
     const detectedLocale = hostname in domainLocales ? domainLocales[hostname as keyof typeof domainLocales] : defaultLocale;
     
-    import(`@themes/sommet/languages/${detectedLocale}.json`)
+    import(`@themes/hotpoint/languages/${detectedLocale}.json`)
       .then((importedMessages) => {
         setLocale(detectedLocale);
         setMessages(importedMessages.default);
         setLoading(false);
       })
       .catch(() => {
-        import(`@themes/sommet/languages/${defaultLocale}.json`)
+        import(`@themes/hotpoint/languages/${defaultLocale}.json`)
           .then((importedMessages) => {
             setLocale(defaultLocale);
             setMessages(importedMessages.default);

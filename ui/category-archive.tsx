@@ -1,5 +1,5 @@
 import { getTaxTerm, getTaxTerms } from "@/lib/wp/posts";
-import { Feed } from "@ui/components/archive/Feed";
+import { Feed } from "@ui/archive/Feed";
 
 export default async function CategoryArchive({
   taxonomy,
