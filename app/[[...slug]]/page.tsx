@@ -13,6 +13,8 @@ import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
 import Loader from '@ui/components/atoms/Loader';
 
+export const dynamic = "force-dynamic";
+
 type NextProps = {
   params: Promise<{ slug: string[] }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
