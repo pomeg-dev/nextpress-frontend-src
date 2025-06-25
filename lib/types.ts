@@ -27,6 +27,7 @@ export type Post = {
   related_posts: number[];
   password: string;
   card?: Cards;
+  yoastHeadJSON?: any;
 };
 
 export type Slug = {
