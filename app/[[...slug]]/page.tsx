@@ -67,7 +67,6 @@ export default async function Post({ params, searchParams }: NextProps) {
   }
 
   // Do yoast redirect.
-  console.log('post', post);
   if (post?.yoastHeadJSON?.redirect) {
     if (post.yoastHeadJSON.redirect.includes('http')) {
       redirect(post.yoastHeadJSON.redirect);
@@ -288,7 +287,7 @@ export async function generateMetadata(
       ...openGraph,
       ...twitter,
       alternates: {
-        canonical: post.yoastHeadJSON?.canonical || '/',
+        canonical: post?.yoastHeadJSON?.canonical || post?.yoastHeadJSON?.alternates?.canonical || '/',
         languages
       },
     };
