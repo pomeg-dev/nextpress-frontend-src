@@ -221,7 +221,7 @@ export async function generateMetadata(
   if (!post) return notFound;
 
   if (post.yoastHeadJSON) {
-    post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title);
+    post.yoastHeadJSON.title = decode(post?.yoastHeadJSON?.title);
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
       const canonical = post.yoastHeadJSON.canonical.replace(
@@ -241,7 +241,6 @@ export async function generateMetadata(
     const openGraph = {
       locale: post.yoastHeadJSON.og_locale || null,
       type: post.yoastHeadJSON.og_type || null,
-      title: post.yoastHeadJSON.og_title || null,
       url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
         post.yoastHeadJSON.og_url.replace(
           new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
@@ -263,8 +262,6 @@ export async function generateMetadata(
     const twitter: {[key: string]: any} = {
       card: post.yoastHeadJSON.twitter_card || null,
       creator: post.yoastHeadJSON.author || null,
-      title: post.yoastHeadJSON.og_title || null,
-      description: post.yoastHeadJSON.title || null,
       images: post.yoastHeadJSON.og_image 
         ? post.yoastHeadJSON.og_image.map((image: { url: any; }) => image.url) 
         : null,
