@@ -7,6 +7,7 @@ export type GetPostsParams = WPQuery & {
   include_content?: boolean;
   include_metadata?: boolean;
   slug_only?: boolean;
+  publicly_queryable?: boolean;
 };
 
 export async function getPosts(

@@ -7,7 +7,11 @@ import { getFrontEndUrl } from "@/utils/url";
 export const dynamic = "force-static";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const allPosts = await getPosts({ per_page: -1 });
+  const allPosts = await getPosts({
+    per_page: -1,
+    publicly_queryable: true,
+    include_content: false
+  });
   const settings = await getSettings();
   const frontendDomainURL = getFrontEndUrl(settings);
 
@@ -29,8 +33,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }
 
     //dont add to sitemap if noindex
-    if (post.yoastHeadJSON && post.yoastHeadJSON.robots.index !== "index")
-      return;
+    // if (post.yoastHeadJSON && post.yoastHeadJSON.robots.index !== "index")
+    //   return;
 
     const route = {
       url: url,
@@ -38,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         "YYYY-MM-DD"
       ),
       priority: priority,
-      changeFrequency: postType === "page" ? "monthly" : "yearly",
+      changeFrequency: postType === "page" ? "daily" : "weekly",
     };
 
     if (postType === "page") {
@@ -47,10 +51,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       } else {
         pageRoutes.push(route);
       }
-    } else if (postType === "post") {
-      postRoutes.push(route);
-    } else {
+    } else if (postType !== "post") {
       otherRoutes.push(route);
+    } else {
+      postRoutes.push(route);
     }
   });
 
