@@ -17,12 +17,15 @@ export function getBaseURL(url: string) {
 }
 
 // function which is run on every link to replace wordpress urls with next ones (header/mobile nav and footer navs).
-export function linkFilter(linkUrl: string, API_URL: any) {
+export function linkFilter(linkUrl: string | undefined, apiUrl?: string) {
+  const API_URL = apiUrl ? apiUrl : process.env.NEXT_PUBLIC_API_URL;
   if (!linkUrl) return "#";
   if (linkUrl.includes('.pdf')) return linkUrl;
   let newLinkUrl = linkUrl;
   //first replace the API_URL with the base url
-  newLinkUrl = linkUrl.replace(API_URL, "");
+  if (API_URL) {
+    newLinkUrl = linkUrl.replace(API_URL, "");
+  }
 
   return newLinkUrl;
 }
