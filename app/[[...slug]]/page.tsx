@@ -66,6 +66,17 @@ export default async function Post({ params, searchParams }: NextProps) {
     post = await getPostByPath(path);
   }
 
+  // Do yoast redirect.
+  console.log('post', post);
+  if (post?.yoastHeadJSON?.redirect) {
+    if (post.yoastHeadJSON.redirect.includes('http')) {
+      redirect(post.yoastHeadJSON.redirect);
+    } else {
+      const frontendDomainURL = getFrontEndUrl(settings);
+      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+    }
+  }
+
   if (!post || (post?.['404'] && post['404'] === true)) {
     notFound();
   }
@@ -211,10 +222,6 @@ export async function generateMetadata(
   if (!post) return notFound;
 
   if (post.yoastHeadJSON) {
-    if (post.yoastHeadJSON.redirect) {
-      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
-    }
-
     post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title);
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
