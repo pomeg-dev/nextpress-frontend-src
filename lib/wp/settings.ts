@@ -2,15 +2,15 @@ import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const cacheControl: RequestCache = "force-cache";
-
-export async function getSettings() {
+async function _getSettings() {
   const url = `${API_URL}/wp-json/nextpress/settings`;
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["settings"] },
-    cache: cacheControl,
+    next: { 
+      tags: ["settings"],
+      revalidate: 86400 // 24 hours (1 day)
+    },
   });
 
   if (!response.ok) {
@@ -20,4 +20,7 @@ export async function getSettings() {
 
   const res = await response.json();
   return res;
-};
+}
+
+// React cache() deduplicates calls within a single request
+export const getSettings = cache(_getSettings);
