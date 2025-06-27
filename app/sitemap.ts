@@ -4,8 +4,8 @@ import { getPosts } from "@/lib/wp/posts";
 import { getSettings } from "@/lib/wp/settings";
 import { getFrontEndUrl } from "@/utils/url";
 
-export const dynamic = "force-static";
-export const revalidate = 3600;
+// export const dynamic = "force-static";
+export const revalidate = 86400;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   try {
