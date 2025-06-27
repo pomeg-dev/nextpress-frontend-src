@@ -2,8 +2,13 @@ import { cache } from "react";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-async function _getSettings() {
-  const url = `${API_URL}/wp-json/nextpress/settings`;
+async function _getSettings(keys?: string[]) {
+  let url = `${API_URL}/wp-json/nextpress/settings`;
+  
+  if (keys && keys.length > 0) {
+    const keysParam = keys.join(',');
+    url += `?keys=${encodeURIComponent(keysParam)}`;
+  }
 
   const response = await fetch(url, {
     method: "GET",

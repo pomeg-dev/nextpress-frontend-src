@@ -2,16 +2,19 @@ import { getSettings } from "@/lib/wp/settings";
 import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
-import { GTM } from "./(extras)/gtm";
 import { LocaleProvider, Providers } from "./providers";
 import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
-import { VWOScript } from 'vwo-smartcode-nextjs';
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
+import { initializeComponentCache } from "@/lib/cache-warmer";
+import Loader from "@ui/components/atoms/Loader";
 
 // Create separate components for async operations
 async function ThemeProvider({ children }: { children: React.ReactNode }) {
   const themes = await getBlockTheme();
+  
+  // Initialize component cache in background (non-blocking)
+  initializeComponentCache().catch(console.warn);
   
   const themeProps = themes.reduce(
     (acc: { [key: string]: string }, theme: string, index: number) => {
@@ -30,7 +33,15 @@ async function ThemeProvider({ children }: { children: React.ReactNode }) {
 }
 
 async function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings();
+  const settings = await getSettings(
+    [
+      'enable_user_flow', 
+      'google_tag_manager_enabled', 
+      'google_tag_manager_id',
+      'enable_vwo',
+      'vwo_id'
+    ]
+  );
   
   return (
     <LocaleProvider defaultLocale="en">
@@ -68,7 +79,7 @@ export default function Layout({
     <Suspense fallback={<html className={fontVariables}><body><div>Loading...</div></body></html>}>
       <ThemeProvider>
         <body>
-          <Suspense fallback={<div>Loading settings...</div>}>
+          <Suspense fallback={<Loader isLoading={true} />}>
             <SettingsProvider>
               {children}
             </SettingsProvider>

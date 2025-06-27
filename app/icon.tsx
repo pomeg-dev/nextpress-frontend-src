@@ -13,7 +13,12 @@ export const contentType = "image/png";
 
 // Image generation
 export default async function Icon({ params }: any) {
-  const settings = await getSettings();
+  const settings = await getSettings([
+    'favicon',
+    'primary_color',
+    'secondary_color',
+    'blogname'
+  ]);
   const faviconUrl = settings.favicon?.url;
   if (faviconUrl) {
     return new ImageResponse(

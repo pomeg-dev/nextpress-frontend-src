@@ -4,7 +4,12 @@ import { BlockParser } from "@/ui/block-parser";
 import classNames from "classnames";
 
 export default async function NotFound() {
-  const settings = await getSettings();
+  const settings = await getSettings([
+    'page_404',
+    'before_content',
+    'btn_transition',
+    'after_content'
+  ]);
   const post = settings.page_404
     ? await getPostByPath(settings.page_404.post_name, true, false)
     : undefined;
@@ -45,7 +50,9 @@ export async function generateMetadata() {
     title: "Not found",
     description: "Not found",
   };
-  const settings = await getSettings();
+  const settings = await getSettings([
+    'page_404'
+  ]);
   if (!settings.page_404) return notFound;
   const page404 = await getPostByPath(settings.page_404.post_name);
   return page404.yoastHeadJSON;

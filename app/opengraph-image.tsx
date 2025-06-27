@@ -15,7 +15,12 @@ export const contentType = "image/png";
 
 // Image generation
 export default async function Image() {
-  const settings = await getSettings();
+  const settings = await getSettings([
+    'og_default_image',
+    'primary_color',
+    'secondary_color',
+    'blogname'
+  ]);
   const siteImage = settings.og_default_image;
 
   if (siteImage) {

@@ -40,7 +40,15 @@ export default async function Post({ params, searchParams }: NextProps) {
   if (slug && slug[0] === "status") return null;
 
   // Get settings.
-  const settings = await getSettings();
+  const settings = await getSettings(
+    [
+      'page_for_posts_slug',
+      'frontend_url',
+      'before_content',
+      'after_content',
+      'enable_user_flow',
+    ]
+  );
 
   // Handle category pages.
   if (
@@ -206,7 +214,9 @@ export async function generateMetadata(
   if (slug && slug[0] === "draft") return notFound;
 
   const path = slug ? slug.join("/") : "";
-  const settings = await getSettings();
+  const settings = await getSettings([
+    'page_for_posts_slug',
+  ]);
   const frontendDomainURL = getFrontEndUrl(settings);
   let post = await getPostByPath(path, false);
   if (
