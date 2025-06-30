@@ -67,7 +67,6 @@ export async function getPosts(
     const res = await response.json()
     return withHeaders ? { posts: res, headers: response.headers } : res;
   } catch (error) {
-    console.error('Error fetching posts:', error);
     throw error;
   }
 };
@@ -81,7 +80,7 @@ export async function getPostByPath(
   const baseUrl = `${API_URL}/wp-json/nextpress/router`;
   const fullPath = path && !isDraft ? `/${path}` : "";
   const queryParams = new URLSearchParams({
-    ...(includeContent && { include_content: includeContent.toString() }),
+    ...(includeContent !== undefined && { include_content: includeContent.toString() }),
     ...(isDraft && { p: path })
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
@@ -94,16 +93,14 @@ export async function getPostByPath(
         tags: ["post"] 
       },
     });
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     
     const res = await response.json();
     return res;
-    
   } catch (error) {
-    console.error('Error fetching post by path:', error);
     throw error;
   }
 };
