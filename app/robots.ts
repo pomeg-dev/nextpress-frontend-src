@@ -14,6 +14,14 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         userAgent: "*",
         disallow: "/"
       },
+      {
+        userAgent: "*",
+        disallow: "/*?_rsc=*",
+      },
+      {
+        userAgent: "*",
+        disallow: "/*&_rsc=*",
+      },
     ],
     sitemap: `/sitemap.xml`,
   };
