@@ -15,13 +15,6 @@ const HOSTNAME_REGEX = new RegExp(
   'g'
 )
 
-interface RouteParams {
-  slug?: string[]
-}
-
-interface RouteContext {
-  params: RouteParams | Promise<RouteParams>
-}
 
 function replaceWordPressUrls(content: string): string {
   if (!WORDPRESS_URL || !FRONTEND_URL) return content
@@ -79,17 +72,8 @@ function buildWordPressSitemapUrl(slug: string[]): string {
   }
 }
 
-export async function GET(request: NextRequest, context: RouteContext): Promise<NextResponse> {
-  let params: RouteParams
-  if (context?.params) {
-    // Next.js 15 style - params might need to be awaited
-    params = typeof (context.params as any).then === 'function' 
-      ? await (context.params as Promise<RouteParams>)
-      : context.params as RouteParams
-  } else {
-    // Fallback for older versions or different patterns
-    params = (context as any) || {}
-  }
+export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string[] }> }): Promise<NextResponse> {
+  const resolvedParams = await params
   
   // Environment variable check
   if (!WORDPRESS_URL || !FRONTEND_URL) {
@@ -110,7 +94,7 @@ export async function GET(request: NextRequest, context: RouteContext): Promise<
     )
   }
   
-  const { slug = [] } = params
+  const { slug = [] } = resolvedParams
   
   // Build the WordPress sitemap URL
   const wordpressUrl = buildWordPressSitemapUrl(slug)
