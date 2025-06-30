@@ -56,7 +56,7 @@ export async function getPosts(
       method: "GET",
       next: { 
         revalidate: 86400, // Revalidate every 24 hours
-        tags: ["posts"] 
+        tags: params?.publicly_queryable ? ["sitemap"] : ["posts"] 
       },
     });
 
