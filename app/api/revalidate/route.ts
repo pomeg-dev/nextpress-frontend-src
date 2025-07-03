@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 
-const allowedTags = ["posts", "post", "menus", "settings"];
+const allowedTags = ["posts", "post", "menus", "settings", "template", "taxonomy", "sitemap"];
 
 export async function GET(request: NextRequest) {
   // TODO: Add authentication eg. apikey parameter or something, or oonly allow from certain IP addresses
