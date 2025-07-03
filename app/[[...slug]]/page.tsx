@@ -50,22 +50,6 @@ export default async function Post({ params, searchParams }: NextProps) {
     ]
   );
 
-  // Handle category pages.
-  if (
-    slug && 
-    settings?.page_for_posts_slug && 
-    slug[0] === settings.page_for_posts_slug &&
-    slug[1] && slug[2]
-  ) {
-    const taxonomy = slug[1];
-    const term = slug[2];
-    return (
-      <Suspense fallback={<CategoryArchiveFallback />}>
-        <CategoryArchive taxonomy={taxonomy} term={term} />
-      </Suspense>
-    );
-  }
-
   const path = slug ? slug.join("/") : "";
   let post;
   if (slug && slug[0] === "draft") {
@@ -84,8 +68,25 @@ export default async function Post({ params, searchParams }: NextProps) {
     }
   }
 
+  // Handle 404.
   if (!post || (post?.['404'] && post['404'] === true)) {
     notFound();
+  }
+
+  // Handle category pages.
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    const taxonomy = slug[1];
+    const term = slug[2];
+    return (
+      <Suspense fallback={<CategoryArchiveFallback />}>
+        <CategoryArchive taxonomy={taxonomy} term={term} />
+      </Suspense>
+    );
   }
 
   // Set up schema.
@@ -216,6 +217,7 @@ export async function generateMetadata(
   const path = slug ? slug.join("/") : "";
   const settings = await getSettings([
     'page_for_posts_slug',
+    'frontend_url'
   ]);
   const frontendDomainURL = getFrontEndUrl(settings);
   let post = await getPostByPath(path, false);

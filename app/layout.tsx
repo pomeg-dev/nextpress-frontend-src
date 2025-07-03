@@ -76,16 +76,12 @@ export default function Layout({
   children: React.ReactNode;
 }) {
   return (
-    <Suspense fallback={<html className={fontVariables}><body><div>Loading...</div></body></html>}>
-      <ThemeProvider>
-        <body>
-          <Suspense fallback={<Loader isLoading={true} />}>
-            <SettingsProvider>
-              {children}
-            </SettingsProvider>
-          </Suspense>
-        </body>
-      </ThemeProvider>
-    </Suspense>
+    <ThemeProvider>
+      <body>
+        <SettingsProvider>
+          {children}
+        </SettingsProvider>
+      </body>
+    </ThemeProvider>
   );
 }

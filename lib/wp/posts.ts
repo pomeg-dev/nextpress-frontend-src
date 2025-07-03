@@ -1,5 +1,5 @@
 import { WPQuery } from "@/lib/types";
-import { cache } from "react";
+import { redirect } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -97,11 +97,12 @@ export async function getPostByPath(
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
+
     const res = await response.json();
     return res;
   } catch (error) {
-    throw error;
+    console.error('Error fetching post:', error);
+    return null;
   }
 };
 
