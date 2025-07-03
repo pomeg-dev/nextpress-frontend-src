@@ -23,10 +23,6 @@ function AdminBarFallback() {
   return <Loader isLoading={true} />;
 }
 
-function BlockParserFallback() {
-  return <Loader isLoading={true} />;
-}
-
 function CategoryArchiveFallback() {
   return <Loader isLoading={true} />;
 }
@@ -140,38 +136,28 @@ export default async function Post({ params, searchParams }: NextProps) {
         </Suspense>
       }
       {beforeContent &&
-        <Suspense fallback={<BlockParserFallback />}>
-          <BlockParser blocks={beforeContent} />
-        </Suspense>
+        <BlockParser blocks={beforeContent} />
       }
       {sidebarContent ? (
         <section className="content-sidebar container">
           <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
             {post.content && 
-              <Suspense fallback={<BlockParserFallback />}>
-                <BlockParser blocks={post.content} />
-              </Suspense>
+              <BlockParser blocks={post.content} />
             }
           </main>
           <aside className="sidebar">
-            <Suspense fallback={<BlockParserFallback />}>
-              <BlockParser blocks={sidebarContent} />
-            </Suspense>
+            <BlockParser blocks={sidebarContent} />
           </aside>
         </section>
       ) : (
         <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
           {post.content && 
-            <Suspense fallback={<BlockParserFallback />}>
-              <BlockParser blocks={post.content} />
-            </Suspense>
+            <BlockParser blocks={post.content} />
           }
         </main>
       )}
       {afterContent &&
-        <Suspense fallback={<BlockParserFallback />}>
-          <BlockParser blocks={afterContent} />
-        </Suspense>
+        <BlockParser blocks={afterContent} />
       }
     </>
   );

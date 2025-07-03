@@ -21,8 +21,10 @@ export function linkFilter(linkUrl: string | undefined, apiUrl?: string) {
   const API_URL = apiUrl ? apiUrl : process.env.NEXT_PUBLIC_API_URL;
   if (!linkUrl) return "#";
   if (linkUrl.includes('.pdf')) return linkUrl;
+  
   let newLinkUrl = linkUrl;
-  //first replace the API_URL with the base url
+  
+  // Replace the API_URL with the base url.
   if (API_URL) {
     newLinkUrl = linkUrl.replace(API_URL, "");
   }
