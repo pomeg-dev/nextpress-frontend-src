@@ -7,7 +7,6 @@ import { AuthCheck } from "./AuthCheck";
 import { fontVariables } from "ui/fonts/font-loader";
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 import { initializeComponentCache } from "@/lib/cache-warmer";
-import Loader from "@ui/components/atoms/Loader";
 
 // Create separate components for async operations
 async function ThemeProvider({ children }: { children: React.ReactNode }) {

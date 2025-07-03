@@ -18,19 +18,6 @@ type NextProps = {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 };
 
-// Create fallback components
-function AdminBarFallback() {
-  return <Loader isLoading={true} />;
-}
-
-function BlockParserFallback() {
-  return <Loader isLoading={true} />;
-}
-
-function CategoryArchiveFallback() {
-  return <Loader isLoading={true} />;
-}
-
 export default async function Post({ params, searchParams }: NextProps) {
   const { slug } = await params;
 
@@ -83,7 +70,7 @@ export default async function Post({ params, searchParams }: NextProps) {
     const taxonomy = slug[1];
     const term = slug[2];
     return (
-      <Suspense fallback={<CategoryArchiveFallback />}>
+      <Suspense fallback={<Loader isLoading={true} />}>
         <CategoryArchive taxonomy={taxonomy} term={term} />
       </Suspense>
     );
@@ -135,36 +122,28 @@ export default async function Post({ params, searchParams }: NextProps) {
         />
       }
       {settings?.enable_user_flow &&
-        <Suspense fallback={<AdminBarFallback />}>
+        <Suspense fallback={<Loader isLoading={true} />}>
           <NPAdminBar postID={post.id} />
         </Suspense>
       }
       {beforeContent &&
-        <Suspense fallback={<BlockParserFallback />}>
-          <BlockParser blocks={beforeContent} />
-        </Suspense>
+        <BlockParser blocks={beforeContent} />
       }
       {sidebarContent ? (
         <section className="content-sidebar container">
           <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
             {post.content && 
-              <Suspense fallback={<BlockParserFallback />}>
-                <BlockParser blocks={post.content} />
-              </Suspense>
+              <BlockParser blocks={post.content} />
             }
           </main>
           <aside className="sidebar">
-            <Suspense fallback={<BlockParserFallback />}>
-              <BlockParser blocks={sidebarContent} />
-            </Suspense>
+            <BlockParser blocks={sidebarContent} />
           </aside>
         </section>
       ) : (
         <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
           {post.content && 
-            <Suspense fallback={<BlockParserFallback />}>
-              <BlockParser blocks={post.content} />
-            </Suspense>
+            <BlockParser blocks={post.content} />
           }
         </main>
       )}
