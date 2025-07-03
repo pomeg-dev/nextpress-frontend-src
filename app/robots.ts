@@ -26,6 +26,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         userAgent: "*",
         disallow: "/magazine/module",
       },
+      {
+        userAgent: "*",
+        disallow: "/themes",
+      },
     ],
     sitemap: `/sitemap.xml`,
   };

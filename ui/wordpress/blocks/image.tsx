@@ -71,7 +71,7 @@ const ImageComponent: React.FC<ImageProps> = ({ ...block }: Block) => {
                 height={height}
                 className={imgClassName}
                 style={{
-                  width: block.data?.width || 'auto',
+                  width: block.data?.width || '100%',
                   height: block.data?.height || 'auto',
                 }}
                 priority={false}
