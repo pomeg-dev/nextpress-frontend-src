@@ -37,6 +37,21 @@ export default async function Post({ params, searchParams }: NextProps) {
     ]
   );
 
+  // Handle category pages.
+  let isTaxPage = false;
+  let taxonomy;
+  let term;
+  if (
+    slug && 
+    settings?.page_for_posts_slug && 
+    slug[0] === settings.page_for_posts_slug &&
+    slug[1] && slug[2]
+  ) {
+    isTaxPage = true;
+    taxonomy = slug[1];
+    term = slug[2];
+  }
+
   const path = slug ? slug.join("/") : "";
   let post;
   if (slug && slug[0] === "draft") {
@@ -56,24 +71,8 @@ export default async function Post({ params, searchParams }: NextProps) {
   }
 
   // Handle 404.
-  if (!post || (post?.['404'] && post['404'] === true)) {
+  if (!post && !isTaxPage || (!isTaxPage && post?.['404'] && post['404'] === true)) {
     notFound();
-  }
-
-  // Handle category pages.
-  if (
-    slug && 
-    settings?.page_for_posts_slug && 
-    slug[0] === settings.page_for_posts_slug &&
-    slug[1] && slug[2]
-  ) {
-    const taxonomy = slug[1];
-    const term = slug[2];
-    return (
-      <Suspense fallback={<Loader isLoading={true} />}>
-        <CategoryArchive taxonomy={taxonomy} term={term} />
-      </Suspense>
-    );
   }
 
   // Set up schema.
@@ -129,23 +128,29 @@ export default async function Post({ params, searchParams }: NextProps) {
       {beforeContent &&
         <BlockParser blocks={beforeContent} />
       }
-      {sidebarContent ? (
-        <section className="content-sidebar container">
-          <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+      {isTaxPage && taxonomy && term ? (
+        <Suspense fallback={<Loader isLoading={true} />}>
+          <CategoryArchive taxonomy={taxonomy} term={term} />
+        </Suspense>
+      ) : (
+        sidebarContent ? (
+          <section className="content-sidebar container">
+            <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
+              {post.content && 
+                <BlockParser blocks={post.content} />
+              }
+            </main>
+            <aside className="sidebar">
+              <BlockParser blocks={sidebarContent} />
+            </aside>
+          </section>
+        ) : (
+          <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
             {post.content && 
               <BlockParser blocks={post.content} />
             }
           </main>
-          <aside className="sidebar">
-            <BlockParser blocks={sidebarContent} />
-          </aside>
-        </section>
-      ) : (
-        <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
-          {post.content && 
-            <BlockParser blocks={post.content} />
-          }
-        </main>
+        )
       )}
       {afterContent &&
         <BlockParser blocks={afterContent} />
