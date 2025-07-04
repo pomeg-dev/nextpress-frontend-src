@@ -4,15 +4,19 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: [
       {
-        userAgent: "Screaming Frog SEO Spider",
-        allow: "/",
-      },
-      {
         // userAgent: "*",
         // allow: "/",
         // disallow: "/private/",
         userAgent: "*",
         disallow: "/"
+      },
+      {
+        userAgent: "Screaming Frog SEO Spider",
+        allow: "/",
+      },
+      {
+        userAgent: "*",
+        allow: "/programs/bachelors-in-international-hospitality-business/",
       },
       {
         userAgent: "*",
