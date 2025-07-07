@@ -2,9 +2,18 @@ import { Block } from "@/lib/types";
 import React from "react";
 import { BlockParser } from "./block-parser";
 import Parser from "html-react-parser";
+import { linkFilter } from "@/utils/url";
 
 export function Fallback({ ...block } : Block) {
   const { innerHTML, innerBlocks, data } = block;
+
+  // Function to filter hrefs in HTML content
+  const filterHrefs = (html: string) => {
+    return html.replace(/href="([^"]*)"/g, (match, url) => {
+      const filteredUrl = linkFilter(url);
+      return `href="${filteredUrl}"`;
+    });
+  };
 
   // Regex matches opneing tag, tag attributes and inner content.
   const tagRegex = /<(\w+)([^>]*)>\s*([\s\S]*?)\s*<\/\1>/;
@@ -49,15 +58,17 @@ export function Fallback({ ...block } : Block) {
 
   const Tag: any = tagName;
 
+  console.log(innerHTML);
+
   return (
     <>
       {(innerBlocks && innerBlocks.length > 0) ? (
         <Tag {...tagAtts}>
-          {Parser(tagHtml)}
+          {Parser(filterHrefs(tagHtml))}
           <BlockParser blocks={innerBlocks} />
         </Tag>
       ) : (
-        Parser(innerHTML)
+        Parser(filterHrefs(innerHTML))
       )}
     </>
   );

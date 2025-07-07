@@ -129,9 +129,7 @@ export default async function Post({ params, searchParams }: NextProps) {
         <BlockParser blocks={beforeContent} />
       }
       {isTaxPage && taxonomy && term ? (
-        <Suspense fallback={<Loader isLoading={true} />}>
-          <CategoryArchive taxonomy={taxonomy} term={term} />
-        </Suspense>
+        <CategoryArchive taxonomy={taxonomy} term={term} />
       ) : (
         sidebarContent ? (
           <section className="content-sidebar container">

@@ -1,5 +1,8 @@
 import { getTaxTerm, getTaxTerms } from "@/lib/wp/posts";
 import { Feed } from "@ui/components/archive/Feed";
+import Loader from "@ui/components/atoms/Loader";
+import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 export default async function CategoryArchive({
   taxonomy,
@@ -9,6 +12,10 @@ export default async function CategoryArchive({
   term: string;
 }) {
   const termObject = await getTaxTerm(taxonomy, term);
+  if (!termObject || termObject.length < 1) {
+    notFound();
+  }
+
   const archiveData = {
     post_type: 'post',
     number_of_posts: '12',
@@ -37,8 +44,10 @@ export default async function CategoryArchive({
   };
 
   return (
-    <main data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
-      <Feed data={archiveData} />
-    </main>
+    <Suspense fallback={<Loader isLoading={true} />}>
+      <main data-pageurl={`${taxonomy}/${term}`} data-termid={termObject.term_id}>
+        <Feed data={archiveData} />
+      </main>
+    </Suspense>
   );
 }
