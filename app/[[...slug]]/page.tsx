@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation';
+import { notFound, permanentRedirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { BlockParser } from "@/ui/block-parser";
 import { NPAdminBar } from "../(extras)/npadminbar";
@@ -6,7 +6,6 @@ import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
 import { decode } from "html-entities";
-import { redirect } from "next/navigation";
 import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
@@ -63,10 +62,10 @@ export default async function Post({ params, searchParams }: NextProps) {
   // Do yoast redirect.
   if (post?.yoastHeadJSON?.redirect) {
     if (post.yoastHeadJSON.redirect.includes('http')) {
-      redirect(post.yoastHeadJSON.redirect);
+      permanentRedirect(post.yoastHeadJSON.redirect);
     } else {
       const frontendDomainURL = getFrontEndUrl(settings);
-      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+      permanentRedirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
     }
   }
 
