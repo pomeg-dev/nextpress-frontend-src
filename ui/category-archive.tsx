@@ -16,6 +16,10 @@ export default async function CategoryArchive({
     notFound();
   }
 
+  const allowedTerms = ["business-of-luxury", "glion-spirit", "hospitality-uncovered", "leadership-insights", "living-well", "podcast"];
+  const allTerms = await getTaxTerms(taxonomy);
+  const filteredTerms = allTerms.filter((term: { slug: string; }) => allowedTerms.includes(term.slug));
+
   const archiveData = {
     post_type: 'post',
     number_of_posts: '12',
@@ -37,7 +41,7 @@ export default async function CategoryArchive({
         label: "",
         placeholder: "All",
         taxonomy: taxonomy,
-        terms: await getTaxTerms(taxonomy),
+        terms: filteredTerms,
         type: "select"
       }
     ]
