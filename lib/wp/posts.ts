@@ -55,7 +55,7 @@ export async function getPosts(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 86400, // Revalidate every 24 hours
+        revalidate: 604800, // Revalidate every 1 week
         tags: params?.publicly_queryable ? ["sitemap"] : ["posts"] 
       },
     });
@@ -89,7 +89,7 @@ export async function getPostByPath(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: isDraft ? 0 : 86400, // No cache for drafts, 24 hours for published
+        revalidate: isDraft ? 0 : 604800, // No cache for drafts, 1 week for published
         tags: ["post"] 
       },
     });
@@ -118,7 +118,7 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 7200, // 2 hours - templates change less frequently
+        revalidate: 604800, // 2 hours - templates change less frequently
         tags: ["template"] 
       },
     });
@@ -145,7 +145,7 @@ export async function getTaxTerms(taxonomy: string) {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 86400, // 24 hours
+        revalidate: 604800, // 1 week
         tags: ["taxonomy"] 
       },
     });
@@ -170,7 +170,7 @@ export async function getTaxTerm(taxonomy: string, term: string) {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 86400, // 24 hours
+        revalidate: 604800, // 1 week
         tags: ["taxonomy"] 
       },
     });

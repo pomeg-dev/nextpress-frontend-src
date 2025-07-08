@@ -58,8 +58,6 @@ export function Fallback({ ...block } : Block) {
 
   const Tag: any = tagName;
 
-  console.log(innerHTML);
-
   return (
     <>
       {(innerBlocks && innerBlocks.length > 0) ? (
