@@ -4,19 +4,9 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   return {
     rules: [
       {
-        // userAgent: "*",
-        // allow: "/",
-        // disallow: "/private/",
         userAgent: "*",
-        disallow: "/"
-      },
-      {
-        userAgent: "Screaming Frog SEO Spider",
         allow: "/",
-      },
-      {
-        userAgent: "*",
-        allow: "/programs/bachelors-in-international-hospitality-business/",
+        disallow: "/private/",
       },
       {
         userAgent: "*",
@@ -35,6 +25,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
         disallow: "/themes",
       },
     ],
-    sitemap: `/sitemap.xml`,
+    sitemap: [
+      `/sitemap.xml`,
+      `/post-sitemap.xml`,
+      `/page-sitemap.xml`,
+    ],
   };
 }
