@@ -14,7 +14,7 @@ async function _getSettings(keys?: string[]) {
     method: "GET",
     next: { 
       tags: ["settings"],
-      revalidate: 86400 // 24 hours (1 day)
+      revalidate: 2628000 // 1 month
     },
   });
 

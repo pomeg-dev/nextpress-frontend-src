@@ -8,12 +8,31 @@ export type GetPostsParams = WPQuery & {
   include_metadata?: boolean;
   slug_only?: boolean;
   publicly_queryable?: boolean;
+  cache_context?: string;
 };
 
 export async function getPosts(
   params: GetPostsParams = {},
   withHeaders: boolean = false
 ) {
+  const tags = [ 'ssg' ];
+  let revalidate = 604800;
+
+  if (params.post__in) {
+    const postIds = Array.isArray(params.post__in) ? params.post__in : [params.post__in];
+    if (postIds.length > 4) {
+      tags.push('posts-feed');
+    } else {
+      postIds.forEach(id => tags.push(`post-id-${id}`));
+    }
+  } else if (params.post_type) {
+    const postTypes = Array.isArray(params.post_type) ? params.post_type : [params.post_type];
+    postTypes.forEach(type => tags.push(`post-type-${type}`));
+  } else if (params.publicly_queryable) {
+    tags.push('sitemap');
+    revalidate = 86400;
+  }
+
   const queryParams = new URLSearchParams();
 
   // List of parameters that should be comma-separated when they're arrays
@@ -55,8 +74,8 @@ export async function getPosts(
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 604800, // Revalidate every 1 week
-        tags: params?.publicly_queryable ? ["sitemap"] : ["posts"] 
+        revalidate: revalidate, // Revalidate every 1 week
+        tags: tags
       },
     });
 
@@ -90,7 +109,7 @@ export async function getPostByPath(
       method: "GET",
       next: { 
         revalidate: isDraft ? 0 : 604800, // No cache for drafts, 1 week for published
-        tags: ["post"] 
+        // No tags - using path-based revalidation handled by WordPress router
       },
     });
 
