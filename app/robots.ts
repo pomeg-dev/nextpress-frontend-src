@@ -73,6 +73,7 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       `/sitemap.xml`,
       `/post-sitemap.xml`,
       `/page-sitemap.xml`,
+      `/program-sitemap.xml`,
     ],
   };
 }
