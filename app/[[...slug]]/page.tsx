@@ -60,17 +60,17 @@ export default async function Post({ params, searchParams }: NextProps) {
   }
 
   // Do yoast redirect
-  // if (post?.yoastHeadJSON?.redirect) {
-  //   const redirectUrl = post.yoastHeadJSON.redirect.endsWith('/') 
-  //     ? post.yoastHeadJSON.redirect
-  //     : post.yoastHeadJSON.redirect + '/';
-  //   if (post.yoastHeadJSON.redirect.includes('http')) {
-  //     permanentRedirect(redirectUrl);
-  //   } else {
-  //     const frontendDomainURL = getFrontEndUrl(settings);
-  //     permanentRedirect(`${frontendDomainURL}/${redirectUrl}`);
-  //   }
-  // }
+  if (post?.yoastHeadJSON?.redirect) {
+    const redirectUrl = post.yoastHeadJSON.redirect.endsWith('/') 
+      ? post.yoastHeadJSON.redirect
+      : post.yoastHeadJSON.redirect + '/';
+    if (post.yoastHeadJSON.redirect.includes('http')) {
+      permanentRedirect(redirectUrl);
+    } else {
+      const frontendDomainURL = getFrontEndUrl(settings);
+      permanentRedirect(`${frontendDomainURL}/${redirectUrl}`);
+    }
+  }
 
   // Handle 404.
   if (!post && !isTaxPage || (!isTaxPage && post?.['404'] && post['404'] === true)) {
