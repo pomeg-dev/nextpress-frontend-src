@@ -59,7 +59,7 @@ export default async function Post({ params, searchParams }: NextProps) {
     post = await getPostByPath(path);
   }
 
-  // Do yoast redirect.
+  // Do yoast redirect
   if (post?.yoastHeadJSON?.redirect) {
     const redirectUrl = post.yoastHeadJSON.redirect.endsWith('/') 
       ? post.yoastHeadJSON.redirect
