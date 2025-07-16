@@ -1,8 +1,10 @@
 import { MetadataRoute } from "next";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
+  const isProduction = process.env.VERCEL_ENV === "production";
+  
   return {
-    rules: [
+    rules: isProduction ? [
       {
         userAgent: "OAI-SearchBot",
         allow: "/",
@@ -67,6 +69,11 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       {
         userAgent: "*",
         disallow: "/themes",
+      },
+    ] : [
+      {
+        userAgent: "*",
+        disallow: "/",
       },
     ],
     sitemap: [
