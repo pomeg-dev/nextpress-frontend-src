@@ -15,16 +15,14 @@ export async function getPosts(
   params: GetPostsParams = {},
   withHeaders: boolean = false
 ) {
-  const tags = [ 'ssg' ];
+  const tags = [ 'posts' ];
   let revalidate = 604800;
+  let postIdsTag = '';
 
   if (params.post__in) {
     const postIds = Array.isArray(params.post__in) ? params.post__in : [params.post__in];
-    if (postIds.length > 4) {
-      tags.push('posts-feed');
-    } else {
-      postIds.forEach(id => tags.push(`post-id-${id}`));
-    }
+    postIdsTag = `post-ids-${postIds.join('-')}`;
+    tags.push(postIdsTag);
   } else if (params.post_type) {
     const postTypes = Array.isArray(params.post_type) ? params.post_type : [params.post_type];
     postTypes.forEach(type => tags.push(`post-type-${type}`));
@@ -66,9 +64,19 @@ export async function getPosts(
     }
   });
 
-  const url = `${API_URL}/wp-json/nextpress/posts${
-    queryParams.toString() ? `?${queryParams.toString()}` : ""
-  }`;
+  // Build the base URL
+  let url = `${API_URL}/wp-json/nextpress/posts`;
+
+  // Add query parameters if present
+  const queryString = queryParams.toString();
+  if (queryString) {
+    url += `?${queryString}`;
+  }
+
+  // If postIdsTag exists, add it as cache_tag parameter
+  if (postIdsTag) {
+    url += (queryString ? '&' : '?') + `cache_tag=${encodeURIComponent(postIdsTag)}`;
+  }
 
   try {
     const response = await fetch(url, {

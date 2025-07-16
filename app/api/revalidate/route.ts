@@ -1,12 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag, revalidatePath } from "next/cache";
 
-const allowedTags = ["ssg", "posts", "post", "menus", "settings", "template", "taxonomy", "sitemap", "posts-feed"];
-const allowedTagPrefixes = ["post-type-", "post-id-"];
+const allowedTags = ["posts", "settings", "sitemap", "before_content", "after_content"];
+const allowedTagPrefixes = ["post-type-", "post-ids-"];
 
 export async function GET(request: NextRequest) {
-  // TODO: Add authentication eg. apikey parameter or something, or only allow from certain IP addresses
-  
   const tag = request.nextUrl.searchParams.get("tag");
   const path = request.nextUrl.searchParams.get("path");
   
