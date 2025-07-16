@@ -61,11 +61,14 @@ export default async function Post({ params, searchParams }: NextProps) {
 
   // Do yoast redirect.
   if (post?.yoastHeadJSON?.redirect) {
+    const redirectUrl = post.yoastHeadJSON.redirect.endsWith('/') 
+      ? post.yoastHeadJSON.redirect
+      : post.yoastHeadJSON.redirect + '/';
     if (post.yoastHeadJSON.redirect.includes('http')) {
-      permanentRedirect(post.yoastHeadJSON.redirect);
+      permanentRedirect(redirectUrl);
     } else {
       const frontendDomainURL = getFrontEndUrl(settings);
-      permanentRedirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
+      permanentRedirect(`${frontendDomainURL}/${redirectUrl}`);
     }
   }
 
