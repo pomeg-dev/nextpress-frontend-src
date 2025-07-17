@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const isProduction = process.env.VERCEL_ENV === "production";
+  const frontendUrl = process.env.NEXT_PUBLIC_FRONTEND_URL;
   
   return {
     rules: isProduction ? [
@@ -77,10 +78,10 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
       },
     ],
     sitemap: [
-      `/sitemap.xml`,
-      `/post-sitemap.xml`,
-      `/page-sitemap.xml`,
-      `/program-sitemap.xml`,
+      `${frontendUrl}/sitemap.xml`,
+      `${frontendUrl}/post-sitemap.xml`,
+      `${frontendUrl}/page-sitemap.xml`,
+      `${frontendUrl}/program-sitemap.xml`,
     ],
   };
 }
