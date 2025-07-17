@@ -1,14 +1,20 @@
 import { cache } from "react";
+import { SETTINGS_KEYS } from "@/utils/settings-keys";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function _getSettings(keys?: string[]) {
   let url = `${API_URL}/wp-json/nextpress/settings`;
-  const tags = [];
+  const tags: string[] = [];
   
   if (keys && keys.length > 0) {
-    if (keys.includes('before_content')) tags.push('before_content');
-    if (keys.includes('after_content')) tags.push('after_content');
+    // Add individual key tags
+    keys.forEach(key => {
+      if (SETTINGS_KEYS.includes(key)) {
+        tags.push(key);
+      }
+    });
+    
     const keysParam = keys.join(',');
     url += `?keys=${encodeURIComponent(keysParam)}`;
   }

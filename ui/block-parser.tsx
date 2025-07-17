@@ -172,15 +172,22 @@ export const warmComponentCache = async (commonBlocks: string[]) => {
   const promises = commonBlocks.map(async (blockName) => {
     const [theme, componentName] = parseBlockName(blockName);
     
-    if (theme) {
-      return importComponent(`${theme}/blocks/${componentName}`, true);
-    } else {
-      return importComponent(`wordpress/blocks/${componentName}`, false);
+    try {
+      if (theme) {
+        return await importComponent(`${theme}/blocks/${componentName}`, true);
+      } else {
+        return await importComponent(`wordpress/blocks/${componentName}`, false);
+      }
+    } catch (error) {
+      // Silently skip missing components during cache warming
+      console.log(`Skipping cache warming for missing component: ${blockName}`);
+      return null;
     }
   });
   
-  await Promise.allSettled(promises);
-  console.log(`Cache warmed with ${componentCache.size} components`);
+  const results = await Promise.allSettled(promises);
+  const successCount = results.filter(result => result.status === 'fulfilled' && result.value !== null).length;
+  console.log(`Cache warmed with ${successCount} components (${commonBlocks.length - successCount} skipped)`);
 };
 
 // Cache statistics for debugging
