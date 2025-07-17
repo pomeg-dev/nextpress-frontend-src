@@ -51,6 +51,19 @@ export default async function Post(props: NextProps) {
   const defaultTemplate = await getDefaultTemplate();
   const metadata = await generateMetadata(props);
 
+  if (post?.acf_data?.theme) {
+    defaultTemplate.before_content.forEach((item: any) => {
+      if (item && typeof item === 'object') {
+        item.style = post.acf_data.theme;
+      }
+    });
+    defaultTemplate.after_content.forEach((item: any) => {
+      if (item && typeof item === 'object') {
+        item.style = post.acf_data.theme;
+      }
+    });
+  }
+
   return (
     <>
       <head>
@@ -86,8 +99,8 @@ export default async function Post(props: NextProps) {
         )}
         <BeforeContent defaultTemplate={defaultTemplate} />
         <NPAdminBar postID={post.id} />
-        <Styles settings={settings} />
-        <main data-pageurl={post.slug.slug} data-postid={post.id}>
+        <Styles settings={settings} pageStyle={post?.acf_data?.theme || "Red"} />
+        <main data-pageurl={post.slug.slug} data-postid={post.id} data-style={post?.acf_data?.theme || "Red"}>
           {post.content && <BlockParser blocks={post.content} />}
         </main>
         <AfterContent defaultTemplate={defaultTemplate} />

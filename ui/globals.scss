@@ -2,12 +2,28 @@
 @tailwind components;
 @tailwind utilities;
 
-// // DEFINE all root fonts
-// :root {
-//   --font-inter: "Inter", sans-serif;
-//   --font-playfair-display: "Playfair Display", serif;
-//   --font-dm-sans: "DM Sans", sans-serif;
-// }
+:root {
+  --section-padding-default: 120px;
+  --section-padding-slim: 48px;
+  --section-padding-none: 0px;
+  
+  @media screen and (max-width: 1080px) {
+    --section-padding-default: 120px;
+    --section-padding-slim: 40px;
+    --section-padding-none: 0px;
+  }
+  @media screen and (max-width: 800px) {
+    --section-padding-default: 96px;
+    --section-padding-slim: 32px;
+    --section-padding-none: 0px;
+  }
+  @media screen and (max-width: 390px) {
+    --section-padding-default: 80px;
+    --section-padding-slim: 24px;
+    --section-padding-none: 0px;
+  }
+}
+
 .no-transition * {
   -webkit-transition: none !important;
   -moz-transition: none !important;
