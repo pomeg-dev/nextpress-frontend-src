@@ -4,7 +4,7 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
 async function _getSettings(keys?: string[]) {
   let url = `${API_URL}/wp-json/nextpress/settings`;
-  const tags = ['settings'];
+  const tags = [];
   
   if (keys && keys.length > 0) {
     if (keys.includes('before_content')) tags.push('before_content');
