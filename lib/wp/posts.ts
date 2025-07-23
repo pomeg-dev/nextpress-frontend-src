@@ -102,14 +102,18 @@ export async function getPostByPath(
   path?: string,
   includeContent: boolean = true,
   isDraft: boolean = false,
+  id?: number,
 ) {
   if (path?.includes('devtools')) return;
   const baseUrl = `${API_URL}/wp-json/nextpress/router`;
   const fullPath = path && !isDraft ? `/${path}` : "";
-  const queryParams = new URLSearchParams({
-    ...(includeContent !== undefined && { include_content: includeContent.toString() }),
-    ...(isDraft && { p: path })
-  });
+  const queryParams = new URLSearchParams();
+  if (includeContent !== undefined) {
+    queryParams.append('include_content', includeContent.toString());
+  }
+  if (isDraft) {
+    queryParams.append('p', id ? id.toString() : (path ?? ''));
+  }
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
   
   try {
