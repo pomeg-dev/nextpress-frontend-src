@@ -19,7 +19,6 @@ type NextProps = {
 
 export default async function Post({ params, searchParams }: NextProps) {
   const { slug } = await params;
-  const searchParamsResolved = await searchParams;
 
   // Dont run for favicon, api, status requests
   if (slug && slug[0] === "favicon.ico") return null;
@@ -54,15 +53,8 @@ export default async function Post({ params, searchParams }: NextProps) {
 
   const path = slug ? slug.join("/") : "";
   let post;
-  const isDraft = (slug && slug[0] === "draft") || (searchParamsResolved.p && searchParamsResolved.preview);
-  if (isDraft) {
-    const postPath = slug && slug[0] === "draft" ? slug[1] : path;
-    post = await getPostByPath(
-      postPath,
-      true,
-      true,
-      typeof searchParamsResolved?.p === 'string' ? Number(searchParamsResolved.p) : undefined
-    );
+  if (slug && slug[0] === "draft") {
+    post = await getPostByPath(slug[1], true, true);
   } else {
     post = await getPostByPath(path);
   }
