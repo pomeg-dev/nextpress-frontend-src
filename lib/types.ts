@@ -124,6 +124,7 @@ export type WPQuery = {
 export type ImageProps = {
   src: string;
   alt: string;
+  url?: string;
   width?: number;
   height?: number;
   className?: string;
