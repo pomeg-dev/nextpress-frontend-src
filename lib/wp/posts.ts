@@ -149,7 +149,7 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
     const response = await fetch(url, {
       method: "GET",
       next: { 
-        revalidate: 604800, // 2 hours - templates change less frequently
+        revalidate: 604800, // 1 week
         tags: ["template"] 
       },
     });

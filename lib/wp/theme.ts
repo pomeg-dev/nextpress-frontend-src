@@ -9,7 +9,7 @@ async function _getBlockTheme() {
     method: "GET",
     next: { 
       tags: ["block_theme"],
-      revalidate: 86400 // 24 hours (1 day)
+      revalidate: 604800 // 1 week
     },
   });
 

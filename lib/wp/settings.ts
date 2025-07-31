@@ -23,7 +23,7 @@ async function _getSettings(keys?: string[]) {
     method: "GET",
     next: { 
       tags: tags,
-      revalidate: 86400, // 1 day
+      revalidate: 604800, // 1 week
     },
   });
 
