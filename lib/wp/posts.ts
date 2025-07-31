@@ -54,13 +54,13 @@ export async function getPosts(params: GetPostsParams = {}) {
 export async function getPostByPath(
   path?: string,
   includeContent: boolean = true,
-  isDraft: boolean = false,
+  isDraft: boolean = false
 ) {
   const baseUrl = `${API_URL}/wp-json/nextpress/router`;
   const fullPath = path && !isDraft ? `/${path}` : "";
   const queryParams = new URLSearchParams({
     ...(includeContent && { include_content: includeContent.toString() }),
-    ...(isDraft && { p: path })
+    ...(isDraft && { p: path }),
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
 
@@ -102,18 +102,23 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
 }
 
 export async function getRestPosts(
-  postType: string = 'posts',
+  postType: string = "posts",
   params?: any,
   withHeaders: boolean = false
 ) {
-  const searchParams = params ? '?' + new URLSearchParams(params).toString() : '';
+  const searchParams = params
+    ? "?" + new URLSearchParams(params).toString()
+    : "";
   try {
-    const response = await fetch(`${API_URL}/wp-json/wp/v2/${postType}${searchParams}`, {
-      method: "GET",
-      next: { tags: ["posts"] },
-      cache: "force-cache",
-    });
-    
+    const response = await fetch(
+      `${API_URL}/wp-json/wp/v2/${postType}${searchParams}`,
+      {
+        method: "GET",
+        next: { tags: ["posts"] },
+        cache: "force-cache",
+      }
+    );
+
     if (withHeaders) {
       const res = {
         headers: response.headers,
@@ -121,7 +126,7 @@ export async function getRestPosts(
       };
       return res;
     } else {
-      const  res = await response.json();
+      const res = await response.json();
       return res;
     }
   } catch (error) {

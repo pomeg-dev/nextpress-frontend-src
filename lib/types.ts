@@ -13,10 +13,12 @@ export type Post = {
   image: PostImage;
   categories: PostCategory[];
   category_names: string[];
+  terms: {[key: string]: string[]};
   template: Template;
   tags: PostTag[];
   related_posts: number[];
   password: string;
+  card?: Cards
 };
 
 export type Slug = {
@@ -63,7 +65,7 @@ export type FeaturedImage = {
 };
 
 export type PostType = {
-  id: number;
+  id: string | number;
   name: string;
   slug: string;
 };
@@ -71,6 +73,7 @@ export type PostType = {
 export type Block = {
   id: number;
   blockName: string;
+  className?: string;
   slug: string;
   innerHTML: string;
   innerContent: string;
@@ -116,6 +119,86 @@ export type WPQuery = {
   slug?: string[];
   status?: string[];
   tax_relation?: "AND" | "OR";
+};
+
+export type ImageProps = {
+  src: string;
+  alt: string;
+  width?: number;
+  height?: number;
+  className?: string;
+  blurImage?: string;
+};
+
+export type LinkItemProps = {
+  url?: string;
+  target?: string;
+  title?: string;
+};
+
+export type ButtonProps = {
+  link: LinkItemProps;
+};
+
+export type MenuItemsProps = {
+  title: string;
+  url: string;
+  target?: string;
+  classes?: string[];
+  children?: MenuItemsProps[];
+  active?: boolean;
+  gated?: boolean;
+};
+
+export type Cards = "PostCard" | "ProductCard" | "CourseCard";
+
+export type ProductProps = {
+  title: string;
+  slug?: string;
+  id?: number;
+  url?: string;
+  description?: string;
+  image?: ImageProps;
+  product_type?: string[];
+  price: number;
+  sku?: string;
+  currency?: string;
+  qty?: number;
+  attributes?: {
+    [key: string]: string | undefined;
+  },
+  options?: {
+    name: string;
+    label: string;
+    info_label?: string;
+    info_content?: string;
+    choices: { label: string; value: string; }[];
+  }[];
+  purchase_options?: {
+    name: string;
+    label: string;
+    description?: string;
+    discount_percent?: number;
+    choices?: { label: string; value: string; }[];
+  }[];
+};
+
+export type OrderProps = {
+  id: number;
+  number: number | string;
+  status: string;
+  date: Date | string;
+  total: number;
+  discount_percent?: number;
+  products: ProductProps[];
+  currency?: string;
+  is_repeat?: boolean;
+  frequency?: string;
+  tracking_details?: {
+    id?: number | string;
+    courier?: string;
+    url?: string;
+  };
 };
 
 import { DefaultSession } from "next-auth";

@@ -3,6 +3,7 @@
 import { NextResponse } from "next/server";
 import { executeSalesforceQuery } from "@/lib/salesforce";
 import { getServerSession } from "next-auth/next";
+import { options } from "../auth/[...nextauth]/options";
 
 // Interface for benchmarking run data
 interface BenchmarkingRunData {
@@ -47,6 +48,12 @@ function sanitizeInput(input: string): string {
 
 export async function POST(request: Request) {
   try {
+    // Verify user is authenticated
+    const session = await getServerSession(options);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
     const { email, jdeNumber, metrics, date } = body;
 

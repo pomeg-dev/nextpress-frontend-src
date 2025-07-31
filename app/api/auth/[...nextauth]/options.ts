@@ -1,14 +1,61 @@
-// api/auth/[...nextauth].ts
-
-import NextAuth from "next-auth";
 import type { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { jwtVerify } from "jose";
 
-// Move the auth options to a separate variable
-const options: NextAuthOptions = {
+const SECRET_KEY = new TextEncoder().encode(
+  process.env.NEXT_PUBLIC_JWT_SECRET_KEY ||
+    "your-very-secure-and-randomly-generated-secret-key"
+);
+
+export const options: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      id: "salesforce",
+      id: "token-login",
+      name: "Token",
+      credentials: {
+        token: { label: "Token", type: "text" },
+      },
+      async authorize(credentials) {
+        console.log("token-login authorize", credentials);
+        try {
+          // For local testing
+          if (
+            process.env.NODE_ENV === "development" &&
+            credentials?.token === "validtoken"
+          ) {
+            return {
+              id: "1",
+              name: "Test User",
+              email: "test@example.com",
+              jdeAccountId: "4495", // example jde that will allow load of dash etc
+              accessToken: "test-token",
+            };
+          }
+
+          if (!credentials?.token) {
+            return null;
+          }
+
+          // Verify the JWT token
+          const { payload } = await jwtVerify(credentials.token, SECRET_KEY);
+
+          return {
+            id: payload.sub as string,
+            name: (payload.firstName as string) || (payload.lastName as string),
+            email: payload.email as string,
+            jdeAccountId: payload.JDE_Account_ID__c as string,
+            accessToken: credentials.token,
+            profile: payload,
+          };
+        } catch (error) {
+          console.error("Token verification error:", error);
+          return null;
+        }
+      },
+    }),
+    // Keep the Salesforce login provider for admin/backend use if needed
+    CredentialsProvider({
+      id: "salesforce-login",
       name: "Salesforce",
       credentials: {
         username: { label: "Username", type: "text" },
@@ -25,7 +72,9 @@ const options: NextAuthOptions = {
           ).toString("base64");
 
           // Step 1: Get Authorization Code
-          const authUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/authorize`;
+          const authUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/authorize";
+
           const authHeaders = new Headers();
           authHeaders.append("Auth-Request-Type", "Named-User");
           authHeaders.append("Authorization", `Basic ${encodedUNPW}`);
@@ -42,12 +91,11 @@ const options: NextAuthOptions = {
           authParams.append("response_type", "code_credentials");
           authParams.append(
             "client_id",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
           );
           authParams.append(
             "redirect_uri",
-            // "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
-            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
           );
 
           const authResponse = await fetch(authUrl, {
@@ -68,22 +116,23 @@ const options: NextAuthOptions = {
           }
 
           // Step 2: Exchange Code for Tokens
-          const tokenUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/token`;
+          const tokenUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/token";
 
           const tokenParams = new URLSearchParams();
           tokenParams.append("grant_type", "authorization_code");
           tokenParams.append("code", code);
           tokenParams.append(
             "client_id",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!
+            "3MVG9p1oTaWVfF_xN9B9eNnIMcmLi9c9nZ6rfjnfc6gTrYPNM67JE0EKvHXtV_9slrWiT38XGs1S8l748A_Zp"
           );
           tokenParams.append(
             "client_secret",
-            process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_SECRET!
+            "D6F650736C62833F8F76F921D95F50075757323E16B33C7B4F39A162645DBC59" // Replace with your actual client secret
           );
           tokenParams.append(
             "redirect_uri",
-            `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/echo`
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/echo"
           );
 
           const tokenResponse = await fetch(tokenUrl, {
@@ -103,7 +152,8 @@ const options: NextAuthOptions = {
           const tokenData = await tokenResponse.json();
 
           // Fetch user info from Salesforce
-          const userInfoUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/userinfo`;
+          const userInfoUrl =
+            "https://orapharma--orapharmad.sandbox.my.site.com/Orapharma/services/oauth2/userinfo";
           const userInfoResponse = await fetch(userInfoUrl, {
             headers: {
               Authorization: `Bearer ${tokenData.access_token}`,
@@ -124,8 +174,7 @@ const options: NextAuthOptions = {
             name: userInfo.name || credentials.username,
             email: userInfo.email || credentials.username,
             accessToken: tokenData.access_token,
-            refreshToken: tokenData.refresh_token,
-            profile: userInfo,
+            profile: userInfo, // Store full profile in the token
           };
         } catch (error) {
           console.error("Authentication error:", error);
@@ -140,80 +189,40 @@ const options: NextAuthOptions = {
   },
   callbacks: {
     async jwt({ token, user, account }) {
-      // Initial sign in
       if (user && account) {
         token.accessToken = (user as any).accessToken;
-        token.refreshToken = (user as any).refreshToken;
-        token.tokenExpiry = Date.now() + 7200 * 1000; // Assuming 2 hour expiry
+        token.jdeAccountId = (user as any).jdeAccountId;
+        token.provider = account.provider;
       }
-
-      // Return previous token if the access token has not expired
-      if (Date.now() < (token.tokenExpiry as number)) {
-        return token;
-      }
-
-      // Access token has expired, try to refresh it
-      return refreshAccessToken(token);
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
         (session.user as any).accessToken = token.accessToken;
-        (session.user as any).refreshToken = token.refreshToken;
+        (session.user as any).provider = token.provider;
+        (session.user as any).jdeAccountId = token.jdeAccountId;
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Remove token from URL.
+      const cleanUrl = url.replace(/[?&]token=[^&]+/, "");
+      const finalUrl = cleanUrl.replace(/\?$/, "");
+
+      // If it's a relative URL, resolve it relative to the base URL
+      if (finalUrl.startsWith("/")) {
+        return `${baseUrl}${finalUrl}`;
+      }
+      // If it's already an absolute URL, just return it
+      else if (finalUrl.startsWith("http")) {
+        return finalUrl;
+      }
+      // Default to the base URL
+      return baseUrl;
+    },
   },
   pages: {
-    signIn: "/auth/signin",
-    error: "/auth/error",
+    signIn: "/register",
+    error: "/register",
   },
 };
-
-async function refreshAccessToken(token: any) {
-  try {
-    const tokenUrl = `${process.env.NEXT_PUBLIC_SALESFORCE_URL}services/oauth2/token`;
-
-    const params = new URLSearchParams();
-    params.append("grant_type", "refresh_token");
-    params.append("refresh_token", token.refreshToken);
-    params.append("client_id", process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_ID!);
-    params.append(
-      "client_secret",
-      process.env.NEXT_PUBLIC_SALESFORCE_CLIENT_SECRET!
-    );
-
-    const response = await fetch(tokenUrl, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      body: params,
-    });
-
-    const refreshedTokens = await response.json();
-
-    if (!response.ok) {
-      throw refreshedTokens;
-    }
-
-    return {
-      ...token,
-      accessToken: refreshedTokens.access_token,
-      refreshToken: refreshedTokens.refresh_token ?? token.refreshToken,
-      tokenExpiry: Date.now() + 7200 * 1000,
-    };
-  } catch (error) {
-    console.error("Error refreshing access token", error);
-
-    return {
-      ...token,
-      error: "RefreshAccessTokenError",
-    };
-  }
-}
-
-// Create the auth handler with the options
-const handler = NextAuth(options);
-
-// Export the handler as GET and POST
-export { handler as GET, handler as POST };

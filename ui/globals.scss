@@ -1,13 +1,8 @@
+@use "../../ui/styles/figma-variables.scss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-// // DEFINE all root fonts
-// :root {
-//   --font-inter: "Inter", sans-serif;
-//   --font-playfair-display: "Playfair Display", serif;
-//   --font-dm-sans: "DM Sans", sans-serif;
-// }
 .no-transition * {
   -webkit-transition: none !important;
   -moz-transition: none !important;

@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 
-export function NPAdminBar({ postID }: { postID: number }) {
-  const cookieStore = cookies();
+export async function NPAdminBar({ postID }: { postID: number }) {
+  const cookieStore = await cookies();
   const allCookies = cookieStore.getAll();
 
   const nextpressCookies = allCookies.filter((cookie) =>

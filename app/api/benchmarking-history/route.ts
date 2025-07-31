@@ -1,8 +1,9 @@
 // api/benchmarking-history/route.ts
 
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { executeSalesforceQuery } from "@/lib/salesforce";
 import { getServerSession } from "next-auth/next";
+import { options } from "../auth/[...nextauth]/options";
 
 // Custom error class for better error handling
 class BenchmarkingError extends Error {
@@ -16,9 +17,15 @@ class BenchmarkingError extends Error {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: Request) {
   try {
-    const email = request.nextUrl.searchParams.get("email");
+    // Verify user is authenticated
+    const session = await getServerSession(options);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const email = session.user.email;
 
     if (!email) {
       return NextResponse.json(

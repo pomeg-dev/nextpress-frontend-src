@@ -1,3 +1,5 @@
+// api/register/route.ts
+
 import { NextResponse } from "next/server";
 import { executeSalesforceQuery } from "@/lib/salesforce";
 import { getMysqlDataApi } from "@themes/elite-dashboard/blocks/elite-tool/data";
@@ -115,14 +117,13 @@ export async function POST(request: Request) {
         3
       )}_${timestamp}_${randomStr}`;
 
-      // Create B2B Commerce User
-      const userResult = await conn.sobject("User").create({
+      const userObject = {
         Username: sanitizedEmail,
         Email: sanitizedEmail,
         FirstName: firstName,
         LastName: "lname",
         Alias: `${slugify(firstName).substring(0, 3)}_${slugify(
-          "lname"
+          randomStr
         ).substring(0, 4)}`,
         ContactId: contactResult.id,
         ProfileId: process.env.SALESFORCE_B2B_PROFILE_ID,
@@ -135,7 +136,10 @@ export async function POST(request: Request) {
         LanguageLocaleKey: "en_US",
         FederationIdentifier: sanitizedEmail,
         CommunityNickname: uniqueNickname,
-      });
+      };
+
+      // Create B2B Commerce User
+      const userResult = await conn.sobject("User").create(userObject);
 
       if (!userResult.success) {
         // Rollback contact creation
