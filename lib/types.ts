@@ -151,7 +151,7 @@ export type MenuItemsProps = {
   gated?: boolean;
 };
 
-export type Cards = "PostCard" | "ProductCard" | "CourseCard";
+export type Cards = "PostCard" | "ProductCard" | "CourseCard" | "SpeakerCard";
 
 export type ProductProps = {
   title: string;
