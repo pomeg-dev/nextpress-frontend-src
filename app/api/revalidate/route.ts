@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag, revalidatePath } from "next/cache";
 import { SETTINGS_KEYS } from "@/utils/settings-keys";
 
-const allowedTags = ["posts", "sitemap"];
+const allowedTags = ["posts", "sitemap", "taxonomy"];
 const allowedTagPrefixes = ["post-type-", "post-ids-"];
 
 // Debounce mechanism for settings revalidation

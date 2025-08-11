@@ -31,6 +31,7 @@ export default async function CategoryArchive({
     show_post_count: false,
     show_reset: false,
     update_url: false,
+    redirect_on_filter: true,
     heading: `<h1><span className="text-heading-xl">${termObject.name}</span></h1>`,
     description: termObject.description,
     tax_query: [
