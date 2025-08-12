@@ -39,7 +39,7 @@ export default async function Post({ params, searchParams }: NextProps) {
     post = await getPostByPath(path);
   }
 
-  if (post['404'] && post['404'] === true) {
+  if (!post || (post?.['404'] && post['404'] === true)) {
     notFound();
   }
 
