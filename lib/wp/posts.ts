@@ -64,6 +64,10 @@ export async function getPostByPath(
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
 
+  if (url.includes('devtools')) {
+    return null;
+  }
+
   const response = await fetch(url, {
     method: "GET",
     next: { tags: ["post"] },
@@ -71,6 +75,7 @@ export async function getPostByPath(
   });
 
   if (!response.ok) {
+    console.log(response.status, url);
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
