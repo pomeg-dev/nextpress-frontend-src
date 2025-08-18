@@ -83,7 +83,7 @@ export default async function Post({ params, searchParams }: NextProps) {
     updatedSchema = process.env.NEXT_PUBLIC_API_URL 
       ? JSON.parse(
           JSON.stringify(post.yoastHeadJSON.schema).replace(
-            new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
+            new RegExp(process.env.NEXT_PUBLIC_API_URL || '', 'g'),
             getFrontEndUrl(settings)
           )
         ) 
@@ -274,9 +274,34 @@ export async function generateMetadata(
     }
 
     return {
-      ...post.yoastHeadJSON,
-      ...openGraph,
-      ...twitter,
+      title: post.yoastHeadJSON.title,
+      description: post.yoastHeadJSON.description,
+      robots: post.yoastHeadJSON.robots,
+      metadataBase: post.yoastHeadJSON.metadataBase,
+      openGraph: {
+        locale: post.yoastHeadJSON.og_locale,
+        type: post.yoastHeadJSON.og_type,
+        title: post.yoastHeadJSON.og_title,
+        description: post.yoastHeadJSON.og_description,
+        url: post.yoastHeadJSON.og_url?.replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL || '', 'g'),
+          frontendDomainURL
+        ),
+        siteName: post.yoastHeadJSON.og_site_name,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => ({
+          url: image.url,
+          width: image.width,
+          height: image.height,
+          type: image.type,
+        })),
+        publishedTime: post.yoastHeadJSON.article_published_time,
+        modifiedTime: post.yoastHeadJSON.article_modified_time,
+      },
+      twitter: {
+        card: post.yoastHeadJSON.twitter_card,
+        creator: post.yoastHeadJSON.author,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => image.url),
+      },
       alternates: {
         canonical: post?.yoastHeadJSON?.canonical || post?.yoastHeadJSON?.alternates?.canonical || '/',
         languages
