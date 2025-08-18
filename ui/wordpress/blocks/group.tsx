@@ -41,8 +41,8 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
         <ParallaxBackground
           src="/images/orapharma-gradient.jpg"
           alt="gradient image"
-          width={2326}
-          height={3182}
+          width={1429}
+          height={3180}
         />
       }
       {innerBlocks &&
