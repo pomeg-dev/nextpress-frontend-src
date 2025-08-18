@@ -147,3 +147,4 @@ export async function getTaxTerms(taxonomy: string) {
     console.error(error);
   }
 }
+

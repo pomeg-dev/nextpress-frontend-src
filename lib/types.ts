@@ -119,6 +119,8 @@ export type WPQuery = {
   slug?: string[];
   status?: string[];
   tax_relation?: "AND" | "OR";
+  category?: string | number | (string | number)[];
+  post_type?: string | string[];
 };
 
 export type ImageProps = {
@@ -151,7 +153,7 @@ export type MenuItemsProps = {
   gated?: boolean;
 };
 
-export type Cards = "PostCard" | "ProductCard" | "CourseCard" | "SpeakerCard";
+export type Cards = "PostCard" | "ProductCard" | "CourseCard" ;
 
 export type ProductProps = {
   title: string;
