@@ -3,6 +3,7 @@ import { Block } from "@/lib/types";
 import { BlockParser } from "../../block-parser";
 import classNames from "classnames";
 import Image from "next/image";
+import ParallaxBackground from "../../../../ui/components/organisms/ParallaxBackground";
 
 type GroupProps = Block & {
   innerBlocks?: React.ReactNode;
@@ -37,14 +38,12 @@ const Group: React.FC<GroupProps> = ({ ...block }: Block) => {
         </div>
       }
       {block.className && block.className.includes('parallax-gradient') &&
-        <div className="parallax-gradient absolute bottom-0 left-0 z-[-1] h-full w-full">
-          <Image
-            src="/images/orapharma-gradient.jpg"
-            alt="gradient image"
-            width={2326}
-            height={3182}
-          />
-        </div>
+        <ParallaxBackground
+          src="/images/orapharma-gradient.jpg"
+          alt="gradient image"
+          width={2326}
+          height={3182}
+        />
       }
       {innerBlocks &&
         backgroundColor ? (

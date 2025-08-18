@@ -10,17 +10,3 @@
   -o-transition: none !important;
   transition: none !important;
 }
-
-body {
-  //if class begins with .animation- then it will be animated
-  [class^="animation-"],
-  [class*=" animation-"] {
-    visibility: hidden;
-  }
-
-  //if class begins with .animation-disappear then it will initally be visible
-  [class^="animation-disappear-"],
-  [class*=" animation-disappear-"] {
-    visibility: visible;
-  }
-}
