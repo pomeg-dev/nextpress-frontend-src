@@ -28,22 +28,28 @@ export async function POST(request: NextRequest) {
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2>Your Benchmarking Results</h2>
-        <p>Thank you for using our benchmarking calculator!</p>
+        <p>Thank you for using our benchmarking calculator.</p>
         
         <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h3>Your Results:</h3>
+          <h3>In the past month you completed...</h3>
           <ul>
-            <li><strong>Account ID:</strong> ${aban8}</li>
-            <li><strong>Metric 1:</strong> ${metrics[0] || 'N/A'}</li>
-            <li><strong>Metric 2:</strong> ${metrics[1] || 'N/A'}</li>
-            <li><strong>Metric 3:</strong> ${metrics[2] || 'N/A'}</li>
+            <li><strong>${metrics[0] || 'N/A'}</strong> Periodontitis Procedures</li>
+            <li><strong>${metrics[1] || 'N/A'}</strong> Sites of ARESTIN®</li>
+          </ul>
+
+          <h3>But there may have been approximately...</h3>
+          <ul>
+            <li><strong>${metrics[2] || 'N/A'}</strong> Infected sites appropriate for SRP + ARESTIN</li>
             <li><strong>Metric 4:</strong> ${metrics[3] || 'N/A'}</li>
+          </ul>
+
+          <h3>Which means...</h3>
+          <ul>
+            <li><strong>${metrics[3] || 'N/A'}%</strong> Of appropriate sites were treated comprehensively with SRP + ARESTIN</li>
           </ul>
         </div>
         
         <p>If you have any questions about these results, please don't hesitate to contact us.</p>
-        
-        <p>Best regards,<br>The Team</p>
       </div>
     `;
 
