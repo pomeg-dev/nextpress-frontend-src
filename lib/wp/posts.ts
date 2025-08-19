@@ -43,7 +43,6 @@ export async function getPosts(params: GetPostsParams = {}) {
   });
 
   if (!response.ok) {
-    console.log(url);
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
@@ -75,7 +74,6 @@ export async function getPostByPath(
   });
 
   if (!response.ok) {
-    console.log(response.status, url);
     throw new Error(`HTTP error! status: ${response.status}`);
   }
 
@@ -153,31 +151,3 @@ export async function getTaxTerms(taxonomy: string) {
   }
 }
 
-export async function getUpNextPosts(params: GetPostsParams = {}) {
-  const queryParams = new URLSearchParams();
-  
-  // Add each parameter to the query string if it's defined
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
-      if (Array.isArray(value)) {
-        queryParams.append(key, value.join(","));
-      } else {
-        queryParams.append(key, value.toString());
-      }
-    }
-  });
-
-  // Add default values if not provided
-  if (!params.orderby) queryParams.append("orderby", "date");
-  if (!params.order) queryParams.append("order", "desc");
-  
-  const url = `${API_URL}/wp-json/nextpress/posts?${queryParams.toString()}`;
-  console.log('url', url);
-  const response = await fetch(url, {
-    method: "GET",
-    next: { tags: ["posts"] },
-    cache: "no-cache",
-  });
-  const res = await response.json();
-  return res;
-}
