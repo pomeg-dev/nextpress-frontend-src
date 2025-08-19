@@ -89,31 +89,28 @@ export async function generateMetadata(
     description: "Not found",
   };
 
-  //dont run for favicon, api, status requests
+  // Dont run for favicon, api, status, draft requests
   if (slug && slug[0] === "favicon.ico") return notFound;
   if (slug && slug[0] === "api") return notFound;
   if (slug && slug[0] === "status") return notFound;
   if (slug && slug[0] === "draft") return notFound;
 
   const path = slug ? slug.join("/") : "";
-  const post = await getPostByPath(path);
   const settings = await getSettings();
   const frontendDomainURL = getFrontEndUrl(settings);
+  let post = await getPostByPath(path, false);
 
   if (!post) return notFound;
 
   if (post.yoastHeadJSON) {
-    if (post.yoastHeadJSON.redirect) {
-      redirect(`${frontendDomainURL}/${post.yoastHeadJSON.redirect}`);
-    }
-
-    post.yoastHeadJSON.title = decode(post.yoastHeadJSON.title); //fix ampersands etc in title
+    post.yoastHeadJSON.title = decode(post?.yoastHeadJSON?.title);
     post.yoastHeadJSON.metadataBase = new URL(`${frontendDomainURL}`);
     if (post.yoastHeadJSON.canonical) {
       const canonical = post.yoastHeadJSON.canonical.replace(
         process.env.NEXT_PUBLIC_API_URL,
         frontendDomainURL
       );
+      post.yoastHeadJSON.canonical = canonical;
       post.yoastHeadJSON.alternates = { canonical: canonical };
     } else if (!path || path == "") {
       post.yoastHeadJSON.alternates = { canonical: `${frontendDomainURL}` };
@@ -122,42 +119,6 @@ export async function generateMetadata(
         canonical: `${frontendDomainURL}/${path}`,
       };
     }
-
-    const openGraph = {
-      locale: post.yoastHeadJSON.og_locale || null,
-      type: post.yoastHeadJSON.og_type || null,
-      title: post.yoastHeadJSON.og_title || null,
-      url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
-        post.yoastHeadJSON.og_url.replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          frontendDomainURL
-        ) : 
-        null,
-      siteName: post.yoastHeadJSON.og_site_name || null,
-      images: post.yoastHeadJSON.og_image ?
-        post.yoastHeadJSON.og_image.map((image: { url: string; width: number; height: number; type: string; }) => 
-          ({
-            url: image.url,
-            width: image.width,
-            height: image.height,
-            type: image.type,
-          })
-        ) : null,
-    };
-
-    const twitter: {[key: string]: any} = {
-      card: post.yoastHeadJSON.twitter_card || null,
-      creator: post.yoastHeadJSON.author || null,
-      title: post.yoastHeadJSON.og_title || null,
-      description: post.yoastHeadJSON.title || null,
-      images: post.yoastHeadJSON.og_image 
-        ? post.yoastHeadJSON.og_image.map((image: { url: any; }) => image.url) 
-        : null,
-      label1: 'Written by',
-      data1: post.yoastHeadJSON.twitter_misc?.['Written by'] || "Unknown",
-      label2: 'Estimated reading time',
-      data2: post.yoastHeadJSON.twitter_misc?.['Estimated reading time'] || "N/A",
-    };
 
     const languages: {[key: string]: any} = {};
     if (post.hreflang && post.hreflang.length > 0) {
@@ -168,11 +129,36 @@ export async function generateMetadata(
     }
 
     return {
-      ...post.yoastHeadJSON,
-      ...openGraph,
-      ...twitter,
+      title: post.yoastHeadJSON.title,
+      description: post.yoastHeadJSON.description,
+      robots: post.yoastHeadJSON.robots,
+      metadataBase: post.yoastHeadJSON.metadataBase,
+      openGraph: {
+        locale: post.yoastHeadJSON.og_locale,
+        type: post.yoastHeadJSON.og_type,
+        title: post.yoastHeadJSON.og_title,
+        description: post.yoastHeadJSON.og_description,
+        url: post.yoastHeadJSON.og_url?.replace(
+          new RegExp(process.env.NEXT_PUBLIC_API_URL || '', 'g'),
+          frontendDomainURL
+        ),
+        siteName: post.yoastHeadJSON.og_site_name,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => ({
+          url: image.url,
+          width: image.width,
+          height: image.height,
+          type: image.type,
+        })),
+        publishedTime: post.yoastHeadJSON.article_published_time,
+        modifiedTime: post.yoastHeadJSON.article_modified_time,
+      },
+      twitter: {
+        card: post.yoastHeadJSON.twitter_card,
+        creator: post.yoastHeadJSON.author,
+        images: post.yoastHeadJSON.og_image?.map((image: any) => image.url),
+      },
       alternates: {
-        canonical: post.yoastHeadJSON?.canonical || '/',
+        canonical: post?.yoastHeadJSON?.canonical || post?.yoastHeadJSON?.alternates?.canonical || '/',
         languages
       },
     };
