@@ -1,36 +1,29 @@
-import { NextRequest, NextResponse } from 'next/server';
-import * as postmark from 'postmark';
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
 export async function POST(request: NextRequest) {
+  const { email, aban8, metrics } = await request.json();
+
+  // Validate required fields
+  if (!email || !aban8 || !metrics) {
+    return NextResponse.json(
+      { error: 'Missing required fields: email, aban8, or metrics' },
+      { status: 400 }
+    );
+  }
+
+  if (!process.env.HUBSPOT_ACCESS_TOKEN) {
+    return NextResponse.json(
+      { error: "HubSpot access token is not set" },
+      { status: 500 }
+    );
+  }
+
   try {
-    const { email, aban8, metrics } = await request.json();
-
-    // Validate required fields
-    if (!email || !aban8 || !metrics) {
-      return NextResponse.json(
-        { error: 'Missing required fields: email, aban8, or metrics' },
-        { status: 400 }
-      );
-    }
-
-    // Validate Postmark API key
-    if (!process.env.POSTMARK_API_KEY) {
-      return NextResponse.json(
-        { error: 'Postmark API key not configured' },
-        { status: 500 }
-      );
-    }
-
-    // Initialize Postmark client
-    const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
-
-    // Email content
+    // Generate HTML content
     const htmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h2>Your Benchmarking Results</h2>
-        <p>Thank you for using our benchmarking calculator.</p>
-        
-        <div style="background-color: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <div style="background-color: #eaf0f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3>In the past month you completed...</h3>
           <ul>
             <li><strong>${metrics[0] || 'N/A'}</strong> Periodontitis Procedures</li>
@@ -40,6 +33,7 @@ export async function POST(request: NextRequest) {
           <h3>But there may have been approximately...</h3>
           <ul>
             <li><strong>${metrics[2] || 'N/A'}</strong> Infected sites appropriate for SRP + ARESTIN</li>
+            <li><strong>Metric 4:</strong> ${metrics[3] || 'N/A'}</li>
           </ul>
 
           <h3>Which means...</h3>
@@ -47,27 +41,43 @@ export async function POST(request: NextRequest) {
             <li><strong>${metrics[3] || 'N/A'}%</strong> Of appropriate sites were treated comprehensively with SRP + ARESTIN</li>
           </ul>
         </div>
-        
-        <p>If you have any questions about these results, please don't hesitate to contact us.</p>
       </div>
     `;
 
-    // Send email via Postmark
-    const result = await client.sendEmail({
-      From: process.env.SMTP_USER || 'noreply@example.com',
-      To: email,
-      Subject: 'Your Benchmarking Calculator Results',
-      HtmlBody: htmlContent,
-      MessageStream: 'benchmarker'
+    // Send email with HTML content
+    const emailEndpoint =
+      "https://api.hubapi.com/marketing/v3/transactional/single-email/send";
+    const emailData = {
+      emailId: 194804078381,
+      message: {
+        to: email,
+      },
+      customProperties: {
+        html_content: htmlContent,
+      },
+    };
+
+    const emailResponse = await fetch(emailEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify(emailData),
     });
 
-    console.log('Postmark response:', result);
+    if (!emailResponse.ok) {
+      const errorData = await emailResponse.json();
+      throw new Error(`Failed to send email: ${JSON.stringify(errorData)}`);
+    }
 
-    return NextResponse.json({ success: true, message: 'Email sent successfully' });
+    return NextResponse.json({
+      message: "Email sent successfully with HTML content",
+    });
   } catch (error) {
-    console.error('Email sending error:', error);
+    console.error("Error in upload or sending email:", error);
     return NextResponse.json(
-      { error: 'Failed to send email', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: "Failed to process request" },
       { status: 500 }
     );
   }
