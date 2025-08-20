@@ -232,39 +232,6 @@ export async function generateMetadata(
       };
     }
 
-    const openGraph = {
-      locale: post.yoastHeadJSON.og_locale || null,
-      type: post.yoastHeadJSON.og_type || null,
-      url: post.yoastHeadJSON.og_url && process.env.NEXT_PUBLIC_API_URL ? 
-        post.yoastHeadJSON.og_url.replace(
-          new RegExp(process.env.NEXT_PUBLIC_API_URL, 'g'),
-          frontendDomainURL
-        ) : 
-        null,
-      siteName: post.yoastHeadJSON.og_site_name || null,
-      images: post.yoastHeadJSON.og_image ?
-        post.yoastHeadJSON.og_image.map((image: { url: string; width: number; height: number; type: string; }) => 
-          ({
-            url: image.url,
-            width: image.width,
-            height: image.height,
-            type: image.type,
-          })
-        ) : null,
-    };
-
-    const twitter: {[key: string]: any} = {
-      card: post.yoastHeadJSON.twitter_card || null,
-      creator: post.yoastHeadJSON.author || null,
-      images: post.yoastHeadJSON.og_image 
-        ? post.yoastHeadJSON.og_image.map((image: { url: any; }) => image.url) 
-        : null,
-      label1: 'Written by',
-      data1: post.yoastHeadJSON.twitter_misc?.['Written by'] || "Unknown",
-      label2: 'Estimated reading time',
-      data2: post.yoastHeadJSON.twitter_misc?.['Estimated reading time'] || "N/A",
-    };
-
     const languages: {[key: string]: any} = {};
     if (post.hreflang && post.hreflang.length > 0) {
       languages["x-default"] = post.yoastHeadJSON?.canonical || '/';
