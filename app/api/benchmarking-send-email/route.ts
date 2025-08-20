@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
+import * as postmark from 'postmark';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,16 +13,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Configure nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: parseInt(process.env.SMTP_PORT || '587'),
-      secure: process.env.SMTP_SECURE === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
-    });
+    // Validate Postmark API key
+    if (!process.env.POSTMARK_API_KEY) {
+      return NextResponse.json(
+        { error: 'Postmark API key not configured' },
+        { status: 500 }
+      );
+    }
+
+    // Initialize Postmark client
+    const client = new postmark.ServerClient(process.env.POSTMARK_API_KEY);
 
     // Email content
     const htmlContent = `
@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
           <h3>But there may have been approximately...</h3>
           <ul>
             <li><strong>${metrics[2] || 'N/A'}</strong> Infected sites appropriate for SRP + ARESTIN</li>
-            <li><strong>Metric 4:</strong> ${metrics[3] || 'N/A'}</li>
           </ul>
 
           <h3>Which means...</h3>
@@ -53,13 +52,16 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
-    // Send email
-    await transporter.sendMail({
-      from: process.env.SMTP_FROM || process.env.SMTP_USER,
-      to: email,
-      subject: 'Your Benchmarking Calculator Results',
-      html: htmlContent,
+    // Send email via Postmark
+    const result = await client.sendEmail({
+      From: process.env.SMTP_USER || 'noreply@example.com',
+      To: email,
+      Subject: 'Your Benchmarking Calculator Results',
+      HtmlBody: htmlContent,
+      MessageStream: 'benchmarker'
     });
+
+    console.log('Postmark response:', result);
 
     return NextResponse.json({ success: true, message: 'Email sent successfully' });
   } catch (error) {
