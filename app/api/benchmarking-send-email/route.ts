@@ -33,7 +33,6 @@ export async function POST(request: NextRequest) {
           <h3>But there may have been approximately...</h3>
           <ul>
             <li><strong>${metrics[2] || 'N/A'}</strong> Infected sites appropriate for SRP + ARESTIN</li>
-            <li><strong>Metric 4:</strong> ${metrics[3] || 'N/A'}</li>
           </ul>
 
           <h3>Which means...</h3>
