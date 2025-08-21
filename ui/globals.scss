@@ -10,3 +10,8 @@
   -o-transition: none !important;
   transition: none !important;
 }
+
+/* Animation classes for GSAP - these start visible to prevent hydration mismatch */
+.animation-slide-up {
+  /* Elements start visible on server, GSAP handles hiding them client-side */
+}

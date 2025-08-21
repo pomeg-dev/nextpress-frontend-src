@@ -86,9 +86,17 @@ const importComponent = async (
         throw new Error(`Theme directory not found: ${themeName}`);
       }
       
-      npModule = await import(`../../themes/${componentPath}`);
+      // Use dynamic import with webpack magic comments for better chunking
+      npModule = await import(
+        /* webpackChunkName: "theme-[request]" */
+        `../../themes/${componentPath}`
+      );
     } else {
-      npModule = await import(`./${componentPath}`);
+      // Use dynamic import with webpack magic comments for core blocks
+      npModule = await import(
+        /* webpackChunkName: "core-[request]" */
+        `./${componentPath}`
+      );
     }
 
     const component = getComponent(npModule);

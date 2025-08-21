@@ -78,7 +78,7 @@ export function PreviewWrapper({
     return () => {
       window.removeEventListener('resize', calculateHeight);
     };
-  }, [postId]);
+  }, [postId, iframeId]);
 
   return (
     <main 

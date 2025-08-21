@@ -1,4 +1,5 @@
 import { getTaxTerm, getTaxTerms } from "@/lib/wp/posts";
+import { getBlockTheme } from "@/lib/wp/theme";
 import { Feed } from "@ui/components/archive/Feed";
 import Loader from "@ui/components/atoms/Loader";
 import { notFound } from "next/navigation";
@@ -11,15 +12,25 @@ export default async function CategoryArchive({
   taxonomy: string;
   term: string;
 }) {
+  const themes = await getBlockTheme();
+
+  // Try theme category component.
+  if (themes && themes[0]) {
+    try {
+      const ThemeComponent = (await import(`@ui/components/organisms/${themes[0]}/CategoryArchive`)).default;
+      return <ThemeComponent taxonomy={taxonomy} term={term} />;
+    } catch (error) {
+      console.warn(`Theme component not found for theme: ${themes[0]}`, error);
+    }
+  }
+
+  // Else just display feed.
   const termObject = await getTaxTerm(taxonomy, term);
   if (!termObject || termObject.length < 1) {
     notFound();
   }
 
-  const allowedTerms = ["business-of-luxury", "glion-spirit", "hospitality-uncovered", "leadership-insights", "living-well", "podcast"];
   const allTerms = await getTaxTerms(taxonomy);
-  const filteredTerms = allTerms.filter((term: { slug: string; }) => allowedTerms.includes(term.slug));
-
   const archiveData = {
     post_type: 'post',
     number_of_posts: '12',
@@ -42,7 +53,7 @@ export default async function CategoryArchive({
         label: "",
         placeholder: "All",
         taxonomy: taxonomy,
-        terms: filteredTerms,
+        terms: allTerms,
         type: "select"
       }
     ]
