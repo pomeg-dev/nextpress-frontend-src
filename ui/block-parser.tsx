@@ -95,7 +95,7 @@ const importComponent = async (
       // Use dynamic import with webpack magic comments for core blocks
       npModule = await import(
         /* webpackChunkName: "core-[request]" */
-        `./${componentPath}`
+        `./wordpress/blocks/${componentPath.replace('wordpress/blocks/', '')}`
       );
     }
 
