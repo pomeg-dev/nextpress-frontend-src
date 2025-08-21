@@ -101,4 +101,9 @@ export async function GET(request: NextRequest) {
     revalidatePath(path);
     return NextResponse.json({ revalidated: true, now: Date.now(), path: path });
   }
+
+  return NextResponse.json(
+    { error: "Unexpected error: no valid parameters processed" },
+    { status: 500 }
+  );
 }
