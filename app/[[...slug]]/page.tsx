@@ -1,7 +1,5 @@
 import { notFound, permanentRedirect } from 'next/navigation';
-import { Suspense } from 'react';
 import { BlockParser } from "@/ui/block-parser";
-import { NPAdminBar } from "../(extras)/npadminbar";
 import { getPosts, getPostByPath, getTaxTerm } from "@/lib/wp/posts";
 import { PostWithContent } from "@/lib/types";
 import { getSettings } from "@/lib/wp/settings";
@@ -10,7 +8,6 @@ import { Metadata } from 'next';
 import { getFrontEndUrl } from '@/utils/url';
 import CategoryArchive from '@/ui/category-archive';
 import { additionalPostData, parseTemplateBlocks } from '@/lib/utils';
-import Loader from '@ui/components/atoms/Loader';
 
 type NextProps = {
   params: Promise<{ slug: string[] }>
@@ -32,7 +29,6 @@ export default async function Post({ params, searchParams }: NextProps) {
       'frontend_url',
       'before_content',
       'after_content',
-      'enable_user_flow',
     ]
   );
 
@@ -121,11 +117,6 @@ export default async function Post({ params, searchParams }: NextProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(updatedSchema) }}
         />
-      }
-      {settings?.enable_user_flow &&
-        <Suspense fallback={<Loader isLoading={true} />}>
-          <NPAdminBar postID={post.id} />
-        </Suspense>
       }
       {beforeContent &&
         <BlockParser blocks={beforeContent} />

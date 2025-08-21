@@ -2,8 +2,7 @@ import { getSettings } from "@/lib/wp/settings";
 import "../ui/globals.scss";
 import { getBlockTheme } from "@/lib/wp/theme";
 import { Suspense } from "react";
-import { LocaleProvider, Providers } from "./providers";
-import { AuthCheck } from "./AuthCheck";
+import { LocaleProvider } from "./providers";
 import { fontVariables } from "ui/fonts/font-loader";
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 import { initializeComponentCache } from "@/lib/cache-warmer";
@@ -44,17 +43,7 @@ async function SettingsProvider({ children }: { children: React.ReactNode }) {
   
   return (
     <LocaleProvider defaultLocale="en">
-      {settings.enable_user_flow ? (
-        <Providers>
-          <Suspense fallback={null}>
-            <AuthCheck />
-            {children}
-          </Suspense>
-        </Providers>
-      ) : (
-        children
-      )}
-
+      {children}
       <Suspense>
         <CookieManager 
           settings={{
