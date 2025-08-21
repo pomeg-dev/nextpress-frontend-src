@@ -6,6 +6,7 @@ import { LocaleProvider } from "./providers";
 import { fontVariables } from "ui/fonts/font-loader";
 import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 import { initializeComponentCache } from "@/lib/cache-warmer";
+import { figmaVariablesCSS } from "@/lib/figma-variables.css";
 
 // Create separate components for async operations
 async function ThemeProvider({ children }: { children: React.ReactNode }) {
@@ -25,6 +26,9 @@ async function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <html {...themeProps} className={fontVariables}>
+      <head>
+        <style dangerouslySetInnerHTML={{ __html: figmaVariablesCSS }} />
+      </head>
       {children}
     </html>
   );
