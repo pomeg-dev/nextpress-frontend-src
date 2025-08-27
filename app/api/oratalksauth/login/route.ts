@@ -76,17 +76,12 @@ export async function POST(request: NextRequest) {
       listMembershipData.contacts.some((listContact: any) => {
         const emailMatch = listContact.email === email;
         const idMatch = listContact.vid.toString() === contact.id;
-        console.log(`Checking list contact: vid=${listContact.vid} (${typeof listContact.vid}), contact.id=${contact.id} (${typeof contact.id}), emailMatch=${emailMatch}, idMatch=${idMatch}`);
         return emailMatch || idMatch;
       })
-
-    console.log('Final isInList result:', isInList)
 
     if (!isInList) {
       return NextResponse.json({ error: 'Contact is not a member of the required list' }, { status: 403 })
     }
-
-    console.log('Contact verified as list member')
     
     // Create response with cookie
     const response = NextResponse.json({ 
@@ -109,7 +104,7 @@ export async function POST(request: NextRequest) {
     // Set authentication cookie
     response.cookies.set('auth-token', token, {
       sameSite: 'strict',    // CSRF protection
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: 60 * 60 * 24 * 30, // 7 days
       path: '/',             // Cookie available across site
     })
     
