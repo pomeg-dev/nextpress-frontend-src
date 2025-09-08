@@ -53,7 +53,9 @@ export async function POST(request: NextRequest) {
 
     const contact = contactSearchResults.results[0];
     console.log('Found contact:', contact)
-
+    // add a wait of 5 seconds
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
     // Now check if this contact is a member of the specific list
     const listMembershipResponse = await fetch(`https://api.hubapi.com/contacts/v1/lists/${listId}/contacts/all`, {
       method: 'GET',
