@@ -8,12 +8,30 @@ import { CookieManager } from "@ui/components/organisms/default/CookieManager";
 import { initializeComponentCache } from "@/lib/cache-warmer";
 import { figmaVariablesCSS } from "@/lib/figma-variables.css";
 
+// Function to dynamically load theme-specific Figma variables
+async function getThemeFigmaVariables(theme: string): Promise<string> {
+  try {
+    // Try to import theme vars
+    const themeModule = await import(`@/lib/figma-variables-${theme}.css`);
+    const variableName = `figmaVariables${theme.charAt(0).toUpperCase() + theme.slice(1)}CSS`;
+    return themeModule[variableName] || figmaVariablesCSS;
+  } catch (error) {
+    // Fall back to default variables if file doesn't exist
+    console.warn(`Theme-specific Figma variables not found for theme: ${theme}, falling back to default`);
+    return figmaVariablesCSS;
+  }
+}
+
 // Create separate components for async operations
 async function ThemeProvider({ children }: { children: React.ReactNode }) {
   const themes = await getBlockTheme();
   
-  // Initialize component cache in background (non-blocking)
+  // Initialize component cache in background
   initializeComponentCache().catch(console.warn);
+  
+  // Get theme-specific Figma variables
+  const mainTheme = themes[0] || 'sommet';
+  const themeFigmaVariables = await getThemeFigmaVariables(mainTheme);
   
   const themeProps = themes.reduce(
     (acc: { [key: string]: string }, theme: string, index: number) => {
@@ -27,7 +45,7 @@ async function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <html {...themeProps} className={fontVariables}>
       <head>
-        <style dangerouslySetInnerHTML={{ __html: figmaVariablesCSS }} />
+        <style dangerouslySetInnerHTML={{ __html: themeFigmaVariables }} />
       </head>
       {children}
     </html>
