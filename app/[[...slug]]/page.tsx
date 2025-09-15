@@ -249,7 +249,6 @@ export async function generateMetadata(
       robots: post.yoastHeadJSON.robots,
       metadataBase: post.yoastHeadJSON.metadataBase,
       openGraph: {
-        locale: post.yoastHeadJSON.og_locale,
         type: post.yoastHeadJSON.og_type,
         title: post.yoastHeadJSON.og_title,
         description: post.yoastHeadJSON.og_description,
