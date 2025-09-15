@@ -2,45 +2,56 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 import { NextIntlClientProvider } from 'next-intl';
-import { SessionProvider } from "next-auth/react";
-import { domainLocales } from '@ui/utils/locales';
-import Loader from '@ui/components/atoms/Loader';
+import enMessages from '../../ui/languages/en.json';
+import frMessages from '../../ui/languages/fr.json';
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <SessionProvider>{children}</SessionProvider>;
+export const LocaleContext = createContext({ 
+  locale: 'en', 
+  setLocale: (locale: string) => {} 
+});
+
+const messages = {
+  en: enMessages,
+  fr: frMessages,
+} as const;
+
+function HTMLLangUpdater() {
+  const { locale } = useLocaleContext();
+  
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.documentElement.lang = locale;
+    }
+  }, [locale]);
+  
+  return null;
 }
-
-
-export const LocaleContext = createContext({ locale: 'en' });
 
 export function LocaleProvider({ children, defaultLocale = 'en' }: { children: React.ReactNode, defaultLocale?: string }) {
   const [locale, setLocale] = useState(defaultLocale);
-  const [messages, setMessages] = useState(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const hostname = window.location.hostname;
-    const detectedLocale = hostname in domainLocales ? domainLocales[hostname as keyof typeof domainLocales] : defaultLocale;
+    const pathname = window.location.pathname;
+    let detectedLocale = defaultLocale;
+    if (pathname.startsWith('/en/') || pathname === '/en') {
+      detectedLocale = 'en';
+    }
     
-    import(`@themes/sommet/languages/${detectedLocale}.json`)
-      .then((importedMessages) => {
-        setLocale(detectedLocale);
-        setMessages(importedMessages.default);
-        setLoading(false);
-      })
-      .catch(() => {
-        import(`@themes/sommet/languages/${defaultLocale}.json`)
-          .then((importedMessages) => {
-            setLocale(defaultLocale);
-            setMessages(importedMessages.default);
-            setLoading(false);
-          });
-      });
+    if (messages[detectedLocale as keyof typeof messages]) {
+      setLocale(detectedLocale);
+    } else {
+      setLocale(defaultLocale);
+    }
   }, [defaultLocale]);
 
   return (
-    <LocaleContext.Provider value={{ locale }}>
-      <NextIntlClientProvider locale={locale} messages={messages}>
+    <LocaleContext.Provider value={{ locale, setLocale }}>
+      <HTMLLangUpdater />
+      <NextIntlClientProvider 
+        locale={locale} 
+        messages={messages[locale as keyof typeof messages] || messages[defaultLocale as keyof typeof messages]}
+        timeZone="UTC"
+      >
         {children}
       </NextIntlClientProvider>
     </LocaleContext.Provider>

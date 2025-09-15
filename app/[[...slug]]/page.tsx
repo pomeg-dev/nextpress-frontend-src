@@ -22,15 +22,26 @@ export default async function Post({ params, searchParams }: NextProps) {
   if (slug && slug[0] === "api") return null;
   if (slug && slug[0] === "status") return null;
 
+  // Get post.
+  const path = slug ? slug.join("/") : "";
+  let post;
+  if (slug && slug[0] === "draft") {
+    post = await getPostByPath(slug[1], true, true);
+  } else {
+    post = await getPostByPath(path);
+  }
+
   // Get settings.
-  const settings = await getSettings(
-    [
-      'page_for_posts_slug',
-      'frontend_url',
-      'before_content',
-      'after_content',
-    ]
-  );
+  const settingsKeys = [
+    'page_for_posts_slug',
+    'frontend_url',
+    'before_content',
+    'after_content',
+  ];
+  if (post?.language) {
+    settingsKeys.push(`before_content_${post.language}`, `after_content_${post.language}`);
+  }
+  const settings = await getSettings(settingsKeys);
 
   // Handle category pages.
   let isTaxPage = false;
@@ -45,14 +56,6 @@ export default async function Post({ params, searchParams }: NextProps) {
     isTaxPage = true;
     taxonomy = slug[1];
     term = slug[2];
-  }
-
-  const path = slug ? slug.join("/") : "";
-  let post;
-  if (slug && slug[0] === "draft") {
-    post = await getPostByPath(slug[1], true, true);
-  } else {
-    post = await getPostByPath(path);
   }
 
   // Do yoast redirect
@@ -87,20 +90,30 @@ export default async function Post({ params, searchParams }: NextProps) {
   }
 
   // Wrap acf_data into before/after/sidebar content.
+  let defaultBefore = settings?.before_content || [];
+  if (post?.language) {
+    const beforeKey = `before_content_${post.language}`;
+    defaultBefore = settings?.[beforeKey] || defaultBefore;
+  }
   let beforeContent = parseTemplateBlocks(
     post?.template?.before_content && post?.template?.before_content.length > 0 
       ? post.template.before_content
       : [],
-    settings?.before_content || [],
+    defaultBefore,
     post,
     true
   );
 
+  let defaultAfter = settings?.after_content || [];
+  if (post?.language) {
+    const afterKey = `after_content_${post.language}`;
+    defaultAfter = settings?.[afterKey] || defaultAfter;
+  }
   let afterContent = parseTemplateBlocks(
     post?.template?.after_content && post?.template?.after_content.length > 0 
       ? post.template.after_content
       : [],
-    settings?.after_content || [],
+    defaultAfter,
     post,
   );
 
@@ -224,11 +237,10 @@ export async function generateMetadata(
     }
 
     const languages: {[key: string]: any} = {};
-    if (post.hreflang && post.hreflang.length > 0) {
-      languages["x-default"] = post.yoastHeadJSON?.canonical || '/';
-      post.hreflang.map((locale: { code: string; href: string }) => {
-        languages[locale.code] = locale.href;
-      });
+    if (post?.translations) {
+      for (const [key, value] of Object.entries(post.translations)) {
+        languages[key] = frontendDomainURL + value;
+      }
     }
 
     return {

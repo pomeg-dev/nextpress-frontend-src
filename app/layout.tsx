@@ -22,8 +22,18 @@ async function getThemeFigmaVariables(theme: string): Promise<string> {
   }
 }
 
-// Create separate components for async operations
-async function ThemeProvider({ children }: { children: React.ReactNode }) {
+async function SettingsProvider({ children }: { children: React.ReactNode }) {
+  const settings = await getSettings(
+    [
+      'enable_user_flow', 
+      'google_tag_manager_enabled', 
+      'google_tag_manager_id',
+      'enable_vwo',
+      'vwo_id',
+      'default_language',
+    ]
+  );
+
   const themes = await getBlockTheme();
   
   // Initialize component cache in background
@@ -41,41 +51,29 @@ async function ThemeProvider({ children }: { children: React.ReactNode }) {
     },
     {}
   );
-
-  return (
-    <html {...themeProps} className={fontVariables}>
-      <head>
-        <style dangerouslySetInnerHTML={{ __html: themeFigmaVariables }} />
-      </head>
-      {children}
-    </html>
-  );
-}
-
-async function SettingsProvider({ children }: { children: React.ReactNode }) {
-  const settings = await getSettings(
-    [
-      'enable_user_flow', 
-      'google_tag_manager_enabled', 
-      'google_tag_manager_id',
-      'enable_vwo',
-      'vwo_id'
-    ]
-  );
+  
+  const defaultLocale = settings?.default_language || "en";
   
   return (
-    <LocaleProvider defaultLocale="en">
-      {children}
-      <Suspense>
-        <CookieManager 
-          settings={{
-            google_tag_manager_enabled: settings.google_tag_manager_enabled,
-            google_tag_manager_id: settings.google_tag_manager_id,
-            enable_vwo: settings.enable_vwo,
-            vwo_id: settings.vwo_id
-          }}
-        />
-      </Suspense>
+    <LocaleProvider defaultLocale={defaultLocale}>
+      <html {...themeProps} lang={defaultLocale} className={fontVariables}>
+        <head>
+          <style dangerouslySetInnerHTML={{ __html: themeFigmaVariables }} />
+        </head>
+        <body>
+          <Suspense>
+            <CookieManager 
+              settings={{
+                google_tag_manager_enabled: settings.google_tag_manager_enabled,
+                google_tag_manager_id: settings.google_tag_manager_id,
+                enable_vwo: settings.enable_vwo,
+                vwo_id: settings.vwo_id
+              }}
+            />
+          </Suspense>
+          {children}
+        </body>
+      </html>
     </LocaleProvider>
   );
 }
@@ -86,12 +84,8 @@ export default function Layout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
-      <body>
-        <SettingsProvider>
-          {children}
-        </SettingsProvider>
-      </body>
-    </ThemeProvider>
+    <SettingsProvider>
+      {children}
+    </SettingsProvider>
   );
 }
