@@ -21,6 +21,8 @@ const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
     id = match ? match[1] : undefined;
   }
 
+  const innerText = innerHTML.replace(/<\/?[^>]+(>|$)/g, "").replace(/\s/g,'');
+
   return (
     <blockquote
       id={id}
@@ -43,7 +45,7 @@ const Quote: React.FC<QuoteProps> = ({ ...block }: Block) => {
           <BlockParser blocks={innerBlocks} />
         </div>
       }
-      {innerHTML &&
+      {innerHTML && innerText &&
         <div className="mt-4 not-italic">{Parser(innerHTML)}</div>
       }
     </blockquote>

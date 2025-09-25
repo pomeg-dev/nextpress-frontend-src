@@ -59,6 +59,7 @@ export function PreviewWrapper({
     const hideOtherElements = () => {
       if (mainRef.current) {
         const bodyChildren = document.body.children;
+        console.log(bodyChildren);
         for (let i = 0; i < bodyChildren.length; i++) {
           const element = bodyChildren[i];
           if (element !== mainRef.current && element.tagName.toLowerCase() !== 'script') {
@@ -75,8 +76,10 @@ export function PreviewWrapper({
     calculateHeight();
     hideOtherElements();
     window.addEventListener('resize', calculateHeight);
+    window.addEventListener('resize', hideOtherElements);
     return () => {
       window.removeEventListener('resize', calculateHeight);
+      window.removeEventListener('resize', hideOtherElements);
     };
   }, [postId, iframeId]);
 

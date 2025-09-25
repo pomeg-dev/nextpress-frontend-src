@@ -162,6 +162,9 @@ export type LinkItemProps = {
   url: string;
   title?: string;
   target?: string;
+  style?: string;
+  size?: string;
+  icon?: ImageProps;
 };
 
 export type ButtonProps = {
