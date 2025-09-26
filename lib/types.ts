@@ -135,6 +135,7 @@ export type WPQuery = {
   tag_name?: string | string[];
   category__in?: number[];
   tag__in?: number[];
+  lang?: string;
   [key: `filter_${string}`]: string | string[] | number | number[];
 };
 

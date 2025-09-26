@@ -59,7 +59,6 @@ export function PreviewWrapper({
     const hideOtherElements = () => {
       if (mainRef.current) {
         const bodyChildren = document.body.children;
-        console.log(bodyChildren);
         for (let i = 0; i < bodyChildren.length; i++) {
           const element = bodyChildren[i];
           if (element !== mainRef.current && element.tagName.toLowerCase() !== 'script') {
