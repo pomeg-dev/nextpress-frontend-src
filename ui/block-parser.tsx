@@ -21,11 +21,11 @@ const directoryCache = new Map<string, boolean>();
 // Theme availability cache - prevents repeated theme checks
 const themeAvailabilityCache = new Map<string, boolean>();
 
-export function BlockParser({ blocks }: { blocks: Block[] }) {
+export function BlockParser({ blocks, language = "en" }: { blocks: Block[], language?: string }) {
   return (
     <>
       {blocks.map((block, index) => (
-        <BlockRenderer key={block.id ?? index} block={block} />
+        <BlockRenderer key={block.id ?? index} block={{...block, language}} />
       ))}
     </>
   );

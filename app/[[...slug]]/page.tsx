@@ -141,7 +141,7 @@ export default async function Post({ params, searchParams }: NextProps) {
           <section className="content-sidebar container">
             <main data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
               {post.content && 
-                <BlockParser blocks={post.content} />
+                <BlockParser blocks={post.content} language={post?.language} />
               }
             </main>
             <aside className="sidebar">
@@ -151,7 +151,7 @@ export default async function Post({ params, searchParams }: NextProps) {
         ) : (
           <main className="no-sidebar" data-cpt={post?.type?.id || "page"} data-pageurl={post?.slug?.slug || "/"} data-postid={post?.id || 0}>
             {post.content && 
-              <BlockParser blocks={post.content} />
+              <BlockParser blocks={post.content} language={post?.language} />
             }
           </main>
         )
