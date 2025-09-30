@@ -56,30 +56,54 @@ export async function POST(request: NextRequest) {
     // add a wait of 5 seconds
     await new Promise(resolve => setTimeout(resolve, 5000));
     
-    // Now check if this contact is a member of the specific list
-    const listMembershipResponse = await fetch(`https://api.hubapi.com/contacts/v1/lists/${listId}/contacts/all`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
-        'Content-Type': 'application/json'
-      }
-    });
+    // Now check if this contact is a member of the specific list using pagination
+    let allContacts: any[] = [];
+    let hasMore = true;
+    let offset = 0;
+    const limit = 100; // HubSpot's max limit per request
+    let maxRequests = 50; // Safety limit to prevent infinite loops
+    let requestCount = 0;
 
-    if (!listMembershipResponse.ok) {
-      console.error('Failed to check list membership:', listMembershipResponse.status, listMembershipResponse.statusText)
-      return NextResponse.json({ error: 'Failed to verify list membership' }, { status: 500 })
+    while (hasMore && requestCount < maxRequests) {
+      const listMembershipResponse = await fetch(`https://api.hubapi.com/contacts/v1/lists/${listId}/contacts/all?count=${limit}&vidOffset=${offset}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!listMembershipResponse.ok) {
+        console.error('Failed to check list membership:', listMembershipResponse.status, listMembershipResponse.statusText)
+        return NextResponse.json({ error: 'Failed to verify list membership' }, { status: 500 })
+      }
+
+      const listMembershipData = await listMembershipResponse.json();
+      console.log(`Fetched ${listMembershipData.contacts?.length || 0} contacts, offset: ${offset}, has-more: ${listMembershipData['has-more']}`)
+      
+      if (listMembershipData.contacts && listMembershipData.contacts.length > 0) {
+        allContacts = allContacts.concat(listMembershipData.contacts);
+        offset += listMembershipData.contacts.length;
+        hasMore = listMembershipData['has-more'] || false;
+      } else {
+        hasMore = false;
+      }
+      
+      requestCount++;
     }
 
-    const listMembershipData = await listMembershipResponse.json();
-    console.log('List membership data:', listMembershipData)
+    if (requestCount >= maxRequests) {
+      console.warn(`Reached maximum request limit (${maxRequests}). There may be more contacts in the list.`);
+    }
+
+    console.log(`Total contacts fetched: ${allContacts.length}`)
 
     // Check if the contact is in the list
-    const isInList = listMembershipData.contacts && 
-      listMembershipData.contacts.some((listContact: any) => {
-        const emailMatch = listContact.email === email;
-        const idMatch = listContact.vid.toString() === contact.id;
-        return emailMatch || idMatch;
-      })
+    const isInList = allContacts.some((listContact: any) => {
+      const emailMatch = listContact.email === email;
+      const idMatch = listContact.vid.toString() === contact.id;
+      return emailMatch || idMatch;
+    })
 
     if (!isInList) {
       return NextResponse.json({ error: 'Contact is not a member of the required list' }, { status: 403 })
