@@ -8,6 +8,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 });
   }
 
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
   try {
     // Validate that the URL is from our WordPress backend
     const videoUrl = new URL(url);
@@ -29,12 +33,14 @@ export async function GET(request: NextRequest) {
       headers['Range'] = range;
     }
 
-    // Fetch the video from WordPress with range support
+    // Fetch the video from WordPress with range support and timeout
     const response = await fetch(url, {
       headers,
-      // Add connection keep-alive for better performance
-      keepalive: true,
+      signal: controller.signal,
+      keepalive: false,
     });
+    
+    clearTimeout(timeoutId);
     
     if (!response.ok) {
       return NextResponse.json({ error: 'Failed to fetch video' }, { status: response.status });
@@ -73,6 +79,13 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Video proxy timeout:', error);
+      return NextResponse.json({ error: 'Request timeout' }, { status: 408 });
+    }
+    
     console.error('Video proxy error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -87,6 +100,10 @@ export async function HEAD(request: NextRequest) {
     return new NextResponse(null, { status: 400 });
   }
 
+  // Create abort controller for timeout
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout for HEAD
+
   try {
     const videoUrl = new URL(url);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
@@ -99,7 +116,13 @@ export async function HEAD(request: NextRequest) {
       return new NextResponse(null, { status: 403 });
     }
 
-    const response = await fetch(url, { method: 'HEAD' });
+    const response = await fetch(url, { 
+      method: 'HEAD',
+      signal: controller.signal,
+      keepalive: false,
+    });
+    
+    clearTimeout(timeoutId);
     
     const headers = new Headers({
       'Content-Type': response.headers.get('content-type') || 'video/mp4',
@@ -114,6 +137,13 @@ export async function HEAD(request: NextRequest) {
     });
 
   } catch (error) {
+    clearTimeout(timeoutId);
+    
+    if (error instanceof Error && error.name === 'AbortError') {
+      console.error('Video HEAD timeout:', error);
+      return new NextResponse(null, { status: 408 });
+    }
+    
     console.error('Video HEAD request error:', error);
     return new NextResponse(null, { status: 500 });
   }
