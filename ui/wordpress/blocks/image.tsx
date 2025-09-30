@@ -29,8 +29,8 @@ const ImageComponent: React.FC<ImageProps> = ({ ...block }: Block) => {
     }
     
     // Default fallback dimensions
-    if (!width) width = 800;
-    if (!height) height = 600;
+    if (!width) width = 50;
+    if (!height) height = 50;
     
     return { width, height };
   };
