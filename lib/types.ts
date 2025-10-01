@@ -8,7 +8,7 @@ export interface CookiePreferences {
 export type Post = {
   acf_data: any;
   breadcrumbs: string;
-  content: string;
+  content: any;
   id: number;
   slug: Slug;
   type: PostType;
