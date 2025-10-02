@@ -69,6 +69,12 @@ export function PreviewWrapper({
         if (loader) {
           (loader as HTMLElement).style.display = "none";
         }
+        
+        // Hide cookie banners in preview
+        const cookieBanners = document.querySelectorAll('[class*="cookie"], [class*="Cookie"], [id*="cookie"], [id*="Cookie"]');
+        cookieBanners.forEach(banner => {
+          (banner as HTMLElement).style.display = "none";
+        });
       }
     };
 
