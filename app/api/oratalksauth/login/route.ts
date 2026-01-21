@@ -51,24 +51,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Contact not found in HubSpot' }, { status: 404 })
     }
     const contact = contactSearchResults.results[0];
-    console.log('Found contact:', contact)
-    
+    // const test = await fetch(`https://api.hubapi.com/crm/v3/lists/${listId}/memberships`, {
+    //   method: 'GET',
+    //   headers: {
+    //     'Authorization': `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
+    //     'Content-Type': 'application/json'
+    //   }
+    // });
+    // const testData = await test.json();
+    // console.log('Test data:', testData)
+    // console.log('Found contact:', contact)
+    // add a wait of 5 seconds
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    // Now check if this contact is a member of the specific list using v3 API pagination
-    let allRecordIds: string[] = [];
+    // Now check if this contact is a member of the specific list using pagination
+    let allContacts: any[] = [];
     let hasMore = true;
-    let afterCursor: string | undefined = undefined;
+    let offset = 0;
+    const limit = 100; // HubSpot's max limit per request
     let maxRequests = 50; // Safety limit to prevent infinite loops
     let requestCount = 0;
 
     while (hasMore && requestCount < maxRequests) {
-      // Build URL with cursor pagination
-      const url: string = afterCursor 
-        ? `https://api.hubapi.com/crm/v3/lists/${listId}/memberships?after=${afterCursor}`
-        : `https://api.hubapi.com/crm/v3/lists/${listId}/memberships`;
-      
-      const listMembershipResponse: Response = await fetch(url, {
+      const listMembershipResponse = await fetch(`https://api.hubapi.com/contacts/v1/lists/${listId}/contacts/all?count=${limit}&vidOffset=${offset}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${HUBSPOT_ACCESS_TOKEN}`,
@@ -81,21 +86,13 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Failed to verify list membership' }, { status: 500 })
       }
 
-      const listMembershipData: any = await listMembershipResponse.json();
-      console.log(`Fetched ${listMembershipData.results?.length || 0} memberships, after: ${afterCursor || 'initial'}, total: ${listMembershipData.total || 'unknown'}`)
+      const listMembershipData = await listMembershipResponse.json();
+      console.log(`Fetched ${listMembershipData.contacts?.length || 0} contacts, offset: ${offset}, has-more: ${listMembershipData['has-more']}`)
       
-      if (listMembershipData.results && listMembershipData.results.length > 0) {
-        // Extract recordIds from results
-        const recordIds = listMembershipData.results.map((result: any) => result.recordId);
-        allRecordIds = allRecordIds.concat(recordIds);
-        
-        // Check for next page
-        if (listMembershipData.paging?.next?.after) {
-          afterCursor = listMembershipData.paging.next.after;
-          hasMore = true;
-        } else {
-          hasMore = false;
-        }
+      if (listMembershipData.contacts && listMembershipData.contacts.length > 0) {
+        allContacts = allContacts.concat(listMembershipData.contacts);
+        offset += listMembershipData.contacts.length;
+        hasMore = listMembershipData['has-more'] || false;
       } else {
         hasMore = false;
       }
@@ -107,10 +104,14 @@ export async function POST(request: NextRequest) {
       console.warn(`Reached maximum request limit (${maxRequests}). There may be more contacts in the list.`);
     }
 
-    console.log(`Total memberships fetched: ${allRecordIds.length}`)
+    console.log(`Total contacts fetched: ${allContacts.length}`)
 
     // Check if the contact is in the list
-    const isInList = allRecordIds.includes(contact.id);
+    const isInList = allContacts.some((listContact: any) => {
+      const emailMatch = listContact.email === email;
+      const idMatch = listContact.vid.toString() === contact.id;
+      return emailMatch || idMatch;
+    })
 
     if (!isInList) {
       return NextResponse.json({ error: 'Contact is not a member of the required list' }, { status: 403 })
