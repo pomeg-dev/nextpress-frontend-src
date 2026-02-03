@@ -3,7 +3,7 @@ import moment from "moment";
 import { getPosts } from "@/lib/wp/posts";
 import { getSettings } from "@/lib/wp/settings";
 
-export const dynamic = "force-static";
+export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const allPosts = await getPosts({ per_page: -1 });
