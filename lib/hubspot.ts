@@ -52,7 +52,36 @@ export async function getEmailSubmissions(
     const json = await response.json();
     return json;
   } catch (error) {
-    console.error("Error fetching GA4 report API:", error);
+    console.error("Error fetching email submissions:", error);
+    return null;
+  }
+}
+
+export async function getFormSubmissions(
+  formId: string,
+) {
+  try {
+    const url =
+      process.env.NEXT_PUBLIC_FRONTEND_URL +
+      "/api/hubspot/forms?" +
+      new URLSearchParams({
+        formId,
+        fetchAllPages: "true"
+    });
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "force-cache",
+      next: { revalidate: 86400, tags: ["hubspot"] },
+    });
+
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.error("Error fetching form submissions:", error);
     return null;
   }
 }
