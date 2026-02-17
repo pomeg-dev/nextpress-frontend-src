@@ -24,7 +24,7 @@ export async function GET(request: NextRequest) {
     }
 
     const response = await fetch(
-      `https://api.hubapi.com/marketing-emails/v1/emails/${emailId}`,
+      `https://api.hubapi.com/marketing/v3/emails/${emailId}`,
       {
         headers: {
           'Authorization': `Bearer ${apiKey}`,

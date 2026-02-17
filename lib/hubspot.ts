@@ -36,7 +36,8 @@ export async function getEmailSubmissions(
       "/api/hubspot/email?" +
       new URLSearchParams({
         campaignId,
-        eventType
+        eventType,
+        fetchAllPages: "true"
     });
 
     const response = await fetch(url, {
