@@ -8,14 +8,14 @@ import { signIn, useSession } from "next-auth/react";
 const isEliteProject = process.env.NEXT_PUBLIC_API_URL?.includes("elite");
 
 export function AuthCheck() {
-  const searchParams = useSearchParams();
-  const { status } = useSession();
-  const router = useRouter();
-
   // If not Elite project, don't run auth logic
   if (!isEliteProject) {
     return null;
   }
+
+  const searchParams = useSearchParams();
+  const { status } = useSession();
+  const router = useRouter();
 
   useEffect(() => {
     const handleAuth = async () => {
