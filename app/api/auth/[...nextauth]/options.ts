@@ -201,7 +201,7 @@ export const options: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && token?.accessToken && token?.provider && token?.jdeAccountId) {
         (session.user as any).accessToken = token.accessToken;
         (session.user as any).provider = token.provider;
         (session.user as any).jdeAccountId = token.jdeAccountId;
