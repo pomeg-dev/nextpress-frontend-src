@@ -37,16 +37,20 @@ export const options: NextAuthOptions = {
           }
 
           // Verify the JWT token
-          const { payload } = await jwtVerify(credentials.token, SECRET_KEY);
+          if (credentials.token && SECRET_KEY) {
+            const { payload } = await jwtVerify(credentials.token, SECRET_KEY);
 
-          return {
-            id: payload.sub as string,
-            name: (payload.firstName as string) || (payload.lastName as string),
-            email: payload.email as string,
-            jdeAccountId: payload.JDE_Account_ID__c as string,
-            accessToken: credentials.token,
-            profile: payload,
-          };
+            return {
+              id: payload.sub as string,
+              name: (payload.firstName as string) || (payload.lastName as string),
+              email: payload.email as string,
+              jdeAccountId: payload.JDE_Account_ID__c as string,
+              accessToken: credentials.token,
+              profile: payload,
+            };
+          } else {
+            return null;
+          }
         } catch (error) {
           console.error("Token verification error:", error);
           return null;
