@@ -4,10 +4,18 @@ import { useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
 
+// Check if this is the Elite project
+const isEliteProject = process.env.NEXT_PUBLIC_API_URL?.includes("elite");
+
 export function AuthCheck() {
   const searchParams = useSearchParams();
   const { status } = useSession();
   const router = useRouter();
+
+  // If not Elite project, don't run auth logic
+  if (!isEliteProject) {
+    return null;
+  }
 
   useEffect(() => {
     const handleAuth = async () => {

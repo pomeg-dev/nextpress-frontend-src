@@ -7,7 +7,11 @@ const SECRET_KEY = new TextEncoder().encode(
     "your-very-secure-and-randomly-generated-secret-key"
 );
 
+// Check if this is the Elite project
+const isEliteProject = process.env.NEXT_PUBLIC_API_URL?.includes("elite");
+
 export const options: NextAuthOptions = {
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-key-change-in-production",
   providers: [
     CredentialsProvider({
       id: "token-login",
