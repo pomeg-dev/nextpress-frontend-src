@@ -7,12 +7,7 @@ import { signIn, useSession } from "next-auth/react";
 // Check if this is the Elite project
 const isEliteProject = process.env.NEXT_PUBLIC_API_URL?.includes("elite");
 
-export function AuthCheck() {
-  // If not Elite project, don't run auth logic
-  if (!isEliteProject) {
-    return null;
-  }
-
+function AuthCheckInner() {
   const searchParams = useSearchParams();
   const { status } = useSession();
   const router = useRouter();
@@ -76,4 +71,13 @@ export function AuthCheck() {
   }, [searchParams, status, router]);
 
   return null;
+}
+
+export function AuthCheck() {
+  // If not Elite project, don't render the auth component at all
+  if (!isEliteProject) {
+    return null;
+  }
+
+  return <AuthCheckInner />;
 }
