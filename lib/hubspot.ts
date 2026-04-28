@@ -85,3 +85,35 @@ export async function getFormSubmissions(
     return null;
   }
 }
+
+export async function getEvents(
+  event_name: string,
+  from?: string,
+  to?: string,
+) {
+  try {
+    const params: Record<string, string> = { eventType: event_name };
+    if (from) params.occurredAfter = new Date(from).toISOString();
+    if (to) params.occurredBefore = new Date(`${to}T23:59:59`).toISOString();
+
+    const url =
+      process.env.NEXT_PUBLIC_FRONTEND_URL +
+      "/api/hubspot/events?" +
+      new URLSearchParams(params);
+
+    const response = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "force-cache",
+      next: { revalidate: 86400, tags: ["hubspot"] },
+    });
+
+    const json = await response.json();
+    return json;
+  } catch (error) {
+    console.error("Error fetching form submissions:", error);
+    return null;
+  }
+}
