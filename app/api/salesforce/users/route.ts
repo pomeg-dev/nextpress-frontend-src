@@ -16,7 +16,8 @@ export async function GET() {
       return {
         success: true,
         users,
-        totalSize: users.length,
+        totalHubUsers: users.length,
+        totalUsers: records.length,
       };
     });
 
