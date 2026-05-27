@@ -15,19 +15,18 @@ export async function GET(request: NextRequest) {
 
     // Get contact by email
     const contactResponse = await fetch(
-      `https://api.hubapi.com/crm/v3/objects/contacts/${email}?idProperty=email`,
+      `https://api.hubapi.com/crm/v3/objects/contacts/${encodeURIComponent(email)}?idProperty=email`,
       {
         headers: { Authorization: `Bearer ${hubspotToken}` }
       }
     );
-
+    
     if (!contactResponse.ok) {
       return NextResponse.json({ runHistory: [] });
     }
-
-    const contact = await contactResponse.json();
-
+    
     // Get custom events for this contact
+    const contact = await contactResponse.json();
     const eventsResponse = await fetch(
       `https://api.hubapi.com/events/v3/events?objectType=contact&objectId=${contact.id}&eventType=pe46500455_benchmarking_calculator_ran&limit=200`,
       {
@@ -55,7 +54,6 @@ export async function GET(request: NextRequest) {
     }));
 
     return NextResponse.json({ runHistory });
-
   } catch (error) {
     console.error("Benchmarking history error:", error);
     return NextResponse.json({ runHistory: [] });
