@@ -8,8 +8,7 @@ export async function getBlockTheme() {
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["block_theme"] },
-    cache: "no-cache",
+    next: { tags: ["block_theme"], revalidate: 3600 },
   });
 
   if (!response.ok) {

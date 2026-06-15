@@ -20,8 +20,7 @@ export async function getAllMenus() {
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["menus"] },
-    cache: "no-cache",
+    next: { tags: ["menus"], revalidate: 3600 },
   });
 
   if (!response.ok) {
@@ -40,8 +39,7 @@ export async function getMenuByLocation(location: string) {
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["menu"] },
-    cache: "no-cache",
+    next: { tags: ["menu"], revalidate: 3600 },
   });
 
   if (!response.ok) {

@@ -1,3 +1,7 @@
+// Render at request time so the build doesn't prerender this page and
+// hit the WP backend (root layout fetches block_theme/settings) at build time.
+export const dynamic = "force-dynamic";
+
 type PageProps = {
   params: {
     slug: string;

@@ -38,8 +38,7 @@ export async function getPosts(params: GetPostsParams = {}) {
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["posts"] },
-    cache: "no-cache",
+    next: { tags: ["posts"], revalidate: 3600 },
   });
 
   if (!response.ok) {
@@ -63,11 +62,14 @@ export async function getPostByPath(
     ...(isDraft && { p: path })
   });
   const url = `${baseUrl}${fullPath}?${queryParams.toString()}`;
-  
+
+  // Drafts/previews must always be fresh; published content is served from
+  // the Data Cache and invalidated by the "post"/"posts" tags WP pings on save.
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["post"] },
-    cache: "no-cache",
+    ...(isDraft
+      ? { cache: "no-store" as const }
+      : { next: { tags: ["post"], revalidate: 3600 } }),
   });
   
   if (!response.ok) {
@@ -88,8 +90,10 @@ export async function getDefaultTemplate(): Promise<DefaultTemplateContent> {
 
   const response = await fetch(url, {
     method: "GET",
-    next: { tags: ["template"] },
-    cache: "no-cache",
+    // Cache via the Next Data Cache instead of hitting WP on every dynamic
+    // render. Invalidated on-demand by the "template" tag, with an hourly
+    // safety-net revalidate. This is a global option that changes rarely.
+    next: { tags: ["template"], revalidate: 3600 },
   });
 
   if (!response.ok) {
