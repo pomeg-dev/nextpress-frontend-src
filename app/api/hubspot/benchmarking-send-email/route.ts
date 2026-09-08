@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
     const emailData = {
       emailId: 217512746936,
       message: {
-        to: "akissin@orapharma.com", // akissin@orapharma.com
+        to: email,
       },
       customProperties: {
         // html_content: htmlContent,
@@ -67,6 +67,7 @@ export async function POST(request: NextRequest) {
         infected_sites: metrics[2],
         app_sites: metrics[3],
         sub_date: submissionDate,
+        aban8: aban8
       },
     };
 
@@ -95,8 +96,8 @@ export async function POST(request: NextRequest) {
     const alertContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #eaf0f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-          <h2>A submission has been made on Arestin Benchmarking Calculator</h2>
-          <p>The user ${email} has submitted the following data:</p>
+          <h2>A submission has been made on ARESTIN Benchmarking Calculator</h2>
+          <p>The user ${email} has submitted the following data on ${submissionDate}:</p>
           <ul>
             <li><strong>JDE Number:</strong> ${aban8}</li>
             <li><strong>Periodontitis Procedures:</strong> ${metrics[0]}</li>
@@ -111,22 +112,22 @@ export async function POST(request: NextRequest) {
     const alertEmailData = {
       emailId: 219447778077,
       message: {
-        to: "akissin@orapharma.com", // marketing@orapharma.com
+        to: "marketing@orapharma.com",
       },
       customProperties: {
         sub_details: alertContent,
       },
     };
 
-    const alertEmailResponse = await fetch(emailEndpoint, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}`,
-      },
-      body: JSON.stringify(alertEmailData),
-    });
-    const alertResult = await alertEmailResponse.json();
+    // const alertEmailResponse = await fetch(emailEndpoint, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}`,
+    //   },
+    //   body: JSON.stringify(alertEmailData),
+    // });
+    // const alertResult = await alertEmailResponse.json();
 
     return NextResponse.json({
       message: "Email accepted by HubSpot",
