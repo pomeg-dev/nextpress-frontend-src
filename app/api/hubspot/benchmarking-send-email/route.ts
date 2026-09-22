@@ -1,6 +1,37 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const API_URL = process.env.NEXT_PUBLIC_FRONTEND_URL;
+
+async function getPracticeName(aban8: number) {
+  const sql = `
+    SELECT acct_name, cust_name FROM customers WHERE aban8 = ${aban8};
+  `;
+
+  try {
+    const url =
+      API_URL +
+      "/sql?" +
+      new URLSearchParams({
+        sql: sql,
+      });
+
+    const data = await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      cache: "force-cache",
+      next: { tags: ["sql"] },
+    });
+
+    const json = await data.json();
+    return json;
+  } catch (error) {
+    console.log("error:", error);
+  }
+}
+
 export async function POST(request: NextRequest) {
   const { email, aban8, metrics } = await request.json();
 
@@ -19,30 +50,14 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Get practice name from JDE.
+  const practiceNameResponse = await getPracticeName(aban8);
+  let practiceName = practiceNameResponse?.[0]?.acct_name && practiceNameResponse?.[0]?.acct_name !== '' 
+    ? practiceNameResponse?.[0]?.acct_name
+    : practiceNameResponse?.[0]?.cust_name;
+  practiceName = !practiceName || practiceName === '' ? 'Unknown' : practiceName;
+
   try {
-    // Generate HTML content
-    // const htmlContent = `
-    //   <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-    //     <div style="background-color: #eaf0f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
-    //       <h3>In the past month you completed...</h3>
-    //       <ul>
-    //         <li><strong>${metrics[0] || 'N/A'}</strong> Periodontitis Procedures</li>
-    //         <li><strong>${metrics[1] || 'N/A'}</strong> Sites of ARESTIN®</li>
-    //       </ul>
-
-    //       <h3>But there may have been approximately...</h3>
-    //       <ul>
-    //         <li><strong>${metrics[2] || 'N/A'}</strong> Infected sites appropriate for SRP + ARESTIN</li>
-    //       </ul>
-
-    //       <h3>Which means...</h3>
-    //       <ul>
-    //         <li><strong>${metrics[3] || 'N/A'}%</strong> Of appropriate sites were treated comprehensively with SRP + ARESTIN</li>
-    //       </ul>
-    //     </div>
-    //   </div>
-    // `;
-
     // Format today's date as e.g. "Wed July 17"
     const submissionDate = new Date()
       .toLocaleDateString("en-US", {
@@ -61,13 +76,13 @@ export async function POST(request: NextRequest) {
         to: email,
       },
       customProperties: {
-        // html_content: htmlContent,
         perio_procedures: metrics[0],
         arestin_sites: metrics[1],
         infected_sites: metrics[2],
         app_sites: metrics[3],
         sub_date: submissionDate,
-        aban8: aban8
+        aban8: aban8,
+        practice_name: practiceName
       },
     };
 
@@ -95,29 +110,30 @@ export async function POST(request: NextRequest) {
     // Marketing alert email
     const alertContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background-color: #eaf0f6; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <div style="background-color: #eaf0f6; padding: 40px 30px; border-radius: 8px; margin: 20px 0; line-height: 1.4;">
           <h2>A submission has been made on ARESTIN Benchmarking Calculator</h2>
-          <p>The user ${email} has submitted the following data on ${submissionDate}:</p>
-          <ul>
-            <li><strong>JDE Number:</strong> ${aban8}</li>
-            <li><strong>Periodontitis Procedures:</strong> ${metrics[0]}</li>
-            <li><strong>Sites of ARESTIN®:</strong> ${metrics[1]}</li>
-            <li><strong>Infected sites appropriate for SRP + ARESTIN:</strong> ${metrics[2]}</li>
-            <li><strong>% of appropriate sites treated with SRP + ARESTIN®:</strong> ${metrics[3]}</li>
+          <p style="color:#23496d; font-weight:bold; margin:0 0 16px;">The user ${email} has submitted the following data on ${submissionDate}:</p>
+          <ul style="color:#23496d; font-weight:bold; padding-left:20px; margin:0;">
+            <li>${practiceName}: Practice name</li>
+            <li>${aban8}: Account Number (JDE)</li>
+            <li>${metrics[0]}: Periodontal procedures</li>
+            <li>${metrics[1]}: Sites of ARESTIN placed</li>
+            <li>${metrics[2]}: infected sites appropriate for SRP + ARESTIN</li>
+            <li>${metrics[3]}% of appropriate sites were treated comprehensively with SRP + ARESTIN</li>
           </ul>
         </div>
       </div>
     `;
 
-    const alertEmailData = {
-      emailId: 219447778077,
-      message: {
-        to: "marketing@orapharma.com",
-      },
-      customProperties: {
-        sub_details: alertContent,
-      },
-    };
+    // const alertEmailData = {
+    //   emailId: 219447778077,
+    //   message: {
+    //     to: "vic.l@pomegranate.co.uk" //"marketing@orapharma.com",
+    //   },
+    //   customProperties: {
+    //     sub_details: alertContent,
+    //   },
+    // };
 
     // const alertEmailResponse = await fetch(emailEndpoint, {
     //   method: "POST",
@@ -128,6 +144,7 @@ export async function POST(request: NextRequest) {
     //   body: JSON.stringify(alertEmailData),
     // });
     // const alertResult = await alertEmailResponse.json();
+    // console.log(alertResult);
 
     return NextResponse.json({
       message: "Email accepted by HubSpot",
