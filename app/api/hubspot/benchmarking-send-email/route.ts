@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
     const alertContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <div style="background-color: #eaf0f6; padding: 40px 30px; border-radius: 8px; margin: 20px 0; line-height: 1.4;">
-          <h2>A submission has been made on ARESTIN Benchmarking Calculator</h2>
+          <h2 style="margin-top: 0;">A submission has been made on ARESTIN Benchmarking Calculator</h2>
           <p style="color:#23496d; font-weight:bold; margin:0 0 16px;">The user ${email} has submitted the following data on ${submissionDate}:</p>
           <ul style="color:#23496d; font-weight:bold; padding-left:20px; margin:0;">
             <li>${practiceName}: Practice name</li>
@@ -125,26 +125,26 @@ export async function POST(request: NextRequest) {
       </div>
     `;
 
-    // const alertEmailData = {
-    //   emailId: 219447778077,
-    //   message: {
-    //     to: "vic.l@pomegranate.co.uk" //"marketing@orapharma.com",
-    //   },
-    //   customProperties: {
-    //     sub_details: alertContent,
-    //   },
-    // };
+    const alertEmailData = {
+      emailId: 219447778077,
+      message: {
+        to: "marketing@orapharma.com",
+      },
+      customProperties: {
+        sub_details: alertContent,
+      },
+    };
 
-    // const alertEmailResponse = await fetch(emailEndpoint, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}`,
-    //   },
-    //   body: JSON.stringify(alertEmailData),
-    // });
-    // const alertResult = await alertEmailResponse.json();
-    // console.log(alertResult);
+    const alertEmailResponse = await fetch(emailEndpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.HUBSPOT_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify(alertEmailData),
+    });
+    const alertResult = await alertEmailResponse.json();
+    console.log(alertResult);
 
     return NextResponse.json({
       message: "Email accepted by HubSpot",
